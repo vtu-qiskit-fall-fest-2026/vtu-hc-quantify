@@ -6,7 +6,7 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 ### A: Classical + backend
 - [x] A0 schemas + fixtures (H0-2)
 - [x] A5a API mock mode (H2-3)  -> HO-01
-- [ ] A1 synthetic data generator
+- [x] A1 synthetic data generator
 - [ ] A2 CP-SAT baseline + independent scorer
 - [ ] A3 bottleneck extractor  -> HO-02
 - [ ] A4 repair + fallback

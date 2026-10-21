@@ -1,0 +1,13 @@
+course_id,name,dept,duration_min
+CRS001,CS Core 1,CS,180
+CRS002,ECE Core 1,ECE,120
+CRS003,ME Core 1,ME,120
+CRS004,EE Core 1,EE,120
+CRS005,CV Core 1,CV,180
+CRS006,MATH Core 1,MATH,120
+CRS007,PHY Core 1,PHY,120
+CRS008,HUM Core 1,HUM,120
+CRS009,Intro to Artificial Intelligence,CS,180
+CRS010,Financial Mathematics & Modeling,ECE,120
+CRS011,Bio-ethics & Technology,ME,120
+CRS012,Quantum Information & Computing,EE,120
