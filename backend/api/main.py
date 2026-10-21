@@ -90,6 +90,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def add_process_time_and_log(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = f"{process_time:.4f}s"
+    return response
+
 def is_mock() -> bool:
     """Returns True if mock mode is active (default 1 unless set to 0)."""
     return os.getenv("QUANTA_MOCK", "1") == "1"
@@ -369,6 +378,54 @@ def get_run_details(run_id: str):
     for dec_file in run_dir.glob("cluster_*_decision.json"):
         with open(dec_file, "r", encoding="utf-8") as f:
             decisions.append(FinalDecision.model_validate_json(f.read()))
+
+    return {
+        "run": meta,
+        "timetable": tt,
+        "clusters": clusters,
+        "decisions": decisions,
+    }
+
+
+@app.post("/api/runs/{run_id}/cache-load")
+def load_cached_run(run_id: str):
+    """Restores a pre-computed demo run for instant presentations."""
+    run_dir = RUNS_DIR / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Dataset
+    mini_dir = FIXTURES_DIR / "mini"
+    if mini_dir.exists():
+        ds = load_dataset_from_dir(mini_dir)
+        (run_dir / "dataset.json").write_text(ds.model_dump_json(indent=2), encoding="utf-8")
+
+    # 2. Timetable baseline
+    tt_data = load_fixture("timetable.json")
+    (run_dir / "baseline.json").write_text(json.dumps(tt_data, indent=2), encoding="utf-8")
+    tt = Timetable.model_validate(tt_data)
+
+    # 3. Clusters
+    sp6_data = load_fixture("subproblem_6.json")
+    sp12_data = load_fixture("subproblem_12.json") if (FIXTURES_DIR / "subproblem_12.json").exists() else sp6_data
+    clusters_data = [sp6_data, sp12_data]
+    (run_dir / "clusters.json").write_text(json.dumps(clusters_data, indent=2), encoding="utf-8")
+    clusters = [SubProblem.model_validate(c) for c in clusters_data]
+
+    # 4. Quantum result & Decision
+    qr_data = load_fixture("quantum_result.json")
+    dec_data = load_fixture("decision_accepted.json")
+    (run_dir / "cluster_cluster_01_quantum.json").write_text(json.dumps(qr_data, indent=2), encoding="utf-8")
+    (run_dir / "cluster_cluster_01_decision.json").write_text(json.dumps(dec_data, indent=2), encoding="utf-8")
+    decisions = [FinalDecision.model_validate(dec_data)]
+
+    meta = {
+        "run_id": run_id,
+        "dataset_id": "demo",
+        "seed": 42,
+        "created_at": time.time(),
+        "cached": True,
+    }
+    (run_dir / "meta.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
     return {
         "run": meta,
