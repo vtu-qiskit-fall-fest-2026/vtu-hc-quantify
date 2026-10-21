@@ -1,6 +1,6 @@
 <div align="center">
 
-# Quantify
+# QUANTA — Quantum-Assisted Timetabling & Allocation
 
 **VTU-QFF-HC-0076** &nbsp;|&nbsp; Tier: **Both**
 
@@ -46,68 +46,47 @@
 
 | # | Name | GitHub Username | Role |
 | :-- | :--- | :--- | :--- |
-| 1 | _Add your name_ | _your-github-username_ | _Team Lead_ |
-| 2 | _Add your name_ | _your-github-username_ | _Developer_ |
-| 3 | _Add your name_ | _your-github-username_ | _Developer_ |
-
-<!--
-Optional: add a plain list instead of the table above.
-- @username1
-- @username2
--->
+| 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) | Team Lead |
+| 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) | Developer |
+| 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) | Developer |
 
 ---
 
 ## ❓ Problem Statement
 
-<!--
-State the problem you are solving. Be specific: what is broken or missing,
-who experiences it, and why does it matter. Link to the official problem
-statement from the brief if one applies.
--->
+**Problem:** University examination timetabling is an NP-hard combinatorial optimization problem requiring the assignment of hundreds of course exams across limited time slots and examination halls. Schedules must satisfy strict hard constraints (preventing overlapping student exams and exceeding room capacities) while optimizing soft constraints (maximizing exam spacing and minimizing back-to-back student testing fatigue).
 
-**Problem:** _Describe the problem in 2–3 sentences._
+**Why it matters:** Manual scheduling and standalone heuristics struggle with densely coupled interdisciplinary course electives, leaving administrators in weeks of manual conflict resolution and forcing students into exhausting back-to-back exams. Conversely, pure quantum optimization approaches fail at university scale due to NISQ-era qubit limits, transpilation depth, and hardware noise.
 
-**Why it matters:** _Explain the impact or opportunity._
-
-**Track / Category:** _Online / Offline · Track 1 / Track 2 · <domain>_
+**Track / Category:** Online / Offline · Quantum Cloud-Based Applications (Hybrid Combinatorial Optimization)
 
 ---
 
 ## 💡 Proposed Solution
 
-<!--
-Describe your solution. Keep it concrete: the core idea, the user flow, and
-the quantum/ML technique you are applying.
--->
+**Solution:** **QUANTA** is an IBM Quantum-powered hybrid examination scheduling platform that integrates industrial classical constraint programming (**Google OR-Tools CP-SAT**) with parameterized quantum optimization (**Qiskit QAOA**). Rather than forcing an entire campus schedule onto a quantum processor, QUANTA computes a guaranteed feasible global baseline classically, isolates dense conflict-heavy course bottlenecks into compact subproblems, and optimizes them across local Qiskit simulators and IBM Quantum Processing Units (QPUs).
 
-**Solution:** _In 2–3 sentences, describe what you built._
+**Key idea:** Graph-decomposed hybrid optimization combining Google OR-Tools CP-SAT global constraint solving with QUBO-to-Ising QAOA refinement and an automated classical repair/fallback safety gate.
 
-**Key idea:** _The one-line technical summary of your approach._
-
-**Why this works:** _How your approach addresses the problem statement._
+**Why this works:** By bounding the quantum search to extracted conflict subgraphs ($8\text{–}12$ binary variables), circuits stay shallow enough to execute on current NISQ hardware, while a deterministic classical post-processing gate guarantees 100% hard-constraint compliance even when quantum hardware measurements are noisy.
 
 ---
 
 ## 🧩 Approach & Architecture
 
-<!--
-Walk through how it works. A simple pipeline diagram in text or Mermaid is ideal.
--->
-
 ```mermaid
 flowchart LR
-    A[Input Data] --> B[Preprocessing]
-    B --> C[Quantum Circuit / Model]
-    C --> D[Post-processing]
-    D --> E[Output]
+    A["Input Data (JSON/CSV)"] --> B["CP-SAT Baseline & Conflict Subgraph"]
+    B --> C["QAOA Quantum Core (Qiskit V2)"]
+    C --> D["Classical Repair & Safety Gate"]
+    D --> E["Master Timetable & Telemetry"]
 ```
 
-1. **Input** — _what data goes in and in what format_
-2. **Preprocessing** — _cleaning, feature extraction, encoding_
-3. **Quantum core** — _the circuit, ansatz, or algorithm used_
-4. **Post-processing** — _decoding, measurement, scoring_
-5. **Output** — _what the user finally gets_
+1. **Input** — Structured JSON/CSV datasets containing university courses, student enrollment mappings, physical examination rooms with seating capacities, available time slots, and configurable soft-constraint penalty multipliers ($\lambda_{\text{assign}}, \lambda_{\text{conflict}}, \lambda_{\text{spacing}}$).
+2. **Preprocessing** — Google OR-Tools CP-SAT generates a verified global baseline schedule to act as a deterministic fallback. A `NetworkX` graph analyzer builds the student co-enrollment conflict matrix, identifies high-friction soft-constraint clusters, and carves out the densest bottleneck subgraph into an unconstrained binary quadratic (QUBO) model mapped to a Pauli-$Z$ Ising Hamiltonian (`SparsePauliOp`) via $x_k \mapsto \frac{I - Z_k}{2}$.
+3. **Quantum Core** — A $p$-layer parameterized **Quantum Approximate Optimization Algorithm (QAOA)** ansatz (`QAOAAnsatz`) alternating the diagonal cost Hamiltonian $U(H_C, \gamma)$ and transverse-field mixer $U(H_M, \beta)$. Circuits are transpiled to target hardware topology and optimized in a hybrid variational loop (COBYLA/SPSA) using Qiskit V2 primitives (`EstimatorV2` and `SamplerV2`) on `qiskit-aer` (ideal and noisy models) and physical IBM Quantum QPUs.
+4. **Post-processing** — Sampled bitstrings (`2,048` shots) are decoded back into discrete `(Course, Slot, Room)` assignments. A deterministic classical repair heuristic resolves minor one-hot assignment collisions, and an acceptance gate compares the hybrid candidate's global soft-penalty score against the OR-Tools baseline—deploying the quantum-refined schedule only if it maintains zero hard violations and strictly improves schedule quality.
+5. **Output** — An interactive dark-mode engineering console displaying the conflict-free Master Timetable Grid, resolved student clash diffs, QAOA variational energy convergence plots, transpiled circuit telemetry (qubit count, depth, 2Q ECR/CX gates), and a reproducible 3-Way Empirical Benchmark report (**OR-Tools vs. Qiskit Simulator vs. IBM QPU**).
 
 ---
 
@@ -270,8 +249,8 @@ git pull --rebase       # update your branch on top of main
 
 - [ ] Repository created and **public**
 - [ ] All team members added as **collaborators** and invitations accepted
-- [ ] `README.md` updated with project details, problem statement and solution
-- [ ] Team members listed under [Team Members](#-team-members-github-ids)
+- [x] `README.md` updated with project details, problem statement and solution
+- [x] Team members listed under [Team Members](#-team-members-github-ids)
 - [ ] `requirements.txt` committed and project runs from a clean clone
 - [ ] Code pushed to `main` and the latest `main` builds successfully
 - [ ] Notebooks committed with **cleared outputs** (or use `nbstrip`)
@@ -307,6 +286,6 @@ Released under the [MIT License](LICENSE). See `LICENSE` for details.
 **Quantify** · Team ID `VTU-QFF-HC-0076` · Tier `Both`
 · Built with ⚛️ Qiskit for the VTU-QFF Hackathon
 
-[⬆ Back to Top](#quantify)
+[⬆ Back to Top](#quanta--quantum-assisted-timetabling--allocation)
 
 </div>
