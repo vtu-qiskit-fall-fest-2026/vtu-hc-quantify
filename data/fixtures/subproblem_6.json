@@ -1,0 +1,71 @@
+{
+  "cluster_id": "cluster_01",
+  "courses": ["CRS001", "CRS002", "CRS003", "CRS004", "CRS005", "CRS006"],
+  "candidates": {
+    "CRS001": ["D1S1", "D2S1"],
+    "CRS002": ["D1S2", "D2S2"],
+    "CRS003": ["D1S3", "D2S3"],
+    "CRS004": ["D1S4", "D2S4"],
+    "CRS005": ["D1S2", "D2S1"],
+    "CRS006": ["D1S3", "D2S4"]
+  },
+  "sizes": {
+    "CRS001": 15,
+    "CRS002": 14,
+    "CRS003": 15,
+    "CRS004": 14,
+    "CRS005": 16,
+    "CRS006": 16
+  },
+  "pair_weights": [
+    {"a": "CRS001", "b": "CRS002", "shared_students": 6},
+    {"a": "CRS001", "b": "CRS003", "shared_students": 5},
+    {"a": "CRS001", "b": "CRS004", "shared_students": 4},
+    {"a": "CRS001", "b": "CRS005", "shared_students": 5},
+    {"a": "CRS001", "b": "CRS006", "shared_students": 6},
+    {"a": "CRS002", "b": "CRS003", "shared_students": 5},
+    {"a": "CRS002", "b": "CRS004", "shared_students": 4},
+    {"a": "CRS002", "b": "CRS005", "shared_students": 5},
+    {"a": "CRS002", "b": "CRS006", "shared_students": 6},
+    {"a": "CRS003", "b": "CRS004", "shared_students": 4},
+    {"a": "CRS003", "b": "CRS005", "shared_students": 6},
+    {"a": "CRS003", "b": "CRS006", "shared_students": 5},
+    {"a": "CRS004", "b": "CRS005", "shared_students": 5},
+    {"a": "CRS004", "b": "CRS006", "shared_students": 4},
+    {"a": "CRS005", "b": "CRS006", "shared_students": 5}
+  ],
+  "fixed_neighbors": [
+    {"course_id": "CRS007", "slot_id": "D2S1", "shared_students": 3},
+    {"course_id": "CRS008", "slot_id": "D2S2", "shared_students": 4},
+    {"course_id": "CRS009", "slot_id": "D2S3", "shared_students": 3},
+    {"course_id": "CRS010", "slot_id": "D2S4", "shared_students": 2}
+  ],
+  "spare_capacity": {
+    "D1S1": 85,
+    "D1S2": 70,
+    "D1S3": 69,
+    "D1S4": 86,
+    "D2S1": 72,
+    "D2S2": 66,
+    "D2S3": 67,
+    "D2S4": 82
+  },
+  "slot_meta": {
+    "D1S1": [0, 0],
+    "D1S2": [0, 1],
+    "D1S3": [0, 2],
+    "D1S4": [0, 3],
+    "D2S1": [1, 4],
+    "D2S2": [1, 5],
+    "D2S3": [1, 6],
+    "D2S4": [1, 7]
+  },
+  "penalty_table": {
+    "same_slot": 1000.0,
+    "adjacent_same_day": 10.0,
+    "same_day": 1.0,
+    "none": 0.0
+  },
+  "affected_students": 45,
+  "baseline_cluster_cost": 182.0
+}

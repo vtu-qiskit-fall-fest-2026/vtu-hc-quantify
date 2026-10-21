@@ -1,0 +1,86 @@
+[
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "brute_force",
+    "objective": 118.0,
+    "approx_ratio": 1.0,
+    "feasible_pct": 1.0,
+    "runtime_s": 0.002,
+    "depth": null,
+    "two_qubit_gates": null,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "cpsat",
+    "objective": 118.0,
+    "approx_ratio": 1.0,
+    "feasible_pct": 1.0,
+    "runtime_s": 0.045,
+    "depth": null,
+    "two_qubit_gates": null,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "sim_anneal",
+    "objective": 118.0,
+    "approx_ratio": 1.0,
+    "feasible_pct": 0.95,
+    "runtime_s": 0.022,
+    "depth": null,
+    "two_qubit_gates": null,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "qaoa_ideal_p1",
+    "objective": 118.0,
+    "approx_ratio": 1.0,
+    "feasible_pct": 0.88,
+    "runtime_s": 0.85,
+    "depth": 14,
+    "two_qubit_gates": 14,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "qaoa_ideal_p2",
+    "objective": 118.0,
+    "approx_ratio": 1.0,
+    "feasible_pct": 0.92,
+    "runtime_s": 1.62,
+    "depth": 26,
+    "two_qubit_gates": 28,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "qaoa_noisy_p1",
+    "objective": 128.0,
+    "approx_ratio": 0.84,
+    "feasible_pct": 0.65,
+    "runtime_s": 2.15,
+    "depth": 14,
+    "two_qubit_gates": 14,
+    "failed": false
+  },
+  {
+    "cluster_size": 6,
+    "seed": 42,
+    "method": "qaoa_ibm",
+    "objective": 124.0,
+    "approx_ratio": 0.91,
+    "feasible_pct": 0.72,
+    "runtime_s": 8.4,
+    "depth": 18,
+    "two_qubit_gates": 14,
+    "failed": false
+  }
+]

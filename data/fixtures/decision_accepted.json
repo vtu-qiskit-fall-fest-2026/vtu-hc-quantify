@@ -1,0 +1,15 @@
+{
+  "cluster_id": "cluster_01",
+  "source": "quantum_repaired",
+  "before_score": 182.0,
+  "after_score": 118.0,
+  "resolved_students": 64,
+  "hard_violations": 0,
+  "changes": [
+    ["CRS001", "D1S1", "D2S1"],
+    ["CRS004", "D1S4", "D2S4"],
+    ["CRS006", "D1S3", "D2S4"]
+  ],
+  "feasible_fraction": 0.85,
+  "reason": "Quantum QAOA candidate accepted: soft penalty reduced from 182.0 to 118.0 with 0 hard violations."
+}

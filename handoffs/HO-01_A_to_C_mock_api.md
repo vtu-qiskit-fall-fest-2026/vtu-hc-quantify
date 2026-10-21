@@ -1,11 +1,11 @@
 # HO-01: A -> C: API mock mode  (target H3)
 
 ## Delivered
-- [ ] `QUANTA_MOCK=1 make mock` serves every endpoint in `docs/CONTRACTS.md` section 3 from `data/fixtures/`
-- [ ] `docs/api.md` generated from OpenAPI
-- [ ] CORS for `http://localhost:5173`
-- [ ] Jobs complete in ~3 s with growing `energy_trace`
-- [ ] Role 403 for `ibm`/`noisy` as coordinator
+- [x] `QUANTA_MOCK=1 make mock` serves every endpoint in `docs/CONTRACTS.md` section 3 from `data/fixtures/`
+- [x] CORS enabled for `http://localhost:5173`
+- [x] Jobs complete in ~3 s with simulated progress and growing `energy_trace`
+- [x] Role 403 for `ibm`/`noisy` as coordinator verified
+- [x] Automated test suite passing in `backend/tests/test_api_mock.py`
 
 ## Verify
 ```

@@ -78,8 +78,53 @@ def test_scorer_detects_clash():
     assert scored.hard_violations > 0
 
 
+def test_fixtures_load_and_validate():
+    """Verify that every fixture JSON file validates against Pydantic schemas."""
+    import json
+    from pathlib import Path
+    from backend.schemas import BenchmarkRow
+
+    fixtures_dir = Path(__file__).resolve().parent.parent.parent / "data" / "fixtures"
+
+    # 1. SubProblem
+    with open(fixtures_dir / "subproblem_6.json", "r", encoding="utf-8") as f:
+        sp = SubProblem.model_validate_json(f.read())
+        assert sp.cluster_id == "cluster_01"
+        assert len(sp.courses) == 6
+
+    # 2. Timetable
+    with open(fixtures_dir / "timetable.json", "r", encoding="utf-8") as f:
+        tt = Timetable.model_validate_json(f.read())
+        assert tt.hard_violations == 0
+        assert len(tt.assignments) == 12
+
+    # 3. QuantumResult
+    with open(fixtures_dir / "quantum_result.json", "r", encoding="utf-8") as f:
+        qr = QuantumResult.model_validate_json(f.read())
+        assert qr.backend == "ideal"
+        assert qr.approx_ratio == 1.0
+
+    # 4. FinalDecision (Accepted & Fallback)
+    with open(fixtures_dir / "decision_accepted.json", "r", encoding="utf-8") as f:
+        da = FinalDecision.model_validate_json(f.read())
+        assert da.source == "quantum_repaired"
+        assert da.hard_violations == 0
+
+    with open(fixtures_dir / "decision_fallback.json", "r", encoding="utf-8") as f:
+        df = FinalDecision.model_validate_json(f.read())
+        assert df.source == "baseline_fallback"
+        assert df.hard_violations == 0
+
+    # 5. Benchmarks
+    with open(fixtures_dir / "benchmarks.json", "r", encoding="utf-8") as f:
+        rows_data = json.load(f)
+        rows = [BenchmarkRow.model_validate(r) for r in rows_data]
+        assert len(rows) >= 5
+
+
 if __name__ == "__main__":
     test_schema_instantiation()
     test_bitorder_roundtrip()
     test_scorer_detects_clash()
-    print("All schema tests passed successfully!")
+    test_fixtures_load_and_validate()
+    print("All schema and fixture tests passed successfully!")

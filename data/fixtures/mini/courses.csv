@@ -1,0 +1,13 @@
+course_id,name,dept,duration_min
+CRS001,Introduction to Quantum Computing,CS,180
+CRS002,Advanced Algorithms,CS,180
+CRS003,Digital Signal Processing,ECE,120
+CRS004,Linear Algebra & Tensors,MATH,120
+CRS005,Engineering Ethics,HUM,120
+CRS006,Thermodynamics & Heat Transfer,ME,180
+CRS007,Operating Systems,CS,180
+CRS008,Solid State Devices,ECE,120
+CRS009,Numerical Methods,MATH,120
+CRS010,Control Systems,EE,180
+CRS011,Fluid Dynamics,ME,180
+CRS012,Machine Learning Foundations,CS,180

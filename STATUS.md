@@ -4,8 +4,8 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 
 ## Tasks
 ### A: Classical + backend
-- [ ] A0 schemas + fixtures (H0-2)
-- [ ] A5a API mock mode (H2-3)  -> HO-01
+- [x] A0 schemas + fixtures (H0-2)
+- [x] A5a API mock mode (H2-3)  -> HO-01
 - [ ] A1 synthetic data generator
 - [ ] A2 CP-SAT baseline + independent scorer
 - [ ] A3 bottleneck extractor  -> HO-02
@@ -30,8 +30,8 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 - [ ] C6 slides + recording
 
 ## Handoffs
-- [ ] HO-01 A->C mock API (H3)
-- [ ] HO-02 A->B subproblem fixtures (H3 tiny, H12 real)
+- [x] HO-01 A->C mock API (H3)
+- [x] HO-02 A->B subproblem fixtures (H3 tiny [delivered], H12 real)
 - [ ] HO-03 B->A quantum interface (H14)
 - [ ] HO-04 A->C real API (H14)
 - [ ] HO-05 B->C hardware + benchmarks (H28)

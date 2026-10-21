@@ -1,0 +1,26 @@
+{
+  "run_id": "run_fixture_mini",
+  "assignments": [
+    {"course_id": "CRS001", "slot_id": "D1S1", "room_ids": ["R101"]},
+    {"course_id": "CRS002", "slot_id": "D1S2", "room_ids": ["R102"]},
+    {"course_id": "CRS003", "slot_id": "D1S3", "room_ids": ["R201"]},
+    {"course_id": "CRS004", "slot_id": "D1S4", "room_ids": ["R202"]},
+    {"course_id": "CRS005", "slot_id": "D1S2", "room_ids": ["R101"]},
+    {"course_id": "CRS006", "slot_id": "D1S3", "room_ids": ["R102"]},
+    {"course_id": "CRS007", "slot_id": "D2S1", "room_ids": ["R101"]},
+    {"course_id": "CRS008", "slot_id": "D2S2", "room_ids": ["R102"]},
+    {"course_id": "CRS009", "slot_id": "D2S3", "room_ids": ["R201"]},
+    {"course_id": "CRS010", "slot_id": "D2S4", "room_ids": ["R202"]},
+    {"course_id": "CRS011", "slot_id": "D2S1", "room_ids": ["R201"]},
+    {"course_id": "CRS012", "slot_id": "D2S2", "room_ids": ["R202"]}
+  ],
+  "hard_violations": 0,
+  "soft_score": 182.0,
+  "penalty_breakdown": {
+    "back_to_back": 16,
+    "three_in_day": 4,
+    "two_in_day": 10
+  },
+  "solve_seconds": 1.42,
+  "seed": 42
+}
