@@ -92,6 +92,10 @@ def test_fixtures_load_and_validate():
         assert sp.cluster_id == "cluster_01"
         assert len(sp.courses) == 6
 
+    with open(fixtures_dir / "subproblem_12.json", "r", encoding="utf-8") as f:
+        sp12 = SubProblem.model_validate_json(f.read())
+        assert len(sp12.courses) == 12
+
     # 2. Timetable
     with open(fixtures_dir / "timetable.json", "r", encoding="utf-8") as f:
         tt = Timetable.model_validate_json(f.read())

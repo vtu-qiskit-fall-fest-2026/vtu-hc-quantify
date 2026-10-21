@@ -1,9 +1,9 @@
 # HO-02: A -> B: SubProblem fixtures  (tiny at H3, real at H12)
 
 ## Delivered
-- [ ] H3: `data/fixtures/subproblem_6.json`, `subproblem_12.json` (hand-built but consistent), validated against `schemas.py`
-- [ ] H12: real SubProblems from the demo dataset via `extract_clusters` (`runs/<id>/clusters.json`, copy to `data/fixtures/real_cluster_*.json`)
-- [ ] `baseline_cluster_cost` equals the all-zeros energy per `docs/QUBO_SPEC.md`
+- [x] H3: `data/fixtures/subproblem_6.json`, `subproblem_12.json` (hand-built but consistent), validated against `schemas.py`
+- [x] H12: real SubProblems from the demo dataset via `extract_clusters` (`runs/<id>/clusters.json`, copy to `data/fixtures/real_cluster_*.json`)
+- [x] `baseline_cluster_cost` equals the all-zeros energy per `docs/QUBO_SPEC.md`
 
 ## Verify
 ```

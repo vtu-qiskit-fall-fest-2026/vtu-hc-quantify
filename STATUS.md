@@ -8,7 +8,7 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 - [x] A5a API mock mode (H2-3)  -> HO-01
 - [x] A1 synthetic data generator
 - [x] A2 CP-SAT baseline + independent scorer
-- [ ] A3 bottleneck extractor  -> HO-02
+- [x] A3 bottleneck extractor  -> HO-02
 - [ ] A4 repair + fallback
 - [ ] A5b real API wiring  -> HO-04
 - [ ] A6 integration fixes
