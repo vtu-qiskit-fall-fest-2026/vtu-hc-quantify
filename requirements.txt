@@ -1,21 +1,24 @@
-# Core quantum SDK
-qiskit>=1.0,<2.0
-qiskit-ibm-runtime>=0.30
-
-# Local simulator
-qiskit-aer>=0.15
-
-# Optional add-ons -- remove the ones you do not use
-qiskit-algorithms>=0.3
-qiskit-optimization>=0.6
-qiskit-nature>=0.7
-
-# Numerics, data and plotting
-numpy>=1.26
+# Classical Optimization & Graph Analysis
+ortools>=9.8
+networkx>=3.2
 scipy>=1.11
+numpy>=1.26
 pandas>=2.1
 matplotlib>=3.8
-scikit-learn>=1.4
 
-# Testing
+# Quantum SDK & Primitives
+qiskit>=1.0
+qiskit-optimization>=0.6
+qiskit-aer>=0.15
+qiskit-ibm-runtime>=0.30
+
+# Web Backend, API & Data Validation
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+sqlalchemy>=2.0.0
+python-multipart>=0.0.9
+
+# Testing & Linting
 pytest>=8.0
+ruff>=0.3.0

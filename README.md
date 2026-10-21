@@ -107,21 +107,55 @@ flowchart LR
 
 ```text
 vtu-hc-quantify/
-├── README.md              # This file
-├── requirements.txt       # Python dependencies
-├── pyproject.toml         # Project metadata (optional)
-├── .gitignore
-├── notebooks/             # Jupyter notebooks for experiments
-│   └── exploration.ipynb
-├── src/
-│   ├── __init__.py
-│   ├── circuit.py         # Quantum circuit construction
-│   ├── optimizer.py       # Optimization loop
-│   └── main.py            # Entry point
-├── data/                  # Datasets (use Git LFS for large files)
-├── tests/                 # Unit tests
-│   └── test_circuit.py
-└── docs/                  # Notes, diagrams, reports
+├── README.md                          # Master documentation, architecture & quickstart
+├── AGENTS.md                          # Standing rules for AI pair-programming agents
+├── STATUS.md                          # Live task & handoff tracker (A0-A6, B0-B6, C1-C6)
+├── Makefile                           # Unified dev commands (setup, dev, mock, test, bench)
+├── requirements.txt                   # Unpinned Python 3.11+ dependencies
+├── .env.example                       # IBM Quantum token & server configuration
+├── backend/
+│   ├── schemas.py                     # Frozen Pydantic v2 data models (single source of truth)
+│   ├── core/                          # Classical Optimization Engine (Member A)
+│   │   ├── datagen.py                 # Synthetic campus dataset generator (Zipfian electives)
+│   │   ├── baseline.py                # Google OR-Tools CP-SAT global baseline solver
+│   │   ├── scorer.py                  # Pure-Python independent constraint validator
+│   │   ├── extractor.py               # NetworkX conflict matrix & bottleneck cluster extractor
+│   │   └── repair.py                  # Classical repair heuristic & acceptance fallback gate
+│   ├── quantum/                       # Variational Quantum Algorithms (Member B)
+│   │   ├── qubo.py                    # QUBO formulation & Ising Hamiltonian mapping
+│   │   ├── bitorder.py                # Little-endian bitstring normalization helper
+│   │   ├── qaoa.py                    # Parameterized QAOA loop (EstimatorV2, COBYLA/SPSA)
+│   │   ├── noise.py                   # AerSimulator noise models (depolarizing, thermal, readout)
+│   │   ├── ibm.py                     # IBM Quantum QPU execution & FakeBackend offline fallback
+│   │   └── interface.py               # Thread-safe run_quantum() public facade
+│   ├── api/                           # REST API & Worker Lifecycle (Member A)
+│   │   ├── main.py                    # FastAPI application with mock mode & role-based access
+│   │   ├── jobs.py                    # BackgroundTasks worker & SQLite status tracker
+│   │   └── db.py                      # SQLAlchemy 2.0 job database model
+│   └── tests/                         # Pytest test suite (<5s execution time on fixtures)
+│       └── test_schemas.py            # Schema validation and constraint tests
+├── frontend/                          # High-density dark-mode web console (Member C)
+│   ├── package.json                   # React 18, Vite, Tailwind, Recharts, Lucide
+│   ├── src/
+│   │   ├── api.ts                     # Typed API client for FastAPI backend
+│   │   ├── types.ts                   # TypeScript schemas mirrored from Pydantic
+│   │   ├── pages/                     # Dataset, Timetable, Cluster Lab, Benchmarks
+│   │   ├── components/                # D3 conflict graph, Recharts traces, TanStack tables
+│   │   └── theme.css                  # Industrial design tokens (no gradients, 2px borders)
+├── benchmarks/                        # Empirical comparative evaluation engine
+│   ├── run_benchmarks.py              # CP-SAT vs Brute Force vs QAOA (Ideal / Noisy / QPU)
+│   ├── results.csv                    # Raw benchmark data across 10 random seeds
+│   └── figs/                          # Generated plots: approx ratio, depth, noise sweeps
+├── data/                              # Datasets and test fixtures
+│   ├── fixtures/                      # Static fixtures: mini/ dataset, subproblem_6/12 JSONs
+│   └── synthetic/                     # Generated campus benchmarks (4,200 students, 180 courses)
+├── runs/                              # Execution logs, cached runs & hardware telemetry JSONs
+│   └── hardware/                      # Physical IBM QPU raw job counts and metrics
+├── scripts/
+│   └── e2e.py                         # Headless end-to-end pipeline verification script
+├── docs/                              # Engineering contracts, math specs, PRD, and demo guides
+├── tasks/                             # Member-specific task prompts (A_backend, B_quantum, C_frontend)
+└── handoffs/                          # Formal inter-member async handoff protocols (HO-01 to HO-06)
 ```
 
 ---
