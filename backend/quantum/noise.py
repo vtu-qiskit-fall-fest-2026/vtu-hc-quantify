@@ -94,8 +94,8 @@ def run_qaoa_noisy(
     ground_energy = bf["ground_energy"]
     max_energy = bf["max_energy"]
 
-    # Reconstruct ansatz circuit with ideal parameters
-    ansatz = QAOAAnsatz(cost_operator=H, reps=cfg.p).decompose()
+    # Reconstruct ansatz circuit with ideal parameters (2-level decompose)
+    ansatz = QAOAAnsatz(cost_operator=H, reps=cfg.p).decompose().decompose()
     meas_circuit = ansatz.copy()
     meas_circuit.measure_all()
     bound_circuit = meas_circuit.assign_parameters(ideal_result.params)

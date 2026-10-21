@@ -1,0 +1,11 @@
+{
+  "cluster_id": "cluster_01",
+  "source": "baseline_fallback",
+  "before_score": 1413.0,
+  "after_score": 1413.0,
+  "resolved_students": 0,
+  "hard_violations": 0,
+  "changes": [],
+  "feasible_fraction": 0.0,
+  "reason": "Maintained certified baseline: best quantum candidate soft score (1413.0) did not strictly improve upon baseline (1413.0)."
+}

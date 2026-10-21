@@ -1,0 +1,572 @@
+{
+  "cluster_id": "cluster_01",
+  "courses": [
+    "CRS001",
+    "CRS002",
+    "CRS003",
+    "CRS004",
+    "CRS005",
+    "CRS006",
+    "CRS007",
+    "CRS009",
+    "CRS011",
+    "CRS008",
+    "CRS015",
+    "CRS010"
+  ],
+  "candidates": {
+    "CRS001": [
+      "D1S1",
+      "D2S2"
+    ],
+    "CRS002": [
+      "D1S2",
+      "D2S3"
+    ],
+    "CRS003": [
+      "D1S3",
+      "D3S1"
+    ],
+    "CRS004": [
+      "D2S1",
+      "D3S2"
+    ],
+    "CRS005": [
+      "D2S2",
+      "D3S3"
+    ],
+    "CRS006": [
+      "D2S3",
+      "D1S1"
+    ],
+    "CRS007": [
+      "D3S1",
+      "D1S2"
+    ],
+    "CRS009": [
+      "D3S3",
+      "D1S3"
+    ],
+    "CRS011": [
+      "D1S2",
+      "D2S1"
+    ],
+    "CRS008": [
+      "D3S2",
+      "D2S2"
+    ],
+    "CRS015": [
+      "D2S3",
+      "D3S1"
+    ],
+    "CRS010": [
+      "D1S1",
+      "D3S1"
+    ]
+  },
+  "sizes": {
+    "CRS001": 250,
+    "CRS002": 186,
+    "CRS003": 145,
+    "CRS004": 98,
+    "CRS005": 76,
+    "CRS006": 79,
+    "CRS007": 60,
+    "CRS009": 55,
+    "CRS011": 52,
+    "CRS008": 47,
+    "CRS015": 39,
+    "CRS010": 41
+  },
+  "pair_weights": [
+    {
+      "a": "CRS001",
+      "b": "CRS010",
+      "shared_students": 29
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS011",
+      "shared_students": 41
+    },
+    {
+      "a": "CRS010",
+      "b": "CRS011",
+      "shared_students": 6
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS002",
+      "shared_students": 153
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS003",
+      "shared_students": 116
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS006",
+      "shared_students": 61
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS003",
+      "shared_students": 92
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS006",
+      "shared_students": 53
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS006",
+      "shared_students": 37
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS004",
+      "shared_students": 79
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS015",
+      "shared_students": 32
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS006",
+      "shared_students": 27
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS015",
+      "shared_students": 10
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS015",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS011",
+      "shared_students": 27
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS007",
+      "shared_students": 48
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS009",
+      "shared_students": 42
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS007",
+      "shared_students": 22
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS009",
+      "shared_students": 21
+    },
+    {
+      "a": "CRS007",
+      "b": "CRS009",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS008",
+      "shared_students": 40
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS007",
+      "shared_students": 37
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS008",
+      "shared_students": 27
+    },
+    {
+      "a": "CRS007",
+      "b": "CRS008",
+      "shared_students": 8
+    },
+    {
+      "a": "CRS007",
+      "b": "CRS011",
+      "shared_students": 10
+    },
+    {
+      "a": "CRS007",
+      "b": "CRS015",
+      "shared_students": 4
+    },
+    {
+      "a": "CRS011",
+      "b": "CRS015",
+      "shared_students": 7
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS004",
+      "shared_students": 42
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS010",
+      "shared_students": 17
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS007",
+      "shared_students": 18
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS010",
+      "shared_students": 14
+    },
+    {
+      "a": "CRS007",
+      "b": "CRS010",
+      "shared_students": 9
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS004",
+      "shared_students": 61
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS010",
+      "shared_students": 27
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS010",
+      "shared_students": 9
+    },
+    {
+      "a": "CRS001",
+      "b": "CRS005",
+      "shared_students": 70
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS005",
+      "shared_students": 47
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS015",
+      "shared_students": 17
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS015",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS011",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS002",
+      "b": "CRS009",
+      "shared_students": 27
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS005",
+      "shared_students": 31
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS008",
+      "shared_students": 22
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS008",
+      "shared_students": 13
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS015",
+      "shared_students": 14
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS006",
+      "shared_students": 18
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS007",
+      "shared_students": 13
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS007",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS003",
+      "b": "CRS011",
+      "shared_students": 19
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS011",
+      "shared_students": 9
+    },
+    {
+      "a": "CRS009",
+      "b": "CRS010",
+      "shared_students": 8
+    },
+    {
+      "a": "CRS008",
+      "b": "CRS010",
+      "shared_students": 2
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS009",
+      "shared_students": 10
+    },
+    {
+      "a": "CRS008",
+      "b": "CRS009",
+      "shared_students": 7
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS005",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS008",
+      "shared_students": 13
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS011",
+      "shared_students": 8
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS009",
+      "shared_students": 19
+    },
+    {
+      "a": "CRS006",
+      "b": "CRS009",
+      "shared_students": 7
+    },
+    {
+      "a": "CRS009",
+      "b": "CRS015",
+      "shared_students": 8
+    },
+    {
+      "a": "CRS005",
+      "b": "CRS010",
+      "shared_students": 5
+    },
+    {
+      "a": "CRS009",
+      "b": "CRS011",
+      "shared_students": 7
+    },
+    {
+      "a": "CRS004",
+      "b": "CRS008",
+      "shared_students": 12
+    },
+    {
+      "a": "CRS010",
+      "b": "CRS015",
+      "shared_students": 5
+    },
+    {
+      "a": "CRS008",
+      "b": "CRS011",
+      "shared_students": 2
+    },
+    {
+      "a": "CRS008",
+      "b": "CRS015",
+      "shared_students": 4
+    }
+  ],
+  "fixed_neighbors": [
+    {
+      "course_id": "CRS027",
+      "slot_id": "D3S3",
+      "shared_students": 11
+    },
+    {
+      "course_id": "CRS027",
+      "slot_id": "D3S3",
+      "shared_students": 3
+    },
+    {
+      "course_id": "CRS027",
+      "slot_id": "D3S3",
+      "shared_students": 3
+    },
+    {
+      "course_id": "CRS013",
+      "slot_id": "D2S1",
+      "shared_students": 23
+    },
+    {
+      "course_id": "CRS021",
+      "slot_id": "D1S3",
+      "shared_students": 16
+    },
+    {
+      "course_id": "CRS013",
+      "slot_id": "D2S1",
+      "shared_students": 18
+    },
+    {
+      "course_id": "CRS021",
+      "slot_id": "D1S3",
+      "shared_students": 15
+    },
+    {
+      "course_id": "CRS013",
+      "slot_id": "D2S1",
+      "shared_students": 11
+    },
+    {
+      "course_id": "CRS021",
+      "slot_id": "D1S3",
+      "shared_students": 13
+    },
+    {
+      "course_id": "CRS013",
+      "slot_id": "D2S1",
+      "shared_students": 4
+    },
+    {
+      "course_id": "CRS021",
+      "slot_id": "D1S3",
+      "shared_students": 6
+    },
+    {
+      "course_id": "CRS014",
+      "slot_id": "D2S2",
+      "shared_students": 27
+    },
+    {
+      "course_id": "CRS014",
+      "slot_id": "D2S2",
+      "shared_students": 11
+    },
+    {
+      "course_id": "CRS014",
+      "slot_id": "D2S2",
+      "shared_students": 8
+    },
+    {
+      "course_id": "CRS014",
+      "slot_id": "D2S2",
+      "shared_students": 4
+    },
+    {
+      "course_id": "CRS018",
+      "slot_id": "D3S3",
+      "shared_students": 18
+    },
+    {
+      "course_id": "CRS026",
+      "slot_id": "D3S2",
+      "shared_students": 13
+    },
+    {
+      "course_id": "CRS018",
+      "slot_id": "D3S3",
+      "shared_students": 11
+    },
+    {
+      "course_id": "CRS026",
+      "slot_id": "D3S2",
+      "shared_students": 10
+    },
+    {
+      "course_id": "CRS018",
+      "slot_id": "D3S3",
+      "shared_students": 4
+    }
+  ],
+  "spare_capacity": {
+    "D1S1": 100,
+    "D1S2": 100,
+    "D1S3": 100,
+    "D2S1": 100,
+    "D2S2": 100,
+    "D2S3": 100,
+    "D3S1": 100,
+    "D3S2": 100,
+    "D3S3": 100
+  },
+  "slot_meta": {
+    "D1S1": [
+      0,
+      0
+    ],
+    "D1S2": [
+      0,
+      1
+    ],
+    "D1S3": [
+      0,
+      2
+    ],
+    "D2S1": [
+      1,
+      3
+    ],
+    "D2S2": [
+      1,
+      4
+    ],
+    "D2S3": [
+      1,
+      5
+    ],
+    "D3S1": [
+      2,
+      6
+    ],
+    "D3S2": [
+      2,
+      7
+    ],
+    "D3S3": [
+      2,
+      8
+    ]
+  },
+  "penalty_table": {
+    "same_slot": 1000.0,
+    "adjacent_same_day": 10.0,
+    "same_day": 1.0,
+    "none": 0.0
+  },
+  "affected_students": 1715,
+  "baseline_cluster_cost": 17150.0
+}
