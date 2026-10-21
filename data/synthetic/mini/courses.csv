@@ -1,0 +1,13 @@
+course_id,name,dept,duration_min
+CRS001,CS Core Y1-1,CS,180
+CRS002,ECE Core Y1-1,ECE,120
+CRS003,ME Core Y1-1,ME,120
+CRS004,CS Core Y1-2,CS,120
+CRS005,ECE Core Y1-2,ECE,180
+CRS006,ME Core Y1-2,ME,120
+CRS007,CS Core Y1-3,CS,120
+CRS008,ECE Core Y1-3,ECE,120
+CRS009,ME Core Y1-3,ME,180
+CRS010,Intro to Artificial Intelligence,CS,120
+CRS011,Financial Mathematics & Modeling,ECE,120
+CRS012,Bio-ethics & Technology,ME,120
