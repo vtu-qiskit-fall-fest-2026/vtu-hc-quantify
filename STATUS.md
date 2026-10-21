@@ -15,7 +15,7 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 
 ### B: Quantum + benchmarks
 - [x] B1 QUBO + Ising + brute force
-- [ ] B2 QAOA ideal runner + bit-order test
+- [x] B2 QAOA ideal runner + bit-order test
 - [ ] B3 noisy simulation  
 - [ ] B4 IBM runtime + fake backend  (first hardware job submitted by H20)
 - [ ] B5 `run_quantum()` public interface -> HO-03
