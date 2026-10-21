@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -61,103 +62,111 @@ def generate_dataset(
 
     # 1. Generate Courses (split into Departmental Cores and Cross-Faculty Electives)
     courses: list[Course] = []
-    dept_core_map: dict[str, list[str]] = {dept: [] for dept in DEPARTMENTS}
-    elective_course_ids: list[str] = []
 
-    if n_courses >= 24:
-        # 75% core courses, 25% electives (at least 12 electives)
-        n_electives = max(12, int(n_courses * 0.25))
-        n_cores = n_courses - n_electives
-    elif n_courses >= 12:
-        n_electives = min(4, n_courses // 3)
-        n_cores = n_courses - n_electives
-    else:
-        n_electives = max(1, n_courses // 3)
-        n_cores = n_courses - n_electives
+    if n_courses >= 48:
+        n_cohorts = 4  # 4 academic years (Freshman, Sophomore, Junior, Senior)
+        active_depts = DEPARTMENTS
+        core_per_student = 4
+        elec_choices = [1, 2]
+        elec_p = [0.4, 0.6]
+        target_total_courses = (5, 6)
+    elif n_courses >= 24:
+        n_cohorts = 2
+        active_depts = DEPARTMENTS[:6]
+        core_per_student = 3
+        elec_choices = [1, 2]
+        elec_p = [0.5, 0.5]
+        target_total_courses = (4, 5)
+    else:  # Mini preset (e.g., 12 courses, 8 slots)
+        n_cohorts = 1
+        active_depts = DEPARTMENTS[:3]
+        core_per_student = 2
+        elec_choices = [1]
+        elec_p = [1.0]
+        target_total_courses = (3, 3)
+
+    # Distribute courses evenly across cohorts
+    courses_per_cohort = n_courses // n_cohorts
+    cohort_courses: dict[int, list[str]] = {ch: [] for ch in range(n_cohorts)}
+    cohort_dept_cores: dict[tuple[int, str], list[str]] = defaultdict(list)
+    cohort_electives: dict[int, list[str]] = defaultdict(list)
 
     course_idx = 0
-    # Core courses distributed across departments
-    for c_i in range(n_cores):
-        dept = DEPARTMENTS[c_i % len(DEPARTMENTS)]
-        course_id = f"CRS{course_idx + 1:03d}"
-        duration = 180 if course_idx % 4 == 0 else 120
-        courses.append(
-            Course(
-                course_id=course_id,
-                name=f"{dept} Core {c_i // len(DEPARTMENTS) + 1}",
-                dept=dept,
-                duration_min=duration,
-            )
-        )
-        dept_core_map[dept].append(course_id)
-        course_idx += 1
+    for ch in range(n_cohorts):
+        # In each cohort, reserve ~25% courses for electives
+        ch_total = courses_per_cohort + (1 if ch < (n_courses % n_cohorts) else 0)
+        ch_elec_count = max(2, int(ch_total * 0.25)) if ch_total >= 8 else max(1, ch_total // 3)
+        ch_core_count = ch_total - ch_elec_count
 
-    # Cross-faculty Electives
-    for e_i in range(n_electives):
-        course_id = f"CRS{course_idx + 1:03d}"
-        elective_name = (
-            POPULAR_ELECTIVE_NAMES[e_i % len(POPULAR_ELECTIVE_NAMES)]
-            if e_i < len(POPULAR_ELECTIVE_NAMES)
-            else f"Interdisciplinary Elective {e_i + 1}"
-        )
-        dept = DEPARTMENTS[e_i % len(DEPARTMENTS)]
-        duration = 180 if course_idx % 4 == 0 else 120
-        courses.append(
-            Course(
-                course_id=course_id,
-                name=elective_name,
-                dept=dept,
-                duration_min=duration,
+        # Cores
+        for c_i in range(ch_core_count):
+            dept = active_depts[c_i % len(active_depts)]
+            course_id = f"CRS{course_idx + 1:03d}"
+            duration = 180 if course_idx % 4 == 0 else 120
+            courses.append(
+                Course(
+                    course_id=course_id,
+                    name=f"{dept} Core Y{ch + 1}-{c_i // len(active_depts) + 1}",
+                    dept=dept,
+                    duration_min=duration,
+                )
             )
-        )
-        elective_course_ids.append(course_id)
-        course_idx += 1
+            cohort_courses[ch].append(course_id)
+            cohort_dept_cores[(ch, dept)].append(course_id)
+            course_idx += 1
+
+        # Electives
+        for e_i in range(ch_elec_count):
+            course_id = f"CRS{course_idx + 1:03d}"
+            name_idx = (ch * 4 + e_i) % len(POPULAR_ELECTIVE_NAMES)
+            elective_name = POPULAR_ELECTIVE_NAMES[name_idx]
+            dept = active_depts[e_i % len(active_depts)]
+            duration = 180 if course_idx % 4 == 0 else 120
+            courses.append(
+                Course(
+                    course_id=course_id,
+                    name=elective_name,
+                    dept=dept,
+                    duration_min=duration,
+                )
+            )
+            cohort_courses[ch].append(course_id)
+            cohort_electives[ch].append(course_id)
+            course_idx += 1
 
     # 2. Generate Student Enrollments
-    # Zipf-distributed elective popularity to produce heavy conflict overlap
-    if elective_course_ids:
-        ranks = np.arange(1, len(elective_course_ids) + 1)
-        elective_probs = 1.0 / (ranks**1.1)
-        elective_probs /= elective_probs.sum()
-    else:
-        elective_probs = np.array([])
-
     enrollments: list[Enrollment] = []
     student_enrollment_counts: dict[str, int] = {}
 
     for s_idx in range(n_students):
         student_id = f"STU{s_idx + 1:05d}"
-        home_dept = DEPARTMENTS[s_idx % len(DEPARTMENTS)]
+        ch = s_idx % n_cohorts
+        home_dept = active_depts[(s_idx // n_cohorts) % len(active_depts)]
         student_courses: set[str] = set()
 
-        # 4 core courses from home department (or as many as available)
-        available_cores = dept_core_map[home_dept]
-        if available_cores:
-            core_take = min(4, len(available_cores))
-            chosen_cores = rng.choice(available_cores, size=core_take, replace=False)
+        # Department core courses within cohort
+        avail_cores = cohort_dept_cores.get((ch, home_dept), [])
+        if avail_cores:
+            take_k = min(core_per_student, len(avail_cores))
+            chosen_cores = rng.choice(avail_cores, size=take_k, replace=False)
             student_courses.update(chosen_cores)
 
-        # 1-2 electives drawn from Zipf distribution
-        if elective_course_ids:
-            n_elec = int(rng.choice([1, 2], p=[0.4, 0.6]))
-            n_elec = min(n_elec, len(elective_course_ids))
-            # Pick without replacement
-            chosen_electives = rng.choice(
-                elective_course_ids,
-                size=n_elec,
-                replace=False,
-                p=elective_probs,
-            )
-            student_courses.update(chosen_electives)
+        # Cross-faculty electives within cohort (Zipf-distributed)
+        avail_elecs = cohort_electives.get(ch, [])
+        if avail_elecs:
+            ranks = np.arange(1, len(avail_elecs) + 1)
+            probs = 1.0 / (ranks**1.1)
+            probs /= probs.sum()
 
-        # If student has fewer than 5 courses, pick any remaining courses to reach target 5-6
-        target_total = int(rng.choice([5, 6])) if n_courses >= 6 else min(n_courses, 4)
-        if len(student_courses) < target_total:
-            remaining = [c.course_id for c in courses if c.course_id not in student_courses]
-            if remaining:
-                needed = min(target_total - len(student_courses), len(remaining))
-                extra = rng.choice(remaining, size=needed, replace=False)
-                student_courses.update(extra)
+            target_total = (
+                target_total_courses[0]
+                if target_total_courses[0] == target_total_courses[1]
+                else int(rng.choice([target_total_courses[0], target_total_courses[1]]))
+            )
+            needed_elecs = max(1, target_total - len(student_courses))
+            needed_elecs = min(needed_elecs, len(avail_elecs))
+            chosen_electives = rng.choice(avail_elecs, size=needed_elecs, replace=False, p=probs)
+            student_courses.update(chosen_electives)
 
         for c_id in sorted(student_courses):
             enrollments.append(Enrollment(student_id=student_id, course_id=c_id))
