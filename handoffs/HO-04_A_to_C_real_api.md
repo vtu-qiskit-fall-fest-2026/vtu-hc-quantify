@@ -1,10 +1,10 @@
 # HO-04: A -> C: real API live  (target H14)
 
 ## Delivered
-- [ ] `make dev` runs API (:8000, no mock) and serves real baseline, extract, quantum (ideal), decision
-- [ ] `/runs/{id}/benchmarks` returns real rows (may be empty until B6; return `rows: []`, not an error)
-- [ ] Error format `{error:{code,message}}` verified on bad CSV upload
-- [ ] `scripts/e2e.py` passes on the mini dataset
+- [x] `make dev` runs API (:8000, no mock) and serves real baseline, extract, quantum (ideal), decision
+- [x] `/runs/{id}/benchmarks` returns real rows (may be empty until B6; return `rows: []`, not an error)
+- [x] Error format `{error:{code,message}}` verified on bad CSV upload
+- [x] `scripts/e2e.py` passes on the mini dataset
 
 ## Verify
 ```

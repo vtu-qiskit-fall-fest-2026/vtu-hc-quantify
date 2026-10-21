@@ -55,3 +55,11 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Runtime runs and database
+*.db
+quanta_jobs.db
+runs/run_*
+runs/temp/
+data/uploads/
+data/synthetic/*/
