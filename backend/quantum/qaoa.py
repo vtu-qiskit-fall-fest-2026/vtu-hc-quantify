@@ -1,11 +1,12 @@
 """QAOA parameterized ansatz execution loop using Qiskit V2 primitives."""
 from __future__ import annotations
 
-import time
-from typing import Callable
+from collections.abc import Callable
+
 import numpy as np
-from backend.schemas import SubProblem, QuantumConfig, QuantumResult, BitstringCount
-from backend.quantum.qubo import energy, brute_force
+
+from backend.quantum.qubo import brute_force, energy
+from backend.schemas import BitstringCount, QuantumConfig, QuantumResult, SubProblem
 
 
 def run_qaoa_ideal(

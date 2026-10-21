@@ -5,9 +5,10 @@ Dispatches to ideal simulator, Aer noisy model, or IBM Quantum hardware.
 """
 from __future__ import annotations
 
-from typing import Callable
-from backend.schemas import SubProblem, QuantumConfig, QuantumResult
+from collections.abc import Callable
+
 from backend.quantum.qaoa import run_qaoa_ideal
+from backend.schemas import QuantumConfig, QuantumResult, SubProblem
 
 
 def run_quantum(
