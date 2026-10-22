@@ -1,0 +1,878 @@
+{
+  "courses": [
+    {
+      "course_id": "CRS001",
+      "name": "Introduction to Quantum Computing",
+      "dept": "CS",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS002",
+      "name": "Advanced Algorithms",
+      "dept": "CS",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS003",
+      "name": "Digital Signal Processing",
+      "dept": "ECE",
+      "duration_min": 120
+    },
+    {
+      "course_id": "CRS004",
+      "name": "Linear Algebra & Tensors",
+      "dept": "MATH",
+      "duration_min": 120
+    },
+    {
+      "course_id": "CRS005",
+      "name": "Engineering Ethics",
+      "dept": "HUM",
+      "duration_min": 120
+    },
+    {
+      "course_id": "CRS006",
+      "name": "Thermodynamics & Heat Transfer",
+      "dept": "ME",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS007",
+      "name": "Operating Systems",
+      "dept": "CS",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS008",
+      "name": "Solid State Devices",
+      "dept": "ECE",
+      "duration_min": 120
+    },
+    {
+      "course_id": "CRS009",
+      "name": "Numerical Methods",
+      "dept": "MATH",
+      "duration_min": 120
+    },
+    {
+      "course_id": "CRS010",
+      "name": "Control Systems",
+      "dept": "EE",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS011",
+      "name": "Fluid Dynamics",
+      "dept": "ME",
+      "duration_min": 180
+    },
+    {
+      "course_id": "CRS012",
+      "name": "Machine Learning Foundations",
+      "dept": "CS",
+      "duration_min": 180
+    }
+  ],
+  "enrollments": [
+    {
+      "student_id": "STU01",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU01",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU01",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU02",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU02",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU02",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU03",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU03",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU03",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU04",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU04",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU04",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU05",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU05",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU05",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU06",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU06",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU06",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU07",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU07",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU07",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU08",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU08",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU08",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU09",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU09",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU09",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU10",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU10",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU10",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU11",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU11",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU11",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU12",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU12",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU12",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU13",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU13",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU13",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU14",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU14",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU14",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU15",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU15",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU15",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU16",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU16",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU16",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU17",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU17",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU17",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU18",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU18",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU18",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU19",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU19",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU19",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU20",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU20",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU20",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU21",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU21",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU21",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU22",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU22",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU22",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU23",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU23",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU23",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU24",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU24",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU24",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU25",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU25",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU25",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU26",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU26",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU26",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU27",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU27",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU27",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU28",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU28",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU28",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU29",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU29",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU29",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU30",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU30",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU30",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU31",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU31",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU31",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU32",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU32",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU32",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU33",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU33",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU33",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU34",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU34",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU34",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU35",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU35",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU35",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU36",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU36",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU36",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU37",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU37",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU37",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU38",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU38",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU38",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU39",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU39",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU39",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU40",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU40",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU40",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU41",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU41",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU41",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU42",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU42",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU42",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU43",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU43",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU43",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU44",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU44",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU44",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU45",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU45",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU45",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU46",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU46",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU46",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU47",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU47",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU47",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU48",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU48",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU48",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU49",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU49",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU49",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU50",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU50",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU50",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU51",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU51",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU51",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU52",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU52",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU52",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU53",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU53",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU53",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU54",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU54",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU54",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU55",
+      "course_id": "CRS005"
+    },
+    {
+      "student_id": "STU55",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU55",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU56",
+      "course_id": "CRS006"
+    },
+    {
+      "student_id": "STU56",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU56",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU57",
+      "course_id": "CRS001"
+    },
+    {
+      "student_id": "STU57",
+      "course_id": "CRS008"
+    },
+    {
+      "student_id": "STU57",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU58",
+      "course_id": "CRS002"
+    },
+    {
+      "student_id": "STU58",
+      "course_id": "CRS009"
+    },
+    {
+      "student_id": "STU58",
+      "course_id": "CRS011"
+    },
+    {
+      "student_id": "STU59",
+      "course_id": "CRS003"
+    },
+    {
+      "student_id": "STU59",
+      "course_id": "CRS010"
+    },
+    {
+      "student_id": "STU59",
+      "course_id": "CRS012"
+    },
+    {
+      "student_id": "STU60",
+      "course_id": "CRS004"
+    },
+    {
+      "student_id": "STU60",
+      "course_id": "CRS007"
+    },
+    {
+      "student_id": "STU60",
+      "course_id": "CRS011"
+    }
+  ],
+  "rooms": [
+    {
+      "room_id": "R101",
+      "building": "Bld-Alpha",
+      "capacity": 40
+    },
+    {
+      "room_id": "R102",
+      "building": "Bld-Alpha",
+      "capacity": 60
+    },
+    {
+      "room_id": "R201",
+      "building": "Bld-Beta",
+      "capacity": 80
+    },
+    {
+      "room_id": "R202",
+      "building": "Bld-Beta",
+      "capacity": 100
+    }
+  ],
+  "slots": [
+    {
+      "slot_id": "D1S1",
+      "day": 0,
+      "start": "09:00",
+      "end": "11:00",
+      "order": 0
+    },
+    {
+      "slot_id": "D1S2",
+      "day": 0,
+      "start": "11:30",
+      "end": "13:30",
+      "order": 1
+    },
+    {
+      "slot_id": "D1S3",
+      "day": 0,
+      "start": "14:30",
+      "end": "16:30",
+      "order": 2
+    },
+    {
+      "slot_id": "D1S4",
+      "day": 0,
+      "start": "17:00",
+      "end": "19:00",
+      "order": 3
+    },
+    {
+      "slot_id": "D2S1",
+      "day": 1,
+      "start": "09:00",
+      "end": "11:00",
+      "order": 4
+    },
+    {
+      "slot_id": "D2S2",
+      "day": 1,
+      "start": "11:30",
+      "end": "13:30",
+      "order": 5
+    },
+    {
+      "slot_id": "D2S3",
+      "day": 1,
+      "start": "14:30",
+      "end": "16:30",
+      "order": 6
+    },
+    {
+      "slot_id": "D2S4",
+      "day": 1,
+      "start": "17:00",
+      "end": "19:00",
+      "order": 7
+    }
+  ]
+}

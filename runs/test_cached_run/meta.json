@@ -1,0 +1,7 @@
+{
+  "run_id": "test_cached_run",
+  "dataset_id": "demo",
+  "seed": 42,
+  "created_at": 1792689274.2441235,
+  "cached": true
+}

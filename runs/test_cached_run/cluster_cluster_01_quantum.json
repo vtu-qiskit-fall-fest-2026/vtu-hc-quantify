@@ -1,0 +1,55 @@
+{
+  "backend": "ideal",
+  "backend_detail": "StatevectorSampler (Qiskit V2)",
+  "p": 1,
+  "shots": 4096,
+  "params": [
+    0.7853981633974483,
+    0.39269908169872414
+  ],
+  "energy_history": [
+    182.0,
+    165.4,
+    150.2,
+    138.0,
+    126.5,
+    118.0
+  ],
+  "top_bitstrings": [
+    {
+      "bits": "101001",
+      "count": 1842,
+      "energy": 118.0
+    },
+    {
+      "bits": "100001",
+      "count": 612,
+      "energy": 128.0
+    },
+    {
+      "bits": "001001",
+      "count": 480,
+      "energy": 134.0
+    },
+    {
+      "bits": "101000",
+      "count": 395,
+      "energy": 140.0
+    },
+    {
+      "bits": "000000",
+      "count": 210,
+      "energy": 182.0
+    }
+  ],
+  "ground_energy": 118.0,
+  "best_sampled_energy": 118.0,
+  "approx_ratio": 1.0,
+  "depth": 14,
+  "two_qubit_gates": 14,
+  "transpile_seconds": 0.12,
+  "run_seconds": 0.85,
+  "queue_seconds": null,
+  "job_id": null,
+  "noise_scale": null
+}
