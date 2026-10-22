@@ -1,0 +1,84 @@
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0E1116;
+  --panel: #151A21;
+  --panel-2: #1B222B;
+  --line: #262D38;
+  --text: #E6E8EB;
+  --text-2: #8B95A3;
+  --text-3: #5C6674;
+  --accent: #4589FF; /* primary actions + quantum data only */
+  --ok: #42BE65;
+  --warn: #F1C21B;
+  --bad: #FA4D56; /* semantic only, never decorative */
+  --radius: 2px;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+:root[data-theme='light'] {
+  --bg: #F4F4F2;
+  --panel: #FFFFFF;
+  --panel-2: #EEEEEA;
+  --line: #D8D8D2;
+  --text: #161A1F;
+  --text-2: #4F5865;
+  --text-3: #7B8491;
+  --accent: #0F62FE;
+  --ok: #198038;
+  --warn: #B28600;
+  --bad: #DA1E28;
+}
+
+* {
+  border-color: var(--line);
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Scrollbars to stay tight & engineering-like */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+
+/* Focus ring per DESIGN_SYSTEM.md */
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}

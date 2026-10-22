@@ -22,12 +22,12 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 - [x] B6 benchmark harness -> HO-05
 
 ### C: Frontend + demo
-- [ ] C1 scaffold + design system
-- [ ] C2 Dataset + Timetable pages (mock)
-- [ ] C3 Cluster Lab
-- [ ] C4 Benchmarks page
-- [ ] C5 polish + demo docs
-- [ ] C6 slides + recording
+- [x] C1 scaffold + design system
+- [x] C2 Dataset + Timetable pages (mock)
+- [x] C3 Cluster Lab
+- [x] C4 Benchmarks page
+- [x] C5 polish + demo docs
+- [x] C6 slides + recording
 
 ## Handoffs
 - [x] HO-01 A->C mock API (H3)
