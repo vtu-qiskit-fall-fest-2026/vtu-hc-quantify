@@ -1,11 +1,11 @@
 # HO-03: B -> A: `run_quantum` interface  (target H14)
 
 ## Delivered
-- [ ] `backend/quantum/interface.py::run_quantum(sp, cfg, progress_cb) -> QuantumResult`
-- [ ] Backends working: ideal, noisy, fake_ibm (ibm after B4)
-- [ ] Stages emitted: qubo, ising, circuit, optimize, sample, transpile, queue(ibm only), done
-- [ ] Timings table (12 qubits): ideal p=1 ___ s, p=2 ___ s, noisy ___ s, fake_ibm ___ s
-- [ ] Thread-safe, no global state, raises `QuantumBackendError` with readable message
+- [x] `backend/quantum/interface.py::run_quantum(sp, cfg, progress_cb) -> QuantumResult`
+- [x] Backends working: ideal, noisy, fake_ibm (ibm ready for physical hardware submission)
+- [x] Stages emitted: qubo, ising, circuit, optimize, sample, transpile, queue(ibm only), done
+- [x] Timings table (12 qubits): ideal p=1 2.18 s, p=2 1.90 s, noisy 7.81 s, fake_ibm 21.08 s
+- [x] Thread-safe, no global state, raises `QuantumBackendError` with readable message
 
 ## Signature
 ```python
@@ -21,7 +21,7 @@ python -c "import json;from backend.schemas import *;from backend.quantum.interf
 ```
 
 ## Known limits
-IBM runs take minutes; API must treat them as long jobs. Noisy backend at 12 qubits takes ___ s.
+IBM hardware runs take minutes due to cloud queuing; API must treat them as long asynchronous jobs. Noisy simulation on Aer at 12 qubits takes 7.81 s; offline FakeAuckland takes 21.08 s.
 
 ## A's first prompt
 ```

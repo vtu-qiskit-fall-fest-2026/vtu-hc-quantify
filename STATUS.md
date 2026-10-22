@@ -16,18 +16,18 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 ### B: Quantum + benchmarks
 - [x] B1 QUBO + Ising + brute force
 - [x] B2 QAOA ideal runner + bit-order test
-- [ ] B3 noisy simulation  
-- [ ] B4 IBM runtime + fake backend  (first hardware job submitted by H20)
-- [ ] B5 `run_quantum()` public interface -> HO-03
-- [ ] B6 benchmark harness -> HO-05
+- [x] B3 noisy simulation  
+- [x] B4 IBM runtime + fake backend  (first hardware job submitted by H20)
+- [x] B5 `run_quantum()` public interface -> HO-03
+- [x] B6 benchmark harness -> HO-05
 
 ### C: Frontend + demo
-- [ ] C1 scaffold + design system
-- [ ] C2 Dataset + Timetable pages (mock)
-- [ ] C3 Cluster Lab
-- [ ] C4 Benchmarks page
-- [ ] C5 polish + demo docs
-- [ ] C6 slides + recording
+- [x] C1 scaffold + design system
+- [x] C2 Dataset + Timetable pages (mock)
+- [x] C3 Cluster Lab
+- [x] C4 Benchmarks page
+- [x] C5 polish + demo docs
+- [x] C6 slides + recording
 
 ## Handoffs
 - [x] HO-01 A->C mock API (H3)
@@ -35,6 +35,9 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 - [ ] HO-03 B->A quantum interface (H14)
 - [x] HO-04 A->C real API (H14)
 - [ ] HO-05 B->C hardware + benchmarks (H28)
+- [x] HO-03 B->A quantum interface (H14)
+- [ ] HO-04 A->C real API (H14)
+- [x] HO-05 B->C hardware + benchmarks (H28)
 - [ ] HO-06 ALL freeze + demo readiness (H32)
 
 ## Known Issues & Hardening Audit (A6)

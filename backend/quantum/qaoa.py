@@ -103,7 +103,7 @@ def run_qaoa_ideal(
     if progress_cb:
         progress_cb("circuit", 0.20, None)
 
-    # Build decomposed QAOA ansatz for direct statevector evaluation
+    # Build fully decomposed QAOA ansatz (2-level to unroll PauliEvolution to RZZ/RZ gates)
     ansatz = QAOAAnsatz(cost_operator=H, reps=cfg.p).decompose().decompose()
     num_params = ansatz.num_parameters
     estimator = StatevectorEstimator()
@@ -218,7 +218,7 @@ def run_qaoa_ideal(
         bound_circuit,
         basis_gates=["cx", "rz", "sx", "x"],
         coupling_map=cmap,
-        optimization_level=3,
+        optimization_level=2 if n >= 10 else 3,
     )
     transpile_seconds = float(time.perf_counter() - transpile_start)
     depth = int(trans_qc.depth())
