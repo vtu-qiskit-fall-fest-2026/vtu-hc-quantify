@@ -1,11 +1,25 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
-import { UploadCloud, Play, CheckCircle2, ShieldAlert } from 'lucide-react';
-import { Panel } from '../components/Panel';
+import {
+  UploadCloud,
+  Play,
+  CheckCircle2,
+  ShieldAlert,
+  Database,
+  Users,
+  BookOpen,
+  DoorOpen,
+  CalendarDays,
+  FileCheck2,
+} from 'lucide-react';
+import { BentoGrid } from '../components/BentoGrid';
+import { Tile } from '../components/Tile';
+import { StatTile } from '../components/StatTile';
+import { PillButton } from '../components/PillButton';
 import { DataTable } from '../components/DataTable';
-import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '../components/Badge';
+import { ColumnDef } from '@tanstack/react-table';
 import { api, ApiError } from '../api';
 import { useAppStore } from '../store';
 
@@ -99,117 +113,114 @@ export const DatasetPage: React.FC = () => {
           for (let s = 1; s <= 60; s++) {
             const sid = `STU${String(s).padStart(3, '0')}`;
             rows.push(`${sid},CRS001`);
-            if (s <= 30) rows.push(`${sid},CRS002`);
-            if (s > 20 && s <= 50) rows.push(`${sid},CRS003`);
-            if (s > 40) rows.push(`${sid},CRS004`);
-            if (s % 2 === 0) rows.push(`${sid},CRS005`);
-            if (s % 3 === 0) rows.push(`${sid},CRS006`);
+            rows.push(`${sid},CRS002`);
+            if (s % 2 === 0) rows.push(`${sid},CRS003`);
+            if (s % 3 === 0) rows.push(`${sid},CRS004`);
+            if (s % 4 === 0) rows.push(`${sid},CRS005`);
+            if (s % 5 === 0) rows.push(`${sid},CRS006`);
           }
           csvContent = rows.join('\n');
         }
 
-        const parseRes = Papa.parse(csvContent, { header: true, skipEmptyLines: true });
+        const parsed = Papa.parse(csvContent, { header: true, skipEmptyLines: true });
         demoFiles[name] = {
           name,
-          rows: parseRes.data.length,
+          rows: parsed.data.length,
           size: csvContent.length,
           status: 'valid',
-          data: parseRes.data,
+          data: parsed.data,
         };
       }
 
       setFiles(demoFiles);
       runValidations(demoFiles);
-      setDatasetName('ds_mini');
-      addToast('Loaded 4 demo CSV fixtures successfully', 'ok');
-    } catch (err: any) {
-      addToast(`Error loading demo fixture: ${err.message}`, 'error');
+      addToast('Loaded demo fixture dataset (mini, 12 courses)', 'ok');
+    } catch {
+      addToast('Failed to load demo fixtures', 'error');
     }
   };
 
-  const runValidations = (fileMap: Record<string, ParsedFileInfo>) => {
+  const runValidations = (currentFiles: Record<string, ParsedFileInfo>) => {
     const issues: ValidationIssue[] = [];
 
-    // 1. Missing files
-    REQUIRED_FILES.forEach((fn) => {
-      if (!fileMap[fn]) {
+    REQUIRED_FILES.forEach((rf) => {
+      if (!currentFiles[rf] || currentFiles[rf].rows === 0) {
         issues.push({
-          id: `missing_${fn}`,
-          issue: `Missing required file: ${fn}`,
+          id: `missing_${rf}`,
+          issue: `Missing required file: ${rf}`,
           count: 1,
           severity: 'error',
         });
       }
     });
 
-    const courses = fileMap['courses.csv']?.data || [];
-    const enrollments = fileMap['enrollments.csv']?.data || [];
-    const rooms = fileMap['rooms.csv']?.data || [];
-    const slots = fileMap['slots.csv']?.data || [];
+    const coursesFile = currentFiles['courses.csv'];
+    const enrollmentsFile = currentFiles['enrollments.csv'];
+    const roomsFile = currentFiles['rooms.csv'];
+    const slotsFile = currentFiles['slots.csv'];
 
-    // 2. Duplicate (student, course)
-    const seenPairs = new Set<string>();
-    let dupCount = 0;
-    enrollments.forEach((row: any) => {
-      const key = `${row.student_id}_${row.course_id}`;
-      if (seenPairs.has(key)) dupCount += 1;
-      else seenPairs.add(key);
-    });
-    if (dupCount > 0) {
-      issues.push({
-        id: 'dup_enrollment',
-        issue: 'Duplicate (student_id, course_id) enrollment entries',
-        count: dupCount,
-        severity: 'error',
+    if (coursesFile?.data && enrollmentsFile?.data) {
+      const validCourseIds = new Set(coursesFile.data.map((c: any) => c.course_id));
+      let unknownCourseCount = 0;
+      const seenPairs = new Set<string>();
+      let duplicatePairs = 0;
+
+      enrollmentsFile.data.forEach((e: any) => {
+        if (!validCourseIds.has(e.course_id)) unknownCourseCount++;
+        const key = `${e.student_id}_${e.course_id}`;
+        if (seenPairs.has(key)) duplicatePairs++;
+        seenPairs.add(key);
       });
+
+      if (unknownCourseCount > 0) {
+        issues.push({
+          id: 'unknown_courses',
+          issue: 'Enrollments reference nonexistent course_ids',
+          count: unknownCourseCount,
+          severity: 'error',
+        });
+      }
+
+      if (duplicatePairs > 0) {
+        issues.push({
+          id: 'duplicate_enrollments',
+          issue: 'Duplicate student-course enrollment pairs detected',
+          count: duplicatePairs,
+          severity: 'error',
+        });
+      }
     }
 
-    // 3. Unknown course IDs in enrollments
-    const validCourseIds = new Set(courses.map((c: any) => c.course_id));
-    let unknownCourseCount = 0;
-    enrollments.forEach((e: any) => {
-      if (e.course_id && !validCourseIds.has(e.course_id)) unknownCourseCount += 1;
-    });
-    if (unknownCourseCount > 0) {
-      issues.push({
-        id: 'unknown_courses',
-        issue: 'Enrollments referencing unlisted course_id',
-        count: unknownCourseCount,
-        severity: 'error',
+    if (roomsFile?.data) {
+      let lowCapCount = 0;
+      roomsFile.data.forEach((r: any) => {
+        const cap = Number(r.capacity);
+        if (isNaN(cap) || cap < 20) lowCapCount++;
       });
+      if (lowCapCount > 0) {
+        issues.push({
+          id: 'room_capacity',
+          issue: 'Rooms with capacity under 20 or invalid numeric capacity',
+          count: lowCapCount,
+          severity: 'warning',
+        });
+      }
     }
 
-    // 4. Rooms under 20 capacity
-    let lowCapRooms = 0;
-    rooms.forEach((r: any) => {
-      const cap = parseInt(r.capacity, 10);
-      if (isNaN(cap) || cap < 20) lowCapRooms += 1;
-    });
-    if (lowCapRooms > 0) {
-      issues.push({
-        id: 'low_cap_rooms',
-        issue: 'Rooms with capacity under 20 seats',
-        count: lowCapRooms,
-        severity: 'warning',
-      });
-    }
-
-    // 5. Slot order gaps
-    const slotOrders = slots
-      .map((s: any) => parseInt(s.order, 10))
-      .filter((n: number) => !isNaN(n))
-      .sort((a: number, b: number) => a - b);
-    let orderGaps = 0;
-    for (let i = 0; i < slotOrders.length - 1; i++) {
-      if (slotOrders[i + 1] !== slotOrders[i] + 1) orderGaps += 1;
-    }
-    if (orderGaps > 0) {
-      issues.push({
-        id: 'slot_gaps',
-        issue: 'Non-consecutive gaps found in slot order index',
-        count: orderGaps,
-        severity: 'warning',
-      });
+    if (slotsFile?.data) {
+      const orders = slotsFile.data.map((s: any) => Number(s.order)).sort((a: number, b: number) => a - b);
+      let orderGaps = 0;
+      for (let i = 0; i < orders.length; i++) {
+        if (orders[i] !== i) orderGaps++;
+      }
+      if (orderGaps > 0) {
+        issues.push({
+          id: 'slot_order_gaps',
+          issue: 'Non-consecutive or gap-filled slot order index sequence',
+          count: orderGaps,
+          severity: 'warning',
+        });
+      }
     }
 
     setValidationIssues(issues);
@@ -218,236 +229,338 @@ export const DatasetPage: React.FC = () => {
   const handleSolveBaseline = async () => {
     setSolving(true);
     setElapsedTimer(0);
-
-    const startTime = Date.now();
     const timerInterval = setInterval(() => {
-      setElapsedTimer(parseFloat(((Date.now() - startTime) / 1000).toFixed(1)));
+      setElapsedTimer((prev) => prev + 0.1);
     }, 100);
 
     try {
       const formData = new FormData();
-      const dsRes = await api.uploadDatasets(formData);
-      setDatasetName(dsRes.dataset_id);
+      formData.append('courses', new Blob([Papa.unparse(files['courses.csv'].data)], { type: 'text/csv' }), 'courses.csv');
+      formData.append('enrollments', new Blob([Papa.unparse(files['enrollments.csv'].data)], { type: 'text/csv' }), 'enrollments.csv');
+      formData.append('rooms', new Blob([Papa.unparse(files['rooms.csv'].data)], { type: 'text/csv' }), 'rooms.csv');
+      formData.append('slots', new Blob([Papa.unparse(files['slots.csv'].data)], { type: 'text/csv' }), 'slots.csv');
 
-      const runRes = await api.createRun(dsRes.dataset_id, 42);
-      const runId = runRes.run_id;
-      setRunId(runId);
+      const datasetRes = await api.uploadDatasets(formData);
+      const datasetId = datasetRes.dataset_id || 'demo_dataset';
+      setDatasetName(datasetId);
 
-      const baseJob = await api.runBaseline(runId, 60);
+      const runRes = await api.createRun(datasetId);
+      const activeRunId = runRes.run_id;
+      setRunId(activeRunId);
 
-      let done = false;
-      let jobStatus = baseJob;
-      while (!done) {
-        await new Promise((r) => setTimeout(r, 1000));
-        jobStatus = await api.getJob(jobStatus.job_id);
-        if (jobStatus.status === 'done' || jobStatus.status === 'error') {
-          done = true;
+      const job = await api.runBaseline(activeRunId, 60);
+      const jobId = job.job_id;
+
+      let complete = false;
+      while (!complete) {
+        await new Promise((r) => setTimeout(r, 600));
+        const currentJob = await api.getJob(jobId);
+        if (currentJob.status === 'done') {
+          complete = true;
+          const runData = await api.getRun(activeRunId);
+          if (runData.timetable) {
+            setTimetable(runData.timetable);
+            setSolveStatus(runData.timetable.solve_seconds, runData.timetable.hard_violations);
+            addToast(`Baseline solved in ${runData.timetable.solve_seconds.toFixed(2)}s with 0 violations!`, 'ok');
+          }
+          clearInterval(timerInterval);
+          navigate('/timetable');
+          return;
+        } else if (currentJob.status === 'error') {
+          throw new Error(currentJob.error || 'Baseline solver job failed');
         }
       }
-
-      if (jobStatus.status === 'error') {
-        throw new Error(jobStatus.error || 'Baseline solver job failed');
-      }
-
-      const fullRun = await api.getRun(runId);
-      if (fullRun.timetable) {
-        setTimetable(fullRun.timetable);
-        setSolveStatus(fullRun.timetable.solve_seconds, fullRun.timetable.hard_violations);
-      }
-      if (fullRun.clusters) {
-        useAppStore.getState().setClusters(fullRun.clusters);
-      }
-
-      clearInterval(timerInterval);
-      setSolving(false);
-
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      addToast(`Solved in ${elapsed} s, 0 hard violations`, 'ok');
-      navigate('/timetable');
     } catch (err: any) {
       clearInterval(timerInterval);
-      setSolving(false);
-      const msg = err instanceof ApiError ? err.message : err.message || 'Failed to solve baseline';
+      const msg = err instanceof ApiError ? err.message : err.message || 'Error executing baseline solver';
       addToast(msg, 'error');
+    } finally {
+      clearInterval(timerInterval);
+      setSolving(false);
     }
   };
 
-  // Files Table Columns
+  const filesArray = Object.values(files);
+  const canSolve = REQUIRED_FILES.every((rf) => files[rf] && files[rf].rows > 0) &&
+    !validationIssues.some((vi) => vi.severity === 'error');
+
+  // Stats
+  const courseCount = files['courses.csv']?.rows || 0;
+  const studentCount = useMemo(() => {
+    if (!files['enrollments.csv']?.data) return 0;
+    const unique = new Set(files['enrollments.csv'].data.map((e: any) => e.student_id));
+    return unique.size;
+  }, [files]);
+  const roomCount = files['rooms.csv']?.rows || 0;
+  const slotCount = files['slots.csv']?.rows || 0;
+
+  // Table Columns
   const fileColumns: ColumnDef<ParsedFileInfo, any>[] = [
-    { accessorKey: 'name', header: 'File Name', cell: (i: any) => <span className="font-mono">{i.getValue() as string}</span> },
+    {
+      accessorKey: 'name',
+      header: 'File Name',
+      cell: (i: any) => <span className="font-mono font-medium">{i.getValue()}</span>,
+    },
     {
       accessorKey: 'rows',
       header: () => <div className="text-right">Rows</div>,
-      cell: (i: any) => <div className="text-right font-mono tabular-nums">{i.getValue() as number}</div>,
+      cell: (i: any) => <div className="text-right font-mono tabular-nums">{i.getValue()}</div>,
     },
     {
       accessorKey: 'size',
       header: () => <div className="text-right">Size</div>,
-      cell: (i: any) => {
-        const bytes = i.getValue() as number;
-        return <div className="text-right font-mono tabular-nums">{(bytes / 1024).toFixed(1)} KB</div>;
-      },
+      cell: (i: any) => (
+        <div className="text-right font-mono tabular-nums text-ink3">
+          {(i.getValue() / 1024).toFixed(1)} KB
+        </div>
+      ),
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: (i: any) => {
-        const s = i.getValue() as string;
-        return s === 'valid' ? (
-          <Badge label="Parsed & Clean" variant="ok" />
-        ) : (
-          <Badge label="Parse Error" variant="bad" />
-        );
-      },
+      cell: (i: any) => (
+        <Badge
+          label={i.getValue() === 'valid' ? 'Valid' : 'Error'}
+          variant={i.getValue() === 'valid' ? 'ok' : 'bad'}
+        />
+      ),
     },
   ];
 
-  // Validation Table Columns
   const validationColumns: ColumnDef<ValidationIssue, any>[] = [
     {
       accessorKey: 'severity',
-      header: 'Severity',
-      cell: (i: any) => {
-        const sev = i.getValue() as string;
-        return sev === 'error' ? (
-          <Badge label="Blocking Error" variant="bad" />
-        ) : (
-          <Badge label="Warning" variant="warn" />
-        );
-      },
+      header: 'Level',
+      cell: (i: any) => (
+        <Badge
+          label={i.getValue().toUpperCase()}
+          variant={i.getValue() === 'error' ? 'bad' : 'warn'}
+        />
+      ),
     },
-    { accessorKey: 'issue', header: 'Validation Issue Description' },
+    {
+      accessorKey: 'issue',
+      header: 'Integrity Check / Audit Rule',
+      cell: (i: any) => <span className="font-ui text-ink">{i.getValue()}</span>,
+    },
     {
       accessorKey: 'count',
-      header: () => <div className="text-right">Count</div>,
-      cell: (i: any) => <div className="text-right font-mono tabular-nums">{i.getValue() as number}</div>,
+      header: () => <div className="text-right">Occurrences</div>,
+      cell: (i: any) => <div className="text-right font-mono tabular-nums">{i.getValue()}</div>,
     },
   ];
 
-  const filesArray = Object.values(files);
-  const hasErrors = validationIssues.some((i) => i.severity === 'error');
-  const canSolve = filesArray.length >= 4 && !hasErrors;
-
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
-      {/* Page Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-line">
+    <div className="space-y-6">
+      {/* Page Headline with exactly ONE italic green accent word */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2 pb-1 border-b border-line/40">
         <div>
-          <h1 className="text-sm font-semibold tracking-wide text-text uppercase">
-            Dataset Ingestion & Integrity Audit
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-pill bg-tileMint text-ink font-ui text-xs font-medium mb-1.5 border border-line/60">
+            <Database className="w-3.5 h-3.5 text-green" />
+            <span>Campus Dataset Ingestion</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-ui text-ink">
+            Dataset ingestion, <span className="italic font-medium text-green">audited</span>.
           </h1>
-          <p className="text-xs text-text-2 mt-0.5">
-            Accepts 4 required input CSVs: courses.csv, enrollments.csv, rooms.csv, slots.csv. Client-side verified.
+          <p className="text-xs text-ink3 font-ui mt-1">
+            Client-side CSV integrity audit covering courses, enrollments, room capacities, and slot continuity.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={loadDemoFixtures}
-          className="px-2.5 py-1 border border-line bg-panel-2 hover:bg-panel text-xs text-text-2 hover:text-text rounded-[2px] transition-colors cursor-pointer"
+
+        <div className="flex items-center gap-2">
+          <PillButton
+            size="sm"
+            variant="mint"
+            onClick={loadDemoFixtures}
+            icon={<FileCheck2 className="w-3.5 h-3.5 text-green" />}
+          >
+            Load Demo Fixtures
+          </PillButton>
+        </div>
+      </div>
+
+      {/* Bento Grid layout as mapped in UI_UPDATE_BENTO.md section 6 */}
+      <BentoGrid>
+        {/* Row 1 Left: Drop zone 6x3 (mint, dashed border) */}
+        <Tile
+          variant="mint"
+          colSpan={6}
+          rowSpan={3}
+          title="Drop CSV Dataset Files"
+          subtitle="Drag & drop courses.csv, enrollments.csv, rooms.csv, slots.csv"
+          className="justify-between"
         >
-          Load Demo Fixtures (data/fixtures/mini)
-        </button>
-      </div>
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+            }}
+            onClick={() => fileInputRef.current?.click()}
+            className="flex-1 min-h-[140px] border-2 border-dashed border-green/40 hover:border-green hover:bg-tileSage/40 rounded-inner flex flex-col items-center justify-center gap-2.5 p-6 cursor-pointer transition-all duration-150 text-center select-none"
+          >
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-green shadow-hairline">
+              <UploadCloud className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-ink">
+                Drop files here or <span className="text-green underline underline-offset-2">browse</span>
+              </p>
+              <p className="text-[11px] text-ink3 mt-0.5">
+                Accepts <code className="font-mono text-ink">courses.csv</code>,{' '}
+                <code className="font-mono text-ink">enrollments.csv</code>,{' '}
+                <code className="font-mono text-ink">rooms.csv</code>,{' '}
+                <code className="font-mono text-ink">slots.csv</code>
+              </p>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) handleFiles(e.target.files);
+              }}
+            />
+          </div>
+        </Tile>
 
-      {/* One-Line Dashed Drop Zone */}
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => {
-          e.preventDefault();
-          if (e.dataTransfer.files) handleFiles(e.dataTransfer.files);
-        }}
-        onClick={() => fileInputRef.current?.click()}
-        className="h-14 border border-dashed border-line hover:border-accent bg-panel-2/30 hover:bg-panel-2/70 rounded-[2px] flex items-center justify-center gap-3 px-4 cursor-pointer transition-colors select-none"
-      >
-        <UploadCloud className="w-4 h-4 text-accent" />
-        <span className="text-xs text-text-2">
-          Drop <code className="font-mono text-text">courses.csv</code>,{' '}
-          <code className="font-mono text-text">enrollments.csv</code>,{' '}
-          <code className="font-mono text-text">rooms.csv</code>,{' '}
-          <code className="font-mono text-text">slots.csv</code> here or click to browse
-        </span>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept=".csv"
-          className="hidden"
-          onChange={(e) => {
-            if (e.target.files) handleFiles(e.target.files);
-          }}
-        />
-      </div>
+        {/* Row 1 Right: Files table 6x3 */}
+        <Tile
+          variant="default"
+          colSpan={6}
+          rowSpan={3}
+          title="Ingested CSV Manifest"
+          action={
+            <span className="font-mono text-[11px] text-ink3">
+              {filesArray.length} of 4 files uploaded
+            </span>
+          }
+          padding="dense"
+        >
+          <DataTable
+            data={filesArray}
+            columns={fileColumns}
+            emptyText="No CSV files uploaded yet. Drop files on the left or click 'Load Demo Fixtures'."
+          />
+        </Tile>
 
-      {/* Files Table */}
-      <Panel
-        title="INGESTED CSV MANIFEST"
-        headerRight={
-          <span className="font-mono text-[11px] text-text-3">
-            {filesArray.length} of 4 files uploaded
-          </span>
-        }
-      >
-        <DataTable
-          data={filesArray}
-          columns={fileColumns}
-          emptyText="No CSV files uploaded yet. Drop files above or click 'Load Demo Fixtures'."
-        />
-      </Panel>
-
-      {/* Validation Table */}
-      <Panel
-        title="CONSTRAINT VALIDATION & INTEGRITY AUDIT"
-        headerRight={
-          <div className="flex items-center gap-2">
-            {validationIssues.length === 0 && filesArray.length >= 4 ? (
-              <span className="flex items-center gap-1 font-mono text-[11px] text-ok">
-                <CheckCircle2 className="w-3.5 h-3.5" /> All integrity checks passed
+        {/* Row 2 Left: Validation table 8x3 */}
+        <Tile
+          variant="default"
+          colSpan={8}
+          rowSpan={3}
+          title="Constraint Validation & Integrity Audit"
+          action={
+            validationIssues.length === 0 && filesArray.length >= 4 ? (
+              <span className="flex items-center gap-1 font-ui text-xs text-green font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-green" /> All audits passed
               </span>
             ) : validationIssues.length > 0 ? (
-              <span className="flex items-center gap-1 font-mono text-[11px] text-bad">
+              <span className="flex items-center gap-1 font-ui text-xs text-bad font-medium">
                 <ShieldAlert className="w-3.5 h-3.5" /> {validationIssues.length} issues detected
               </span>
-            ) : null}
-          </div>
-        }
-      >
-        <DataTable
-          data={validationIssues}
-          columns={validationColumns}
-          emptyText={
-            filesArray.length >= 4
-              ? 'Zero integrity issues detected. Schema and relationships valid.'
-              : 'Waiting for all 4 required files before executing comprehensive integrity validation.'
+            ) : null
           }
-        />
-      </Panel>
+          padding="dense"
+        >
+          <DataTable
+            data={validationIssues}
+            columns={validationColumns}
+            emptyText={
+              filesArray.length >= 4
+                ? 'Zero integrity issues detected. Schema and relations certified.'
+                : 'Upload all 4 required CSV files to trigger client-side integrity validation.'
+            }
+          />
+        </Tile>
 
-      {/* Action Strip */}
-      <div className="flex items-center justify-between pt-2">
-        <div className="flex items-center gap-2 text-xs font-mono text-text-3">
-          {solving ? (
-            <span className="text-accent animate-pulse">
-              Solving baseline via CP-SAT... Elapsed: {elapsedTimer.toFixed(1)} s
-            </span>
-          ) : (
-            <span>Ready to compute initial feasible baseline</span>
-          )}
+        {/* Row 2 Right: Dataset stats 4x3 as 4 mini StatTiles */}
+        <div className="lg:col-span-4 md:col-span-6 grid grid-cols-2 gap-3">
+          <StatTile
+            variant="sage"
+            colSpan={1}
+            rowSpan={1}
+            label="Students"
+            value={studentCount}
+            icon={<Users className="w-3.5 h-3.5" />}
+          />
+          <StatTile
+            variant="mint"
+            colSpan={1}
+            rowSpan={1}
+            label="Courses"
+            value={courseCount}
+            icon={<BookOpen className="w-3.5 h-3.5" />}
+          />
+          <StatTile
+            variant="default"
+            colSpan={1}
+            rowSpan={1}
+            label="Rooms"
+            value={roomCount}
+            icon={<DoorOpen className="w-3.5 h-3.5" />}
+          />
+          <StatTile
+            variant="default"
+            colSpan={1}
+            rowSpan={1}
+            label="Exam Slots"
+            value={slotCount}
+            icon={<CalendarDays className="w-3.5 h-3.5" />}
+          />
         </div>
 
-        <button
-          type="button"
-          disabled={!canSolve || solving}
-          onClick={handleSolveBaseline}
-          className={`h-8 px-4 flex items-center gap-2 font-medium text-xs rounded-[2px] transition-colors cursor-pointer select-none ${
-            !canSolve || solving
-              ? 'bg-panel-2 text-text-3 border border-line cursor-not-allowed opacity-50'
-              : 'bg-accent text-bg hover:opacity-90 font-semibold'
-          }`}
+        {/* Row 3: Solve baseline tile 12x1 deep, primary pill + live timer */}
+        <Tile
+          variant="deep"
+          colSpan={12}
+          rowSpan={1}
+          padding="normal"
+          className="flex-row items-center justify-between"
         >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>{solving ? `Solving (${elapsedTimer.toFixed(1)}s)...` : 'Solve Baseline'}</span>
-        </button>
-      </div>
+          <div className="flex items-center gap-4">
+            <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-onDeep">
+              <Play className="w-4 h-4 fill-current ml-0.5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-sm text-onDeep font-ui">
+                Compute Classical Feasible Baseline
+              </h3>
+              <p className="text-xs text-onDeep/80 font-mono">
+                {solving ? (
+                  <span className="text-green animate-pulse">
+                    Running OR-Tools CP-SAT solver... Elapsed: {elapsedTimer.toFixed(1)} s
+                  </span>
+                ) : canSolve ? (
+                  'All required constraints validated. Ready to solve global timetable.'
+                ) : (
+                  'Awaiting 4 valid CSV files without error-level integrity failures.'
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {solving && (
+              <span className="font-mono text-sm font-semibold text-green tabular-nums">
+                {elapsedTimer.toFixed(1)}s
+              </span>
+            )}
+            <PillButton
+              size="md"
+              variant="primary"
+              disabled={!canSolve || solving}
+              loading={solving}
+              onClick={handleSolveBaseline}
+              icon={<Play className="w-3.5 h-3.5 fill-current" />}
+            >
+              {solving ? 'Solving Baseline...' : 'Solve Baseline'}
+            </PillButton>
+          </div>
+        </Tile>
+      </BentoGrid>
     </div>
   );
 };

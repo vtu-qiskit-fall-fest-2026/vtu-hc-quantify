@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Database,
-  Calendar,
-  Network,
-  BarChart3,
   Sun,
   Moon,
-  Component,
   X,
   DatabaseZap,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { useAppStore, UserRole } from '../store';
-import { Segmented } from './Segmented';
-import { KeyHintBar } from './KeyHint';
+import { PillSegmented } from './PillSegmented';
+import { PillButton } from './PillButton';
 import { ToastContainer } from './Toast';
 import { api, ApiError } from '../api';
 
@@ -47,7 +44,6 @@ export const AppShell: React.FC = () => {
     let timer: any = null;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts inside inputs/textareas
       const target = e.target as HTMLElement;
       if (
         target.tagName === 'INPUT' ||
@@ -81,7 +77,8 @@ export const AppShell: React.FC = () => {
         pendingG = false;
         clearTimeout(timer);
         const k = e.key.toLowerCase();
-        if (k === 'd') navigate('/');
+        if (k === 'o') navigate('/');
+        else if (k === 'd') navigate('/dataset');
         else if (k === 't') navigate('/timetable');
         else if (k === 'c') navigate('/clusters');
         else if (k === 'b') navigate('/benchmarks');
@@ -99,26 +96,24 @@ export const AppShell: React.FC = () => {
   const handleLoadCachedRun = async () => {
     setLoadingCache(true);
     try {
-      const cachedRunId = 'run_fixture_mini';
-      const res = await api.getRun(cachedRunId);
-
-      setRunId(cachedRunId);
-      setDatasetName('ds_mini');
-
-      if (res.timetable) {
-        setTimetable(res.timetable);
-        setSolveStatus(res.timetable.solve_seconds, res.timetable.hard_violations);
+      const cached = await api.getRun('run_fixture_mini');
+      if (cached.run?.run_id) {
+        setRunId(cached.run.run_id);
+        setDatasetName(cached.run.dataset_id);
       }
-      if (res.clusters) {
-        setClusters(res.clusters);
+      if (cached.timetable) {
+        setTimetable(cached.timetable);
+        setSolveStatus(cached.timetable.solve_seconds, cached.timetable.hard_violations);
       }
-      if (res.decisions) {
-        setDecisions(res.decisions);
+      if (cached.clusters) {
+        setClusters(cached.clusters);
       }
-
-      addToast('Loaded cached run_fixture_mini successfully', 'ok');
-    } catch (err: any) {
-      const msg = err instanceof ApiError ? err.message : err.message || 'Error loading cache';
+      if (cached.decisions) {
+        setDecisions(cached.decisions);
+      }
+      addToast('Restored certified demo run', 'ok');
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Error restoring cached run';
       addToast(msg, 'error');
     } finally {
       setLoadingCache(false);
@@ -126,201 +121,203 @@ export const AppShell: React.FC = () => {
   };
 
   const navItems = [
-    { to: '/', label: 'Dataset', icon: Database, shortcut: 'g d' },
-    { to: '/timetable', label: 'Timetable', icon: Calendar, shortcut: 'g t' },
-    { to: '/clusters', label: 'Cluster Lab', icon: Network, shortcut: 'g c' },
-    { to: '/benchmarks', label: 'Benchmarks', icon: BarChart3, shortcut: 'g b' },
-    { to: '/design', label: 'Design Tokens', icon: Component, shortcut: 'dev' },
+    { to: '/', label: 'Overview', exact: true },
+    { to: '/dataset', label: 'Dataset' },
+    { to: '/timetable', label: 'Timetable' },
+    { to: '/clusters', label: 'Cluster Lab' },
+    { to: '/benchmarks', label: 'Benchmarks' },
   ];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-bg text-text">
-      {/* 56px Left Rail */}
-      <nav
-        aria-label="Sidebar Navigation"
-        className="w-14 min-w-[56px] h-full border-r border-line bg-panel flex flex-col justify-between items-center py-2 z-40 select-none"
-      >
-        <div className="flex flex-col items-center gap-1 w-full">
-          {/* Logo Mark */}
-          <div className="w-10 h-10 border border-line bg-panel-2 rounded-[2px] flex items-center justify-center font-mono font-bold text-accent text-sm mb-3">
-            Q
-          </div>
-
-          {navItems.map((item) => {
-            const isActive =
-              item.to === '/'
-                ? location.pathname === '/'
-                : location.pathname.startsWith(item.to);
-
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                title={`${item.label} (${item.shortcut})`}
-                className={`relative group w-11 h-11 flex items-center justify-center rounded-[2px] transition-colors ${
-                  isActive
-                    ? 'text-accent bg-panel-2 font-semibold'
-                    : 'text-text-2 hover:text-text hover:bg-panel-2/60'
-                }`}
-              >
-                {/* 2px Left Accent Bar */}
-                {isActive && (
-                  <span className="absolute left-0 top-1 bottom-1 w-[2px] bg-accent rounded-r-[1px]" />
-                )}
-                <item.icon className="w-4 h-4 stroke-[1.75]" />
-
-                {/* Flyout Hover Label */}
-                <div className="absolute left-[60px] hidden group-hover:flex items-center gap-2 px-2 py-1 bg-panel-2 border border-line text-xs font-medium text-text whitespace-nowrap rounded-[2px] z-50 pointer-events-none">
-                  <span>{item.label}</span>
-                  <span className="font-mono text-[10px] text-text-3">
-                    {item.shortcut}
-                  </span>
-                </div>
-              </NavLink>
-            );
-          })}
-        </div>
-
-        {/* Bottom utility */}
-        <div className="flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            title={`Toggle Theme (${theme === 'dark' ? 'Light' : 'Dark'})`}
-            className="w-9 h-9 flex items-center justify-center text-text-2 hover:text-text rounded-[2px] hover:bg-panel-2 transition-colors cursor-pointer"
+    <div className="min-h-screen bg-canvas text-ink font-ui flex flex-col selection:bg-greenSoft selection:text-green">
+      {/* Top Floating Pill Navigation (Reference: 48px high, centered, white pill) */}
+      <header className="sticky top-4 z-50 px-4 max-w-[1440px] w-full mx-auto">
+        <div className="bg-tile/95 backdrop-blur-md border border-line shadow-hover rounded-pill h-14 px-4 flex items-center justify-between gap-3 transition-colors">
+          {/* Logo Mark: Dotted circular cluster glyph + wordmark */}
+          <NavLink
+            to="/"
+            className="flex items-center gap-2.5 group flex-shrink-0 select-none py-1 pl-1"
           >
-            {theme === 'dark' ? (
-              <Sun className="w-4 h-4 stroke-[1.75]" />
-            ) : (
-              <Moon className="w-4 h-4 stroke-[1.75]" />
-            )}
-          </button>
-        </div>
-      </nav>
-
-      {/* Main Column */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
-        {/* 40px Top Status Bar */}
-        <header className="h-10 min-h-[40px] px-3 border-b border-line bg-panel flex items-center justify-between text-xs select-none z-30">
-          <div className="flex items-center gap-3">
-            <span className="font-semibold tracking-wider text-text uppercase text-[11px]">
-              QUANTA
-            </span>
-            <span className="text-line">|</span>
-            <div className="flex items-center gap-1.5 text-text-2">
-              <span className="text-[11px] text-text-3">DATASET:</span>
-              <span className="font-mono text-text font-medium">{datasetName}</span>
+            <div className="relative w-7 h-7 flex items-center justify-center">
+              {/* Dotted cluster ring reminiscent of Nanoplazz + Quantum coupling */}
+              <div className="absolute inset-0 rounded-full border border-green/30 border-dashed animate-[spin_16s_linear_infinite]" />
+              <div className="w-4 h-4 rounded-full bg-greenSoft flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-green" />
+              </div>
             </div>
-            <span className="text-line">|</span>
-            <div className="flex items-center gap-1.5 text-text-2">
-              <span className="text-[11px] text-text-3">RUN:</span>
-              <span className="font-mono text-text font-medium">
-                {runId || 'none'}
+            <div className="flex items-baseline gap-1.5">
+              <span className="font-semibold text-base tracking-tight font-ui text-ink">
+                QUANTA
+              </span>
+              <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded-full bg-greenSoft text-green font-medium">
+                Hybrid
               </span>
             </div>
+          </NavLink>
+
+          {/* Centered Route Pills */}
+          <nav className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = item.exact
+                ? location.pathname === item.to
+                : location.pathname.startsWith(item.to);
+
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={`px-4 py-1.5 rounded-pill text-xs font-medium transition-all duration-150 font-ui ${
+                    isActive
+                      ? 'bg-greenSoft text-green shadow-hairline font-semibold'
+                      : 'text-ink2 hover:text-ink hover:bg-tileMint/50'
+                  }`}
+                >
+                  {item.label}
+                </NavLink>
+              );
+            })}
+          </nav>
+
+          {/* Right Controls: Role, Theme, Cache Loader, and Primary CTA */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* Quick Demo Cache Load */}
+            <button
+              onClick={handleLoadCachedRun}
+              disabled={loadingCache}
+              title="Load certified demo run (offline)"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-pill border border-line text-ink2 hover:text-ink hover:bg-tileMint/60 transition-colors"
+            >
+              <DatabaseZap className="w-3.5 h-3.5 text-green" />
+              <span>{loadingCache ? 'Loading...' : 'Demo Run'}</span>
+            </button>
+
+            {/* Role Switcher Pill */}
+            <PillSegmented
+              size="sm"
+              variant="light"
+              value={role}
+              onChange={(r) => setRole(r as UserRole)}
+              options={[
+                { value: 'coordinator', label: 'Coord' },
+                { value: 'researcher', label: 'Research' },
+              ]}
+            />
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              className="w-8 h-8 rounded-full border border-line flex items-center justify-center text-ink2 hover:text-ink hover:bg-tileMint/60 transition-colors"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-warn" />
+              ) : (
+                <Moon className="w-4 h-4 text-ink3" />
+              )}
+            </button>
+
+            {/* Run Optimizer Pill CTA */}
+            <PillButton
+              size="sm"
+              variant="primary"
+              onClick={() => navigate('/clusters')}
+              icon={<Zap className="w-3.5 h-3.5 fill-current" />}
+            >
+              <span className="hidden sm:inline">Run Optimizer</span>
+              <span className="sm:hidden">Run</span>
+            </PillButton>
+          </div>
+        </div>
+
+        {/* Thin Status Line below Nav: Run ID, Baseline time, Hard Violations Badge */}
+        <div className="flex items-center justify-between text-[11px] px-6 py-1.5 text-ink3">
+          <div className="flex items-center gap-3 font-mono truncate">
+            <span>
+              run:{' '}
+              <span className="text-ink font-semibold">{runId || 'run_fixture_mini'}</span>
+            </span>
+            <span className="hidden sm:inline text-line">•</span>
+            <span className="hidden sm:inline">
+              dataset: <span className="text-ink">{datasetName}</span>
+            </span>
             {lastSolveSeconds !== null && (
               <>
-                <span className="text-line">|</span>
-                <span className="font-mono text-text-2">
-                  Solved in {lastSolveSeconds.toFixed(1)} s
+                <span className="text-line">•</span>
+                <span>
+                  solved in <span className="text-green font-semibold">{lastSolveSeconds.toFixed(2)}s</span>
                 </span>
               </>
             )}
-            <span className="text-line">|</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] text-text-3">HARD:</span>
-              <span
-                className={`font-mono font-semibold px-1 py-0.5 rounded-[1px] ${
-                  hardViolations === 0
-                    ? 'text-ok bg-ok/10 border border-ok/30'
-                    : 'text-bad bg-bad/10 border border-bad/30'
-                }`}
-              >
-                {hardViolations} violations
-              </span>
-            </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleLoadCachedRun}
-              disabled={loadingCache}
-              title="Load verified fixture run from disk cache"
-              className="h-6 px-2 border border-line bg-panel-2 hover:bg-panel text-text-2 hover:text-text font-mono text-[11px] rounded-[2px] flex items-center gap-1 transition-colors cursor-pointer"
+          <div className="flex items-center gap-2 font-mono">
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                hardViolations === 0
+                  ? 'bg-greenSoft text-green border border-green/30'
+                  : 'bg-bad/15 text-bad border border-bad/30'
+              }`}
             >
-              <DatabaseZap className="w-3 h-3 text-accent" />
-              <span>{loadingCache ? 'Loading...' : 'Load Cached Run'}</span>
+              <ShieldCheck className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>{hardViolations} hard violations</span>
+            </span>
+
+            <button
+              onClick={() => setShortcutsOpen(true)}
+              className="hidden md:inline text-ink3 hover:text-ink underline decoration-dotted ml-2"
+              title="Keyboard shortcuts (?)"
+            >
+              ? keys
             </button>
-
-            <span className="text-line">|</span>
-
-            <Segmented<UserRole>
-              size="sm"
-              options={[
-                { value: 'coordinator', label: 'Coordinator' },
-                { value: 'researcher', label: 'Researcher' },
-              ]}
-              value={role}
-              onChange={(newRole) => setRole(newRole)}
-            />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-auto bg-bg p-3 relative">
-          <Outlet />
-        </main>
+      {/* Main Canvas Area: 24px padding, max-width 1440px */}
+      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 pt-3 pb-16">
+        <Outlet />
+      </main>
 
-        {/* Shortcut KeyHint Bar */}
-        <KeyHintBar onOpenShortcuts={() => setShortcutsOpen(true)} />
-      </div>
-
-      {/* Toast Notifications */}
+      {/* Toast Notification Container */}
       <ToastContainer />
 
-      {/* Keyboard Shortcuts Modal */}
+      {/* Keyboard Shortcuts Dialog */}
       {shortcutsOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-panel border border-line w-full max-w-sm rounded-[2px] p-4 text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-line mb-3">
-              <span className="font-semibold text-text">Keyboard Shortcuts</span>
-              <button
-                type="button"
-                onClick={() => setShortcutsOpen(false)}
-                className="text-text-3 hover:text-text cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="space-y-2 font-mono">
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">g d</span>
-                <span className="text-text">Go to Dataset</span>
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-tile border border-line rounded-tile p-6 max-w-md w-full shadow-hover relative">
+            <button
+              onClick={() => setShortcutsOpen(false)}
+              className="absolute top-4 right-4 text-ink3 hover:text-ink"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h3 className="font-semibold text-base mb-1 font-ui">Keyboard Shortcuts</h3>
+            <p className="text-xs text-ink3 mb-4">Fast navigation across QUANTA stages</p>
+
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between items-center py-1 border-b border-line/40">
+                <span className="text-ink2">Go to Overview</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">g o</kbd>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">g t</span>
-                <span className="text-text">Go to Timetable</span>
+              <div className="flex justify-between items-center py-1 border-b border-line/40">
+                <span className="text-ink2">Go to Dataset</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">g d</kbd>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">g c</span>
-                <span className="text-text">Go to Cluster Lab</span>
+              <div className="flex justify-between items-center py-1 border-b border-line/40">
+                <span className="text-ink2">Go to Timetable</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">g t</kbd>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">g b</span>
-                <span className="text-text">Go to Benchmarks</span>
+              <div className="flex justify-between items-center py-1 border-b border-line/40">
+                <span className="text-ink2">Go to Cluster Lab</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">g c</kbd>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">r</span>
-                <span className="text-text">Trigger primary action</span>
+              <div className="flex justify-between items-center py-1 border-b border-line/40">
+                <span className="text-ink2">Go to Benchmarks</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">g b</kbd>
               </div>
-              <div className="flex justify-between py-1 border-b border-line/40">
-                <span className="text-text-2">Esc</span>
-                <span className="text-text">Close detail drawer/modal</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-text-2">?</span>
-                <span className="text-text">Toggle this shortcut sheet</span>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-ink2">Run QAOA in Cluster Lab</span>
+                <kbd className="px-2 py-0.5 rounded-pill bg-tileMint font-mono text-ink font-semibold">r</kbd>
               </div>
             </div>
           </div>

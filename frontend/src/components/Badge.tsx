@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BadgeVariant = 'ok' | 'warn' | 'bad' | 'accent' | 'neutral';
+export type BadgeVariant = 'ok' | 'warn' | 'bad' | 'accent' | 'quantum' | 'neutral' | 'mint';
 
 interface BadgeProps {
   label: string;
@@ -16,31 +16,31 @@ export const Badge: React.FC<BadgeProps> = ({
   mono = false,
 }) => {
   const dotColorMap: Record<BadgeVariant, string> = {
-    ok: 'bg-ok',
+    ok: 'bg-green',
     warn: 'bg-warn',
     bad: 'bg-bad',
-    accent: 'bg-accent',
-    neutral: 'bg-text-3',
+    accent: 'bg-green',
+    quantum: 'bg-quantum',
+    neutral: 'bg-ink3',
+    mint: 'bg-green',
   };
 
-  const textColorMap: Record<BadgeVariant, string> = {
-    ok: 'text-ok',
-    warn: 'text-warn',
-    bad: 'text-bad',
-    accent: 'text-accent',
-    neutral: 'text-text-2',
+  const bgStyles: Record<BadgeVariant, string> = {
+    ok: 'bg-greenSoft text-green border-green/30',
+    warn: 'bg-warn/15 text-warn border-warn/30',
+    bad: 'bg-bad/15 text-bad border-bad/30',
+    accent: 'bg-greenSoft text-green border-green/30',
+    quantum: 'bg-quantum/15 text-quantum border-quantum/30',
+    neutral: 'bg-line/40 text-ink2 border-line/60',
+    mint: 'bg-tileMint text-ink border-line/80',
   };
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-1.5 py-0.5 border border-line bg-panel-2 rounded-[2px] ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 border rounded-pill text-xs font-ui ${bgStyles[variant]} ${className}`}
     >
-      <span className={`w-2 h-2 rounded-[1px] flex-shrink-0 ${dotColorMap[variant]}`} />
-      <span
-        className={`text-xs ${mono ? 'font-mono' : 'font-medium'} ${textColorMap[variant]}`}
-      >
-        {label}
-      </span>
+      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColorMap[variant]}`} />
+      <span className={`text-[11px] ${mono ? 'font-mono' : 'font-medium'}`}>{label}</span>
     </div>
   );
 };

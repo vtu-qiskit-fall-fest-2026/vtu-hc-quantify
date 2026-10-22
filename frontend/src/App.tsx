@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
+import { OverviewPage } from './pages/Overview';
 import { DatasetPage } from './pages/Dataset';
 import { TimetablePage } from './pages/Timetable';
 import { ClusterLabPage } from './pages/ClusterLab';
@@ -15,9 +16,10 @@ export const App: React.FC = () => {
         {/* Printable view without app chrome */}
         <Route path="/benchmarks/print" element={<BenchmarksPrintPage />} />
 
-        {/* Main Application with 56px left rail and 40px top bar */}
+        {/* Main Application with Floating Pill Nav and Bento Canvas */}
         <Route element={<AppShell />}>
-          <Route path="/" element={<DatasetPage />} />
+          <Route path="/" element={<OverviewPage />} />
+          <Route path="/dataset" element={<DatasetPage />} />
           <Route path="/timetable" element={<TimetablePage />} />
           <Route path="/clusters" element={<ClusterLabPage />} />
           <Route path="/benchmarks" element={<BenchmarksPage />} />

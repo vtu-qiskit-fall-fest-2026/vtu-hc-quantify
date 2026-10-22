@@ -1,43 +1,86 @@
-@import '@fontsource/ibm-plex-sans/400.css';
-@import '@fontsource/ibm-plex-sans/500.css';
-@import '@fontsource/ibm-plex-sans/600.css';
-@import '@fontsource/ibm-plex-mono/400.css';
-@import '@fontsource/ibm-plex-mono/500.css';
-@import '@fontsource/ibm-plex-mono/600.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/500-italic.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+@import '@fontsource/dm-mono/400.css';
+@import '@fontsource/dm-mono/500.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #0E1116;
-  --panel: #151A21;
-  --panel-2: #1B222B;
-  --line: #262D38;
-  --text: #E6E8EB;
-  --text-2: #8B95A3;
-  --text-3: #5C6674;
-  --accent: #4589FF; /* primary actions + quantum data only */
-  --ok: #42BE65;
-  --warn: #F1C21B;
-  --bad: #FA4D56; /* semantic only, never decorative */
-  --radius: 2px;
-  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  /* canvas + tiles */
+  --canvas: #E9F2EA; /* page background, mint */
+  --tile: #FFFFFF; /* default tile */
+  --tile-mint: #D9EDDD; /* soft green tile */
+  --tile-sage: #BFE0C8; /* stronger green tile (stat tiles) */
+  --tile-deep: #1F5B3C; /* deep forest tile, white text */
+  --tile-ink: #17241C; /* near-black tile for code/telemetry */
+  --line: #D2E3D6;
+
+  /* text */
+  --ink: #17241C;
+  --ink-2: #51655A;
+  --ink-3: #86988D;
+  --on-deep: #F2FAF4;
+
+  /* brand + semantic */
+  --green: #34A85F; /* primary CTA, active states, accent word */
+  --green-hover: #2B8F50;
+  --green-soft: #E3F3E7;
+  --quantum: #2D7F9D; /* teal, only for QAOA / quantum series and QPU badges */
+  --warn: #E3A21A;
+  --bad: #D8504D;
+
+  /* shape + motion */
+  --r-tile: 24px;
+  --r-inner: 12px;
+  --r-pill: 999px;
+  --gap: 12px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --font-ui: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* compatibility aliases */
+  --bg: var(--canvas);
+  --panel: var(--tile);
+  --panel-2: var(--tile-mint);
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --text-3: var(--ink-3);
+  --accent: var(--green);
+  --ok: var(--green);
 }
 
-:root[data-theme='light'] {
-  --bg: #F4F4F2;
-  --panel: #FFFFFF;
-  --panel-2: #EEEEEA;
-  --line: #D8D8D2;
-  --text: #161A1F;
-  --text-2: #4F5865;
-  --text-3: #7B8491;
-  --accent: #0F62FE;
-  --ok: #198038;
-  --warn: #B28600;
-  --bad: #DA1E28;
+:root[data-theme='dark'] {
+  --canvas: #0E1712;
+  --tile: #16221B;
+  --tile-mint: #1B2B22;
+  --tile-sage: #23382B;
+  --tile-deep: #2B6B47;
+  --tile-ink: #0A110D;
+  --line: #243329;
+  --ink: #E8F3EB;
+  --ink-2: #A3B8AA;
+  --ink-3: #6F8577;
+  --on-deep: #F2FAF4;
+  --green: #4BC479;
+  --green-hover: #5FD08A;
+  --green-soft: #1C3325;
+  --quantum: #4FB0D0;
+  --warn: #E3A21A;
+  --bad: #D8504D;
+
+  --bg: var(--canvas);
+  --panel: var(--tile);
+  --panel-2: var(--tile-mint);
+  --text: var(--ink);
+  --text-2: var(--ink-2);
+  --text-3: var(--ink-3);
+  --accent: var(--green);
+  --ok: var(--green);
 }
 
 * {
@@ -48,11 +91,11 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-ui);
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -61,24 +104,42 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Custom Scrollbars to stay tight & engineering-like */
+/* Custom Scrollbars to stay soft & tight */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--line);
-  border-radius: 2px;
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-3);
+  background: var(--ink-3);
 }
 
-/* Focus ring per DESIGN_SYSTEM.md */
+/* Focus ring per UI_UPDATE_BENTO.md: 2px --green, 2px offset */
 :focus-visible {
-  outline: 1px solid var(--accent);
+  outline: 2px solid var(--green);
   outline-offset: 2px;
+}
+
+/* Motion helpers */
+@media (prefers-reduced-motion: no-preference) {
+  .bento-tile-mount {
+    animation: bentoMount 160ms var(--ease) forwards;
+  }
+}
+
+@keyframes bentoMount {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
