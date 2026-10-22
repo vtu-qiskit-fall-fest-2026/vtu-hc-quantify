@@ -104,7 +104,7 @@ def run_qaoa_ideal(
         progress_cb("circuit", 0.20, None)
 
     # Build decomposed QAOA ansatz for direct statevector evaluation
-    ansatz = QAOAAnsatz(cost_operator=H, reps=cfg.p).decompose()
+    ansatz = QAOAAnsatz(cost_operator=H, reps=cfg.p).decompose().decompose()
     num_params = ansatz.num_parameters
     estimator = StatevectorEstimator()
 

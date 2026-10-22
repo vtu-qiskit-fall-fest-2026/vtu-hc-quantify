@@ -3,6 +3,7 @@
 Base URL: `/api`  
 Data format: JSON  
 Headers: `X-Role: coordinator | researcher` (default: `coordinator`)  
+Response Headers: `X-Process-Time: <seconds>s` (timing header injected on all HTTP responses)  
 Standard Error Format: `{"error": {"code": "STRING", "message": "Human readable explanation"}}`
 
 ---

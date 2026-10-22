@@ -91,12 +91,20 @@ app.add_middleware(
 )
 
 
+import logging
+
+logger = logging.getLogger("quanta.api")
+if not logger.handlers:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+
+
 @app.middleware("http")
 async def add_process_time_and_log(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = f"{process_time:.4f}s"
+    logger.info("%s %s -> %d (%.4fs)", request.method, request.url.path, response.status_code, process_time)
     return response
 
 def is_mock() -> bool:
@@ -285,20 +293,30 @@ class BaselineRequest(BaseModel):
 
 def _execute_baseline_solver(run_id: str, job_id: str, time_limit_s: int, seed: int):
     """Background task function executing CP-SAT baseline."""
+    t_start = time.time()
     try:
+        logger.info("[Job %s] Starting baseline solve for run %s (time_limit=%ds, seed=%d)", job_id, run_id, time_limit_s, seed)
         update_job_progress(job_id, stage="solve", progress=0.2)
         run_dir = RUNS_DIR / run_id
         with open(run_dir / "dataset.json", "r", encoding="utf-8") as f:
             ds = Dataset.model_validate_json(f.read())
 
         update_job_progress(job_id, stage="solve", progress=0.5)
+        t_solver_start = time.time()
         tt = solve_baseline(ds, time_limit_s=time_limit_s, seed=seed)
+        solver_dur = time.time() - t_solver_start
+        logger.info("[Job %s] CP-SAT solve stage finished in %.2fs (hard_violations=%d, soft_score=%.1f)", job_id, solver_dur, tt.hard_violations, tt.soft_score)
+
+        if tt.hard_violations > 0:
+            raise ValueError(f"Baseline solver generated {tt.hard_violations} hard violation(s); rejected.")
 
         with open(run_dir / "baseline.json", "w", encoding="utf-8") as f:
             f.write(tt.model_dump_json(indent=2))
 
         complete_job(job_id, result_ref=f"/api/runs/{run_id}")
+        logger.info("[Job %s] Baseline job completed in %.2fs total", job_id, time.time() - t_start)
     except Exception as e:  # noqa: BLE001
+        logger.error("[Job %s] Baseline failed: %s", job_id, e)
         fail_job(job_id, str(e))
 
 
@@ -367,6 +385,12 @@ def get_run_details(run_id: str):
     if (run_dir / "baseline.json").exists():
         with open(run_dir / "baseline.json", "r", encoding="utf-8") as f:
             tt = Timetable.model_validate_json(f.read())
+        if tt.hard_violations > 0:
+            logger.error("Audit failure: Timetable for run %s has %d hard violations!", run_id, tt.hard_violations)
+            raise HTTPException(
+                status_code=500,
+                detail={"error": {"code": "HARD_VIOLATION_AUDIT", "message": f"Integrity audit failed: timetable has {tt.hard_violations} hard violations."}},
+            )
 
     clusters = []
     if (run_dir / "clusters.json").exists():
@@ -479,11 +503,14 @@ def extract_run_clusters(run_id: str, req: ExtractRequest):
 
 def _execute_quantum_pipeline(run_id: str, cid: str, job_id: str, cfg: QuantumConfig):
     """Background task executing QAOA, bitstring repair, and final decision."""
+    t_start = time.time()
     try:
+        logger.info("[Job %s] Starting quantum pipeline for run %s cluster %s (backend=%s, p=%d)", job_id, run_id, cid, cfg.backend, cfg.p)
         # Lazy import of quantum interface
         try:
             from backend.quantum.interface import run_quantum
         except ImportError as ie:
+            logger.error("[Job %s] Quantum interface import error: %s", job_id, ie)
             fail_job(job_id, f"Quantum interface not implemented: {ie}")
             return
 
@@ -504,18 +531,30 @@ def _execute_quantum_pipeline(run_id: str, cid: str, job_id: str, cfg: QuantumCo
             update_job_progress(job_id, stage=stage, progress=progress, energy=energy)
 
         # Run variational QAOA
+        t_q_start = time.time()
         qr: QuantumResult = run_quantum(sp, cfg, progress_cb=progress_callback)
+        q_dur = time.time() - t_q_start
+        logger.info("[Job %s] Quantum execution finished in %.2fs (approx_ratio=%s, depth=%d)", job_id, q_dur, f"{qr.approx_ratio:.3f}" if qr.approx_ratio else "N/A", qr.depth)
         with open(run_dir / f"cluster_{cid}_quantum.json", "w", encoding="utf-8") as f:
             f.write(qr.model_dump_json(indent=2))
 
         # Run classical repair gate
         update_job_progress(job_id, stage="repair", progress=0.9)
+        t_rep_start = time.time()
         decision = decide(ds, tt, sp, qr)
+        rep_dur = time.time() - t_rep_start
+        logger.info("[Job %s] Repair gate & decision finished in %.2fs (source=%s, hard_violations=%d)", job_id, rep_dur, decision.source, decision.hard_violations)
+
+        if decision.hard_violations > 0:
+            raise ValueError(f"Decision resulted in {decision.hard_violations} hard violation(s); rejected.")
+
         with open(run_dir / f"cluster_{cid}_decision.json", "w", encoding="utf-8") as f:
             f.write(decision.model_dump_json(indent=2))
 
         complete_job(job_id, result_ref=f"/api/runs/{run_id}/clusters/{cid}/result")
+        logger.info("[Job %s] Quantum pipeline completed in %.2fs total", job_id, time.time() - t_start)
     except Exception as e:  # noqa: BLE001
+        logger.error("[Job %s] Quantum pipeline failed: %s", job_id, e)
         fail_job(job_id, str(e))
 
 
