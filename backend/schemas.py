@@ -173,8 +173,8 @@ class Job(BaseModel):
 
 class Course(BaseModel):
     course_id: str
-    name: str
-    dept: str
+    name: str = ""
+    dept: str = "General"
     duration_min: int = 120
 
 
@@ -185,15 +185,15 @@ class Enrollment(BaseModel):
 
 class Room(BaseModel):
     room_id: str
-    building: str
+    building: str = "Main"
     capacity: int
 
 
 class Slot(BaseModel):
     slot_id: str
     day: int
-    start: str
-    end: str
+    start: str = "09:00"
+    end: str = ""
     order: int
 
 

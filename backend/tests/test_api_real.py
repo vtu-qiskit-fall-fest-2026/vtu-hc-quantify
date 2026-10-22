@@ -51,6 +51,22 @@ def test_real_dataset_upload_csv(real_client: TestClient):
     assert isinstance(data["warnings"], list)
 
 
+def test_real_dataset_upload_csv_missing_optional_columns(real_client: TestClient):
+    """Verify that slots.csv without 'end' and rooms.csv without 'building' parse cleanly."""
+    files = {
+        "courses": ("courses.csv", io.BytesIO(b"course_id,name,dept,duration_min\nC1,Intro,CS,120"), "text/csv"),
+        "enrollments": ("enrollments.csv", io.BytesIO(b"student_id,course_id\nS1,C1"), "text/csv"),
+        "rooms": ("rooms.csv", io.BytesIO(b"room_id,capacity\nR1,50"), "text/csv"),
+        "slots": ("slots.csv", io.BytesIO(b"slot_id,day,start,order\nD1S1,0,09:00,0"), "text/csv"),
+    }
+    resp = real_client.post("/api/datasets", files=files)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["stats"]["courses"] == 1
+    assert data["stats"]["rooms"] == 1
+    assert data["stats"]["slots"] == 1
+
+
 def test_real_dataset_upload_invalid_csv_error_envelope(real_client: TestClient):
     """Verify error envelope {error: {code, message}} on invalid CSV input."""
     files = {

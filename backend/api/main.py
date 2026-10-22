@@ -137,16 +137,43 @@ def load_fixture(filename: str) -> Any:
         return json.load(f)
 
 
+def normalize_course_row(r: dict[str, Any]) -> dict[str, Any]:
+    row = dict(r)
+    if "department" in row and "dept" not in row:
+        row["dept"] = row["department"]
+    if "duration_minutes" in row and "duration_min" not in row:
+        row["duration_min"] = row["duration_minutes"]
+    return row
+
+
+def normalize_room_row(r: dict[str, Any]) -> dict[str, Any]:
+    row = dict(r)
+    if "building" not in row or not row["building"]:
+        row["building"] = "Main"
+    return row
+
+
+def normalize_slot_row(r: dict[str, Any]) -> dict[str, Any]:
+    row = dict(r)
+    if "start_time" in row and "start" not in row:
+        row["start"] = row["start_time"]
+    if "end_time" in row and "end" not in row:
+        row["end"] = row["end_time"]
+    if "end" not in row:
+        row["end"] = ""
+    return row
+
+
 def load_dataset_from_dir(dataset_dir: Path) -> Dataset:
     """Loads a structured Dataset from a directory containing the four CSVs."""
     with open(dataset_dir / "courses.csv", "r", encoding="utf-8") as f:
-        courses = [Course.model_validate(row) for row in csv.DictReader(f)]
+        courses = [Course.model_validate(normalize_course_row(row)) for row in csv.DictReader(f)]
     with open(dataset_dir / "enrollments.csv", "r", encoding="utf-8") as f:
         enrollments = [Enrollment.model_validate(row) for row in csv.DictReader(f)]
     with open(dataset_dir / "rooms.csv", "r", encoding="utf-8") as f:
-        rooms = [Room.model_validate(row) for row in csv.DictReader(f)]
+        rooms = [Room.model_validate(normalize_room_row(row)) for row in csv.DictReader(f)]
     with open(dataset_dir / "slots.csv", "r", encoding="utf-8") as f:
-        slots = [Slot.model_validate(row) for row in csv.DictReader(f)]
+        slots = [Slot.model_validate(normalize_slot_row(row)) for row in csv.DictReader(f)]
     return Dataset(courses=courses, enrollments=enrollments, rooms=rooms, slots=slots)
 
 
@@ -210,10 +237,10 @@ async def upload_datasets(
         rooms_content = (await rooms.read()).decode("utf-8")
         slots_content = (await slots.read()).decode("utf-8")
 
-        parsed_courses = [Course.model_validate(row) for row in csv.DictReader(io.StringIO(courses_content))]
+        parsed_courses = [Course.model_validate(normalize_course_row(row)) for row in csv.DictReader(io.StringIO(courses_content))]
         parsed_enrollments = [Enrollment.model_validate(row) for row in csv.DictReader(io.StringIO(enrollments_content))]
-        parsed_rooms = [Room.model_validate(row) for row in csv.DictReader(io.StringIO(rooms_content))]
-        parsed_slots = [Slot.model_validate(row) for row in csv.DictReader(io.StringIO(slots_content))]
+        parsed_rooms = [Room.model_validate(normalize_room_row(row)) for row in csv.DictReader(io.StringIO(rooms_content))]
+        parsed_slots = [Slot.model_validate(normalize_slot_row(row)) for row in csv.DictReader(io.StringIO(slots_content))]
 
         course_ids = {c.course_id for c in parsed_courses}
         for e in parsed_enrollments:
