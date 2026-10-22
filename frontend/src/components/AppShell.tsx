@@ -5,8 +5,8 @@ import {
   Moon,
   X,
   DatabaseZap,
-  ShieldCheck,
   Zap,
+  Check,
 } from 'lucide-react';
 import { useAppStore, UserRole } from '../store';
 import { PillSegmented } from './PillSegmented';
@@ -27,7 +27,6 @@ export const AppShell: React.FC = () => {
     runId,
     setRunId,
     hardViolations,
-    lastSolveSeconds,
     setTimetable,
     setClusters,
     setDecisions,
@@ -128,29 +127,41 @@ export const AppShell: React.FC = () => {
     { to: '/benchmarks', label: 'Benchmarks' },
   ];
 
+  // 8 circle dots around a center dot for the quantum coupling logo mark
+  const ringDots = [0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
+    const rad = (deg * Math.PI) / 180;
+    return {
+      cx: 18 + 10.5 * Math.cos(rad),
+      cy: 18 + 10.5 * Math.sin(rad),
+      key: deg,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-canvas text-ink font-ui flex flex-col selection:bg-greenSoft selection:text-green">
-      {/* Top Floating Pill Navigation (Reference: 48px high, centered, white pill) */}
-      <header className="sticky top-4 z-50 px-4 max-w-[1440px] w-full mx-auto">
-        <div className="bg-tile/95 backdrop-blur-md border border-line shadow-hover rounded-pill h-14 px-4 flex items-center justify-between gap-3 transition-colors">
-          {/* Logo Mark: Dotted circular cluster glyph + wordmark */}
+      {/* Top Floating Pill Navigation (Section A: 56px high, floating white pill, radius 999, 1px line border) */}
+      <header className="sticky top-2 z-50 px-4 max-w-[1440px] w-full mx-auto">
+        <div className="bg-tile border border-line shadow-hairline rounded-pill h-14 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-3 transition-colors">
+          {/* Logo Mark: 36px filled --green circle with white dotted-ring SVG + QUANTA + HYBRID chip */}
           <NavLink
             to="/"
             className="flex items-center gap-2.5 group flex-shrink-0 select-none py-1 pl-1"
           >
-            <div className="relative w-7 h-7 flex items-center justify-center">
-              {/* Dotted cluster ring reminiscent of Nanoplazz + Quantum coupling */}
-              <div className="absolute inset-0 rounded-full border border-green/30 border-dashed animate-[spin_16s_linear_infinite]" />
-              <div className="w-4 h-4 rounded-full bg-greenSoft flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-green" />
-              </div>
+            <div className="w-9 h-9 rounded-full bg-green flex items-center justify-center flex-shrink-0 text-white shadow-hairline">
+              <svg viewBox="0 0 36 36" className="w-6 h-6">
+                <circle cx="18" cy="18" r="10.5" fill="none" stroke="white" strokeOpacity="0.3" strokeDasharray="2 2" />
+                <circle cx="18" cy="18" r="2.2" fill="white" />
+                {ringDots.map((dot) => (
+                  <circle key={dot.key} cx={dot.cx} cy={dot.cy} r="1.6" fill="white" />
+                ))}
+              </svg>
             </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-semibold text-base tracking-tight font-ui text-ink">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-lg tracking-tight font-ui text-ink">
                 QUANTA
               </span>
-              <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded-full bg-greenSoft text-green font-medium">
-                Hybrid
+              <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded-pill bg-greenSoft text-green font-semibold">
+                HYBRID
               </span>
             </div>
           </NavLink>
@@ -166,10 +177,10 @@ export const AppShell: React.FC = () => {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  className={`px-4 py-1.5 rounded-pill text-xs font-medium transition-all duration-150 font-ui ${
+                  className={`px-4 py-1.5 rounded-pill text-xs transition-all duration-150 font-ui ${
                     isActive
-                      ? 'bg-greenSoft text-green shadow-hairline font-semibold'
-                      : 'text-ink2 hover:text-ink hover:bg-tileMint/50'
+                      ? 'bg-greenSoft text-green font-semibold'
+                      : 'text-ink2 hover:text-ink hover:bg-tileMint/60 font-medium'
                   }`}
                 >
                   {item.label}
@@ -178,20 +189,21 @@ export const AppShell: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Controls: Role, Theme, Cache Loader, and Primary CTA */}
+          {/* Right Controls: Demo Run Pill, Role Segmented, Theme 40px Circle, Run Optimizer Primary */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Quick Demo Cache Load */}
-            <button
+            {/* Demo Run Secondary Pill */}
+            <PillButton
+              size="sm"
+              variant="secondary"
               onClick={handleLoadCachedRun}
               disabled={loadingCache}
-              title="Load certified demo run (offline)"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-pill border border-line text-ink2 hover:text-ink hover:bg-tileMint/60 transition-colors"
+              icon={<DatabaseZap className="w-3.5 h-3.5 text-green" />}
+              className="hidden lg:inline-flex"
             >
-              <DatabaseZap className="w-3.5 h-3.5 text-green" />
-              <span>{loadingCache ? 'Loading...' : 'Demo Run'}</span>
-            </button>
+              {loadingCache ? 'Loading...' : 'Demo run'}
+            </PillButton>
 
-            {/* Role Switcher Pill */}
+            {/* Role Switcher Pill Segmented (white track, active segment green-soft) */}
             <PillSegmented
               size="sm"
               variant="light"
@@ -203,11 +215,11 @@ export const AppShell: React.FC = () => {
               ]}
             />
 
-            {/* Theme Toggle Button */}
+            {/* Theme Toggle Button (40px circle) */}
             <button
               onClick={toggleTheme}
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              className="w-8 h-8 rounded-full border border-line flex items-center justify-center text-ink2 hover:text-ink hover:bg-tileMint/60 transition-colors"
+              className="w-10 h-10 rounded-full border border-line bg-tile hover:bg-tileMint/70 flex items-center justify-center text-ink2 hover:text-ink transition-colors flex-shrink-0"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-warn" />
@@ -216,55 +228,48 @@ export const AppShell: React.FC = () => {
               )}
             </button>
 
-            {/* Run Optimizer Pill CTA */}
+            {/* Run Optimizer SOLID green primary pill with bolt icon */}
             <PillButton
               size="sm"
               variant="primary"
               onClick={() => navigate('/clusters')}
               icon={<Zap className="w-3.5 h-3.5 fill-current" />}
             >
-              <span className="hidden sm:inline">Run Optimizer</span>
+              <span className="hidden sm:inline">Run optimizer</span>
               <span className="sm:hidden">Run</span>
             </PillButton>
           </div>
         </div>
 
-        {/* Thin Status Line below Nav: Run ID, Baseline time, Hard Violations Badge */}
-        <div className="flex items-center justify-between text-[11px] px-6 py-1.5 text-ink3">
-          <div className="flex items-center gap-3 font-mono truncate">
-            <span>
-              run:{' '}
+        {/* Status Line: 3 white pill chips (run id, dataset, 0 hard violations) and ? keys ghost chip */}
+        <div className="flex items-center justify-between text-xs px-2 sm:px-4 py-1 text-ink2">
+          <div className="flex items-center gap-2 font-mono flex-wrap">
+            {/* Run ID Chip */}
+            <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-ink2 flex items-center gap-1.5 shadow-hairline">
+              <span className="text-ink3 font-sans">run:</span>
               <span className="text-ink font-semibold">{runId || 'run_fixture_mini'}</span>
-            </span>
-            <span className="hidden sm:inline text-line">•</span>
-            <span className="hidden sm:inline">
-              dataset: <span className="text-ink">{datasetName}</span>
-            </span>
-            {lastSolveSeconds !== null && (
-              <>
-                <span className="text-line">•</span>
-                <span>
-                  solved in <span className="text-green font-semibold">{lastSolveSeconds.toFixed(2)}s</span>
-                </span>
-              </>
-            )}
+            </div>
+
+            {/* Dataset Chip */}
+            <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-ink2 flex items-center gap-1.5 shadow-hairline">
+              <span className="text-ink3 font-sans">dataset:</span>
+              <span className="text-ink font-semibold">{datasetName}</span>
+            </div>
+
+            {/* 0 Hard Violations Badge */}
+            <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-green font-semibold flex items-center gap-1.5 shadow-hairline">
+              <div className="w-3.5 h-3.5 rounded-full bg-green flex items-center justify-center text-white flex-shrink-0">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+              <span>{hardViolations} hard violations</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 font-mono">
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                hardViolations === 0
-                  ? 'bg-greenSoft text-green border border-green/30'
-                  : 'bg-bad/15 text-bad border border-bad/30'
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>{hardViolations} hard violations</span>
-            </span>
-
+          {/* ? Keys Ghost Chip */}
+          <div className="flex items-center">
             <button
               onClick={() => setShortcutsOpen(true)}
-              className="hidden md:inline text-ink3 hover:text-ink underline decoration-dotted ml-2"
+              className="px-2.5 py-0.5 text-[11px] font-mono text-ink3 hover:text-ink rounded-pill hover:bg-tile/80 border border-transparent hover:border-line transition-all"
               title="Keyboard shortcuts (?)"
             >
               ? keys
@@ -273,8 +278,8 @@ export const AppShell: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Canvas Area: 24px padding, max-width 1440px */}
-      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 pt-3 pb-16">
+      {/* Main Canvas Area: tighter vertical padding to ensure first bento row is visible within 900px */}
+      <main className="flex-1 w-full max-w-[1440px] mx-auto px-4 sm:px-6 pt-1 pb-10">
         <Outlet />
       </main>
 
@@ -284,7 +289,7 @@ export const AppShell: React.FC = () => {
       {/* Keyboard Shortcuts Dialog */}
       {shortcutsOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-tile border border-line rounded-tile p-6 max-w-md w-full shadow-hover relative">
+          <div className="bg-tile border border-line rounded-tile p-6 max-w-md w-full shadow-hairline relative">
             <button
               onClick={() => setShortcutsOpen(false)}
               className="absolute top-4 right-4 text-ink3 hover:text-ink"

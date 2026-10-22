@@ -14,6 +14,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import (
     BackgroundTasks,
     FastAPI,
@@ -29,6 +33,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from backend.api.db import (
+    cleanup_stale_jobs,
     complete_job,
     create_job,
     fail_job,
@@ -96,10 +101,11 @@ def is_mock() -> bool:
 FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "fixtures"
 RUNS_DIR = Path(__file__).resolve().parent.parent.parent / "runs"
 BENCHMARKS_DIR = Path(__file__).resolve().parent.parent.parent / "benchmarks"
-EXECUTOR = ThreadPoolExecutor(max_workers=4)
+EXECUTOR = ThreadPoolExecutor(max_workers=8)
 
-# Initialize SQLite database on startup
+# Initialize SQLite database on startup and cleanup interrupted jobs
 init_db()
+cleanup_stale_jobs()
 
 
 def load_fixture(filename: str) -> Any:
@@ -303,12 +309,13 @@ def run_baseline(
 
     if is_mock():
         create_job(job_id, kind="baseline", stage="solve", progress=0.2, result_ref=f"/api/runs/{run_id}")
+        complete_job(job_id, result_ref=f"/api/runs/{run_id}")
         return Job(
             job_id=job_id,
             kind="baseline",
-            status="running",
-            stage="solve",
-            progress=0.2,
+            status="done",
+            stage="done",
+            progress=1.0,
             energy_trace=[],
             result_ref=f"/api/runs/{run_id}",
         )
@@ -321,7 +328,7 @@ def run_baseline(
         meta = json.load(f)
 
     create_job(job_id, kind="baseline", stage="queued", progress=0.0, result_ref=f"/api/runs/{run_id}")
-    EXECUTOR.submit(_execute_baseline_solver, run_id, job_id, req.time_limit_s, meta.get("seed", 42))
+    background_tasks.add_task(_execute_baseline_solver, run_id, job_id, req.time_limit_s, meta.get("seed", 42))
 
     job = get_job(job_id)
     return job or Job(
@@ -336,7 +343,7 @@ def run_baseline(
 
 @app.get("/api/runs/{run_id}")
 def get_run_details(run_id: str):
-    if is_mock():
+    if is_mock() or run_id == "run_fixture_mini":
         tt_data = load_fixture("timetable.json")
         sp_data = load_fixture("subproblem_6.json")
         dec_data = load_fixture("decision_accepted.json")
@@ -389,7 +396,7 @@ class ExtractRequest(BaseModel):
 
 @app.post("/api/runs/{run_id}/clusters/extract")
 def extract_run_clusters(run_id: str, req: ExtractRequest):
-    if is_mock():
+    if is_mock() or run_id == "run_fixture_mini":
         sp_data = load_fixture("subproblem_6.json")
         return [SubProblem.model_validate(sp_data)]
 
@@ -467,6 +474,7 @@ def submit_quantum_job(
     run_id: str,
     cid: str,
     cfg: QuantumConfig,
+    background_tasks: BackgroundTasks,
     x_role: str = Header(default="coordinator", alias="X-Role"),
 ):
     # Enforce role restriction per docs/CONTRACTS.md
@@ -485,13 +493,14 @@ def submit_quantum_job(
 
     if is_mock():
         create_job(job_id, kind="quantum", stage="qubo", progress=0.1, result_ref=f"/api/runs/{run_id}/clusters/{cid}/result")
+        complete_job(job_id, result_ref=f"/api/runs/{run_id}/clusters/{cid}/result")
         return Job(
             job_id=job_id,
             kind="quantum",
-            status="running",
-            stage="qubo",
-            progress=0.1,
-            energy_trace=[182.0],
+            status="done",
+            stage="done",
+            progress=1.0,
+            energy_trace=[182.0, 165.4, 150.2, 138.0, 126.5, 118.0],
             result_ref=f"/api/runs/{run_id}/clusters/{cid}/result",
         )
 
@@ -509,7 +518,7 @@ def submit_quantum_job(
         ) from e
 
     create_job(job_id, kind="quantum", stage="qubo", progress=0.05, result_ref=f"/api/runs/{run_id}/clusters/{cid}/result")
-    EXECUTOR.submit(_execute_quantum_pipeline, run_id, cid, job_id, cfg)
+    background_tasks.add_task(_execute_quantum_pipeline, run_id, cid, job_id, cfg)
 
     job = get_job(job_id)
     return job or Job(
@@ -583,7 +592,7 @@ def get_cluster_result(run_id: str, cid: str):
 
 @app.get("/api/runs/{run_id}/benchmarks")
 def get_benchmarks(run_id: str):
-    if is_mock():
+    if is_mock() or run_id == "run_fixture_mini":
         bench_data = load_fixture("benchmarks.json")
         rows = [BenchmarkRow.model_validate(r) for r in bench_data]
         return {

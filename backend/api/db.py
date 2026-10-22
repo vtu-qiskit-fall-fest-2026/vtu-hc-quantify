@@ -59,6 +59,18 @@ def init_db() -> None:
     Base.metadata.create_all(bind=ENGINE)
 
 
+def cleanup_stale_jobs() -> None:
+    """Cleans up any jobs stuck in running state from interrupted server processes."""
+    init_db()
+    with SessionLocal() as session:
+        stale = session.query(JobModel).filter(JobModel.status == "running").all()
+        for j in stale:
+            j.status = "error"
+            j.error = "Process interrupted / timed out"
+        session.commit()
+
+
+
 def create_job(
     job_id: str,
     kind: str,
@@ -122,6 +134,7 @@ def complete_job(
         job.status = "done"
         job.stage = stage
         job.progress = 1.0
+        job.error = None
         if result_ref:
             job.result_ref = result_ref
         session.commit()

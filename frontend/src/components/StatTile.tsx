@@ -46,10 +46,10 @@ export const StatTile: React.FC<StatTileProps> = ({
         </span>
         {icon && (
           <div
-            className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+            className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-hairline ${
               isDeep
-                ? 'bg-white/10 text-onDeep border border-white/20'
-                : 'bg-greenSoft text-green border border-green/20'
+                ? 'bg-white/15 text-white'
+                : 'bg-greenSoft text-green'
             }`}
           >
             {icon}
@@ -68,7 +68,7 @@ export const StatTile: React.FC<StatTileProps> = ({
         {subtext && (
           <p
             className={`text-xs mt-1.5 font-ui truncate ${
-              isDeep ? 'text-onDeep/70' : 'text-ink2'
+              isDeep ? 'text-onDeep/80' : 'text-ink2'
             }`}
           >
             {subtext}

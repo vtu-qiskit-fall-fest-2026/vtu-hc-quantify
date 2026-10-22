@@ -131,16 +131,23 @@ body {
   .bento-tile-mount {
     animation: bentoMount 160ms var(--ease) forwards;
   }
+  .animate-spin-slow {
+    animation: spinSlow 24s linear infinite;
+  }
 }
 
-@keyframes bentoMount {
+@keyframes spinSlow {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow {
+    animation: none !important;
   }
 }
 

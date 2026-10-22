@@ -446,6 +446,58 @@ export const DatasetPage: React.FC = () => {
           />
         </Tile>
 
+        {/* Clean Solve Baseline Bar — appears as soon as everything is properly uploaded */}
+        {(canSolve || solving) && (
+          <div className="col-span-12 tile bg-white border border-line shadow-hairline flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 animate-fadeIn">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-greenSoft text-green flex items-center justify-center flex-shrink-0">
+                {solving ? (
+                  <div className="w-4 h-4 border-2 border-green border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-5 h-5 text-green" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-sm text-ink font-ui">
+                    {solving ? 'Solving Global Campus Schedule with CP-SAT...' : 'All 4 Dataset Files Audited — Ready to Solve'}
+                  </h3>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-greenSoft text-green font-semibold">
+                    0 CLASHES / 0 ERRORS
+                  </span>
+                </div>
+                <p className="text-xs text-ink2 font-ui mt-0.5 truncate">
+                  {solving ? (
+                    <span className="text-green font-mono font-medium animate-pulse">
+                      Running Google OR-Tools integer solver · Elapsed: {elapsedTimer.toFixed(1)}s
+                    </span>
+                  ) : (
+                    `Integrity verified for ${courseCount} courses, ${studentCount} students, ${roomCount} rooms, and ${slotCount} slots.`
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
+              {solving && (
+                <span className="font-mono text-sm font-semibold text-green tabular-nums">
+                  {elapsedTimer.toFixed(1)}s
+                </span>
+              )}
+              <PillButton
+                size="md"
+                variant="primary"
+                disabled={!canSolve || solving}
+                loading={solving}
+                onClick={handleSolveBaseline}
+                icon={<Play className="w-4 h-4 fill-current" />}
+              >
+                {solving ? 'Solving...' : 'Solve Baseline (CP-SAT)'}
+              </PillButton>
+            </div>
+          </div>
+        )}
+
         {/* Row 2 Left: Validation table 8x3 */}
         <Tile
           variant="default"
@@ -511,55 +563,6 @@ export const DatasetPage: React.FC = () => {
             icon={<CalendarDays className="w-3.5 h-3.5" />}
           />
         </div>
-
-        {/* Row 3: Solve baseline tile 12x1 deep, primary pill + live timer */}
-        <Tile
-          variant="deep"
-          colSpan={12}
-          rowSpan={1}
-          padding="normal"
-          className="flex-row items-center justify-between"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-onDeep">
-              <Play className="w-4 h-4 fill-current ml-0.5" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-sm text-onDeep font-ui">
-                Compute Classical Feasible Baseline
-              </h3>
-              <p className="text-xs text-onDeep/80 font-mono">
-                {solving ? (
-                  <span className="text-green animate-pulse">
-                    Running OR-Tools CP-SAT solver... Elapsed: {elapsedTimer.toFixed(1)} s
-                  </span>
-                ) : canSolve ? (
-                  'All required constraints validated. Ready to solve global timetable.'
-                ) : (
-                  'Awaiting 4 valid CSV files without error-level integrity failures.'
-                )}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {solving && (
-              <span className="font-mono text-sm font-semibold text-green tabular-nums">
-                {elapsedTimer.toFixed(1)}s
-              </span>
-            )}
-            <PillButton
-              size="md"
-              variant="primary"
-              disabled={!canSolve || solving}
-              loading={solving}
-              onClick={handleSolveBaseline}
-              icon={<Play className="w-3.5 h-3.5 fill-current" />}
-            >
-              {solving ? 'Solving Baseline...' : 'Solve Baseline'}
-            </PillButton>
-          </div>
-        </Tile>
       </BentoGrid>
     </div>
   );

@@ -491,21 +491,32 @@ export const ClusterLabPage: React.FC = () => {
                       key={node.id}
                       className="cursor-pointer transition-transform duration-150 hover:scale-105"
                     >
+                      {/* Soft outer ring in slot color at 25% */}
+                      <circle
+                        cx={node.x}
+                        cy={node.y}
+                        r={26}
+                        fill="none"
+                        stroke={fillColor}
+                        strokeWidth="3"
+                        strokeOpacity="0.25"
+                      />
+                      {/* Node circle: 44px with 3px white ring */}
                       <circle
                         cx={node.x}
                         cy={node.y}
                         r={22}
                         fill={fillColor}
                         stroke="#FFFFFF"
-                        strokeWidth="2.5"
-                        className="transition-colors duration-150 shadow-sm"
+                        strokeWidth="3"
+                        className="transition-colors duration-150 shadow-hairline"
                       />
                       <text
                         x={node.x}
-                        y={node.y + 3.5}
+                        y={node.y + 4}
                         fill="#FFFFFF"
-                        fontSize="9.5"
-                        fontWeight="600"
+                        fontSize="10"
+                        fontWeight="700"
                         fontFamily="var(--font-mono)"
                         textAnchor="middle"
                         className="select-none pointer-events-none"
@@ -514,9 +525,9 @@ export const ClusterLabPage: React.FC = () => {
                       </text>
                       <text
                         x={node.x}
-                        y={node.y + 33}
-                        fill="var(--ink)"
-                        fontSize="9"
+                        y={node.y + 35}
+                        fill="var(--ink-2)"
+                        fontSize="10"
                         fontWeight="600"
                         fontFamily="var(--font-mono)"
                         textAnchor="middle"
