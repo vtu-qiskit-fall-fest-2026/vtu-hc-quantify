@@ -63,3 +63,7 @@ runs/run_*
 runs/temp/
 data/uploads/
 data/synthetic/*/
+# Node / Frontend
+node_modules/
+frontend/dist/
+.eslintcache
