@@ -13,8 +13,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from backend.core.baseline import solve_baseline
 from backend.core.datagen import generate_dataset
-from backend.core.scorer import ScoreWeights, score_timetable
-from backend.schemas import Assignment, Course, Dataset, Enrollment, Room, Slot, Timetable
+from backend.core.scorer import score_timetable
+from backend.schemas import (
+    Assignment,
+    Dataset,
+    Room,
+    Timetable,
+)
 
 
 def create_mini_dataset() -> Dataset:

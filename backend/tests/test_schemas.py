@@ -1,21 +1,19 @@
 """Test suite for QUANTA Pydantic v2 schemas and pure-Python scorer."""
+from backend.core.scorer import score_timetable
+from backend.quantum.bitorder import assignment_to_bits, bits_to_assignment
 from backend.schemas import (
     Assignment,
-    Timetable,
-    SubProblem,
-    PairWeight,
+    Course,
+    Dataset,
+    Enrollment,
+    FinalDecision,
     QuantumConfig,
     QuantumResult,
-    FinalDecision,
-    Dataset,
-    Course,
-    Enrollment,
     Room,
     Slot,
+    SubProblem,
+    Timetable,
 )
-from backend.core.scorer import score_timetable
-from backend.quantum.qubo import energy, brute_force
-from backend.quantum.bitorder import bits_to_assignment, assignment_to_bits
 
 
 def test_schema_instantiation():
@@ -82,6 +80,7 @@ def test_fixtures_load_and_validate():
     """Verify that every fixture JSON file validates against Pydantic schemas."""
     import json
     from pathlib import Path
+
     from backend.schemas import BenchmarkRow
 
     fixtures_dir = Path(__file__).resolve().parent.parent.parent / "data" / "fixtures"

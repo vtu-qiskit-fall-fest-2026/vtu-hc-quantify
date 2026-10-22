@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from backend.schemas import Assignment, Dataset, Timetable
+from backend.schemas import Dataset, Timetable
 
 
 @dataclass(frozen=True)

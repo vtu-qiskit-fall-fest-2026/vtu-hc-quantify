@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from dotenv import load_dotenv
+
 from backend.quantum.ibm import run_qaoa_ibm
 from backend.quantum.noise import run_qaoa_noisy
 from backend.quantum.qaoa import run_qaoa_ideal
 from backend.schemas import QuantumConfig, QuantumResult, SubProblem
-from dotenv import load_dotenv
 
 load_dotenv()
 

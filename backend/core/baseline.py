@@ -7,10 +7,9 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
-from typing import Any
 
 from backend.core.scorer import score_timetable
-from backend.schemas import Assignment, Course, Dataset, Room, Slot, Timetable
+from backend.schemas import Assignment, Dataset, Room, Timetable
 
 
 def assign_rooms_best_fit(
