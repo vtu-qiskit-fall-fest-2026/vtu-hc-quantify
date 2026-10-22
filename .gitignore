@@ -56,6 +56,13 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Runtime runs and database
+*.db
+quanta_jobs.db
+runs/run_*
+runs/temp/
+data/uploads/
+data/synthetic/*/
 # Node / Frontend
 node_modules/
 frontend/dist/

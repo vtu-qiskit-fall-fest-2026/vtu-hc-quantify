@@ -13,7 +13,8 @@ dev:
 	python -m backend.api.main & cd frontend && $(NPM) run dev
 
 test:
-	pytest backend/tests/ tests/ -v
+	pytest backend/tests/ -v
+	$(PYTHON) scripts/e2e.py --dataset mini --backend ideal
 
 mock:
 	QUANTA_MOCK=1 python -m backend.api.main

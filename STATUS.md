@@ -10,7 +10,7 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 - [x] A2 CP-SAT baseline + independent scorer
 - [x] A3 bottleneck extractor  -> HO-02
 - [x] A4 repair + fallback
-- [ ] A5b real API wiring  -> HO-04
+- [x] A5b real API wiring  -> HO-04
 - [ ] A6 integration fixes
 
 ### B: Quantum + benchmarks
@@ -32,6 +32,9 @@ Clock start (H0): ____  |  Freeze (H32): ____  |  Demo (H36): ____
 ## Handoffs
 - [x] HO-01 A->C mock API (H3)
 - [x] HO-02 A->B subproblem fixtures (H3 tiny [delivered], H12 real)
+- [ ] HO-03 B->A quantum interface (H14)
+- [x] HO-04 A->C real API (H14)
+- [ ] HO-05 B->C hardware + benchmarks (H28)
 - [x] HO-03 B->A quantum interface (H14)
 - [ ] HO-04 A->C real API (H14)
 - [x] HO-05 B->C hardware + benchmarks (H28)
