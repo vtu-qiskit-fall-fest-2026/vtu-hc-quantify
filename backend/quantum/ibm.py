@@ -25,6 +25,8 @@ from backend.quantum.bitorder import bits_to_assignment
 from backend.quantum.qubo import brute_force, build_qubo, energy, to_ising
 from backend.schemas import BitstringCount, QuantumConfig, QuantumResult, SubProblem
 
+load_dotenv()
+
 
 def run_qaoa_ibm(
     sp: SubProblem,
@@ -90,7 +92,6 @@ def run_qaoa_ibm(
         raw_counts = samp_result[0].data.meas.get_counts()
     else:
         # Live physical hardware path
-        load_dotenv()
         token = os.getenv("IBM_QUANTUM_TOKEN")
         instance = os.getenv("IBM_QUANTUM_INSTANCE")
 

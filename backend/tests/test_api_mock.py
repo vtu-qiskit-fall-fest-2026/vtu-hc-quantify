@@ -1,6 +1,14 @@
 """Unit tests for FastAPI Mock Mode API endpoints (Task A5a)."""
+import os
+import pytest
 from fastapi.testclient import TestClient
 from backend.api.main import app
+
+
+@pytest.fixture(autouse=True)
+def mock_env(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("QUANTA_MOCK", "1")
+
 
 client = TestClient(app)
 

@@ -12,6 +12,9 @@ from backend.quantum.ibm import run_qaoa_ibm
 from backend.quantum.noise import run_qaoa_noisy
 from backend.quantum.qaoa import run_qaoa_ideal
 from backend.schemas import QuantumConfig, QuantumResult, SubProblem
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class QuantumBackendError(RuntimeError):
@@ -76,9 +79,6 @@ def run_quantum(
             # Fast check for token before spending simulator runtime
             import os
 
-            from dotenv import load_dotenv
-
-            load_dotenv()
             if not os.getenv("IBM_QUANTUM_TOKEN"):
                 raise QuantumBackendError(
                     "Missing IBM_QUANTUM_TOKEN in environment or .env file. "
