@@ -345,3 +345,8 @@ def export_csv(run_id: str):
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=quanta_timetable_{run_id}.csv"},
     )
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
