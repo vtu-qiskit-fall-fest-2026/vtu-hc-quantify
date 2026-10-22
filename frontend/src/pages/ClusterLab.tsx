@@ -14,7 +14,6 @@ import {
 } from 'recharts';
 import {
   Send,
-  Cpu,
   Zap,
 } from 'lucide-react';
 import { BentoGrid } from '../components/BentoGrid';
@@ -344,18 +343,14 @@ export const ClusterLabPage: React.FC = () => {
   const groundEnergy = quantumResult?.ground_energy || 118.0;
 
   return (
-    <div className="space-y-6">
-      {/* Page Headline with exactly ONE italic green accent word */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2 pb-1 border-b border-line/40">
+    <div className="space-y-3">
+      {/* Compressed Page Header without overlapping eyebrow chip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-line/30">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-pill bg-tileMint text-ink font-ui text-xs font-medium mb-1.5 border border-line/60">
-            <Cpu className="w-3.5 h-3.5 text-green" />
-            <span>Bottleneck Optimization Sandbox</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-ui text-ink">
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold tracking-tight font-ui text-ink">
             Subproblem cluster, <span className="italic font-medium text-green">optimized</span>.
           </h1>
-          <p className="text-xs text-ink3 font-ui mt-1">
+          <p className="text-[13px] text-ink2 font-ui mt-0.5 truncate">
             Isolate coupled conflict bottlenecks into compact QUBO subproblems and solve with Qiskit QAOA.
           </p>
         </div>
@@ -374,28 +369,28 @@ export const ClusterLabPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bento Grid: 12 Columns Layout per UI_UPDATE_BENTO.md section 6 */}
-      <BentoGrid>
-        {/* Left Column: Cluster List 3x7 */}
+      {/* Bento Grid: 12 Columns, auto-rows 72px */}
+      <BentoGrid className="[grid-auto-rows:72px]">
+        {/* Row 1-6 Left: Cluster List 3x6 (default) */}
         <Tile
           variant="default"
           colSpan={3}
-          rowSpan={7}
+          rowSpan={6}
           title="Extracted Clusters"
           subtitle="Ranked by shared testing fatigue"
           action={
-            <span className="font-mono text-[11px] text-ink3">
+            <span className="font-mono text-[11px] text-ink2">
               {clusters.length} clusters
             </span>
           }
           padding="dense"
         >
           {loadingClusters ? (
-            <div className="p-4 text-center font-mono text-xs text-ink3 animate-pulse">
+            <div className="p-4 text-center font-ui text-xs text-ink2 animate-pulse">
               Extracting conflict clusters...
             </div>
           ) : (
-            <div className="space-y-2 overflow-y-auto max-h-[560px] pr-1">
+            <div className="space-y-2 overflow-y-auto max-h-[380px] pr-1">
               {clusters.map((c) => {
                 const isSelected = activeCluster?.cluster_id === c.cluster_id;
                 const hasDecision = decisions.some((d) => d.cluster_id === c.cluster_id);
@@ -404,7 +399,7 @@ export const ClusterLabPage: React.FC = () => {
                   <div
                     key={c.cluster_id}
                     onClick={() => setActiveClusterId(c.cluster_id)}
-                    className={`p-3 rounded-inner border transition-all cursor-pointer select-none ${
+                    className={`p-2.5 rounded-inner border transition-all cursor-pointer select-none ${
                       isSelected
                         ? 'bg-tileMint border-green shadow-hairline'
                         : 'bg-tile hover:bg-tileMint/40 border-line/60'
@@ -421,8 +416,8 @@ export const ClusterLabPage: React.FC = () => {
                     <div className="grid grid-cols-2 gap-1 text-[11px] font-mono text-ink2">
                       <div>courses: <span className="font-semibold text-ink">{c.courses.length}</span></div>
                       <div>students: <span className="font-semibold text-ink">{c.affected_students}</span></div>
-                      <div className="col-span-2 text-ink3">
-                        cost: <span className="font-semibold text-ink">{c.baseline_cluster_cost.toFixed(1)}</span>
+                      <div className="col-span-2 text-ink3 text-[10px]">
+                        baseline cost: <span className="font-semibold text-ink">{c.baseline_cluster_cost.toFixed(1)}</span>
                       </div>
                     </div>
                   </div>
@@ -432,7 +427,7 @@ export const ClusterLabPage: React.FC = () => {
           )}
         </Tile>
 
-        {/* Center Hero: Conflict Subgraph 6x5 (mint) with Before/After pill toggle */}
+        {/* Row 1-5 Center Hero: Conflict Subgraph 6x5 (mint) with Before/After pill toggle */}
         <Tile
           variant="mint"
           colSpan={6}
@@ -453,11 +448,12 @@ export const ClusterLabPage: React.FC = () => {
               />
             </div>
           }
-          className="relative min-h-[380px]"
+          className="relative"
+          padding="dense"
         >
-          <div className="relative w-full h-full min-h-[300px] flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
             {layoutNodes.length > 0 ? (
-              <svg viewBox="0 0 480 320" className="w-full h-full max-h-[340px]">
+              <svg viewBox="0 0 480 300" className="w-full h-full max-h-[300px]">
                 {/* Edges */}
                 {graphData.links.map((link: any, idx) => {
                   const sourceNode = layoutNodes.find((n) => n.id === link.source) || layoutNodes[0];
@@ -495,20 +491,20 @@ export const ClusterLabPage: React.FC = () => {
                       <circle
                         cx={node.x}
                         cy={node.y}
-                        r={26}
+                        r={24}
                         fill="none"
                         stroke={fillColor}
                         strokeWidth="3"
                         strokeOpacity="0.25"
                       />
-                      {/* Node circle: 44px with 3px white ring */}
+                      {/* Node circle: 40px with 3px white ring */}
                       <circle
                         cx={node.x}
                         cy={node.y}
-                        r={22}
+                        r={20}
                         fill={fillColor}
                         stroke="#FFFFFF"
-                        strokeWidth="3"
+                        strokeWidth="2.5"
                         className="transition-colors duration-150 shadow-hairline"
                       />
                       <text
@@ -525,7 +521,7 @@ export const ClusterLabPage: React.FC = () => {
                       </text>
                       <text
                         x={node.x}
-                        y={node.y + 35}
+                        y={node.y + 32}
                         fill="var(--ink-2)"
                         fontSize="10"
                         fontWeight="600"
@@ -540,29 +536,25 @@ export const ClusterLabPage: React.FC = () => {
                 })}
               </svg>
             ) : (
-              <div className="text-xs font-mono text-ink3">Loading cluster topology...</div>
+              <div className="text-xs font-ui text-ink2">Loading cluster topology...</div>
             )}
-          </div>
-
-          <div className="mt-auto pt-2 border-t border-line/40 flex items-center justify-between text-xs text-ink3 font-ui">
-            <span>Palette: 8 exam slots • Smooth 150ms fill swap</span>
-            <span className="font-mono text-ink">{activeCluster?.courses.length || 0} qubits</span>
           </div>
         </Tile>
 
-        {/* Right Hero: Run Config 3x5 */}
+        {/* Row 1-6 Right: Run Config 3x6 (default) */}
         <Tile
           variant="default"
           colSpan={3}
-          rowSpan={5}
+          rowSpan={6}
           title="QAOA Solver Parameters"
           subtitle="QPU target, depth, and penalty table"
-          padding="normal"
+          padding="dense"
+          className="flex flex-col justify-between"
         >
-          <div className="space-y-4 text-xs font-ui">
+          <div className="space-y-3 text-xs font-ui">
             {/* Backend Selection */}
             <div>
-              <span className="text-[11px] font-semibold text-ink block mb-1.5 uppercase tracking-wide">
+              <span className="text-[11px] font-semibold text-ink block mb-1 uppercase tracking-wide">
                 Quantum Target
               </span>
               <PillSegmented
@@ -619,7 +611,7 @@ export const ClusterLabPage: React.FC = () => {
             </div>
 
             {/* Penalty Overrides */}
-            <div className="pt-2 border-t border-line/40 space-y-2">
+            <div className="pt-2 border-t border-line/40 space-y-1.5">
               <span className="text-[11px] font-semibold text-ink block uppercase tracking-wide">
                 Penalty Overrides
               </span>
@@ -636,39 +628,40 @@ export const ClusterLabPage: React.FC = () => {
                 <span className="font-mono font-semibold text-ink">{sameDayPenalty}</span>
               </div>
             </div>
+          </div>
 
-            {/* Primary Action Button */}
-            <div className="pt-2">
-              <PillButton
-                size="md"
-                variant="primary"
-                className="w-full"
-                disabled={!activeCluster || !!runningJob}
-                loading={!!runningJob}
-                onClick={handleRunQuantum}
-                icon={<Zap className="w-3.5 h-3.5 fill-current" />}
-              >
-                {runningJob ? 'Executing Pipeline...' : 'Run QAOA Pipeline (r)'}
-              </PillButton>
-            </div>
+          {/* Primary Action Button */}
+          <div className="pt-2 border-t border-line/30">
+            <PillButton
+              size="md"
+              variant="primary"
+              className="w-full"
+              disabled={!activeCluster || !!runningJob}
+              loading={!!runningJob}
+              onClick={handleRunQuantum}
+              icon={<Zap className="w-3.5 h-3.5 fill-current" />}
+            >
+              {runningJob ? 'Executing Pipeline...' : 'Run QAOA Pipeline (r)'}
+            </PillButton>
           </div>
         </Tile>
 
-        {/* Pipeline Stepper 6x1 (under center Subgraph) */}
+        {/* Row 6 Center: Pipeline Stepper 6x1 (under center Subgraph) */}
         <Tile
           variant="default"
           colSpan={6}
           rowSpan={1}
           padding="dense"
-          className="lg:col-start-4 justify-center"
+          className="lg:col-start-4 flex items-center justify-center"
         >
           <Stepper
+            orientation="horizontal"
             steps={PIPELINE_STEPS}
             currentStepId={runningJob?.stage || (quantumResult ? 'decide' : 'extract')}
           />
         </Tile>
 
-        {/* Row 3 Left: Energy Convergence Chart 4x2 */}
+        {/* Row 7-8 Left: Energy Convergence Chart 4x2 */}
         <Tile
           variant="default"
           colSpan={4}
@@ -682,7 +675,7 @@ export const ClusterLabPage: React.FC = () => {
           }
           padding="dense"
         >
-          <div className="w-full h-36">
+          <div className="w-full h-28 pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={energyChartData}>
                 <XAxis dataKey="iteration" stroke="#86988D" fontSize={10} fontStyle="DM Mono" />
@@ -709,7 +702,7 @@ export const ClusterLabPage: React.FC = () => {
           </div>
         </Tile>
 
-        {/* Row 3 Center: Decision Tile 4x2 (Deep green when accepted with CircleSeal; White with warn edge when fallback) */}
+        {/* Row 7-8 Center: Decision Tile 4x2 (Deep green when accepted with CircleSeal; White with warn edge when fallback) */}
         <div className="lg:col-span-4 md:col-span-6 row-span-2 relative">
           <Tile
             variant={
@@ -737,34 +730,37 @@ export const ClusterLabPage: React.FC = () => {
                 </PillButton>
               )
             }
+            padding="dense"
           >
             {currentDecision ? (
-              <div className="mt-1">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Badge
-                    label={
-                      currentDecision.source === 'baseline_fallback'
-                        ? 'BASELINE FALLBACK'
-                        : 'ACCEPTED'
-                    }
-                    variant={
-                      currentDecision.source === 'baseline_fallback' ? 'warn' : 'ok'
-                    }
-                  />
-                  <span className="font-mono text-xs opacity-80">
-                    {currentDecision.before_score} → {currentDecision.after_score}
-                  </span>
+              <div className="mt-0.5 flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge
+                      label={
+                        currentDecision.source === 'baseline_fallback'
+                          ? 'BASELINE FALLBACK'
+                          : 'ACCEPTED'
+                      }
+                      variant={
+                        currentDecision.source === 'baseline_fallback' ? 'warn' : 'ok'
+                      }
+                    />
+                    <span className="font-mono text-xs opacity-80">
+                      {currentDecision.before_score} → {currentDecision.after_score}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed opacity-95 font-ui">
+                    {currentDecision.reason}
+                  </p>
                 </div>
-                <p className="text-xs leading-relaxed opacity-95">
-                  {currentDecision.reason}
-                </p>
-                <div className="mt-auto pt-2 flex items-center gap-3 font-mono text-[11px] opacity-75">
+                <div className="pt-1.5 flex items-center gap-3 font-mono text-[11px] opacity-75">
                   <span>resolved: {currentDecision.resolved_students} students</span>
                   <span>changes: {currentDecision.changes.length} courses</span>
                 </div>
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-ink3 text-center">
+              <div className="h-full flex items-center justify-center text-xs text-ink2 text-center font-ui">
                 Awaiting quantum run evaluation...
               </div>
             )}
@@ -772,7 +768,7 @@ export const ClusterLabPage: React.FC = () => {
 
           {/* Overlapping CircleSeal */}
           {currentDecision && (
-            <div className="absolute -top-3 -right-3">
+            <div className="absolute -top-3 -right-3 z-10">
               <CircleSeal
                 size="sm"
                 label="0 HARD"
@@ -785,7 +781,7 @@ export const ClusterLabPage: React.FC = () => {
           )}
         </div>
 
-        {/* Row 3 Right: Bitstring Histogram 4x2 */}
+        {/* Row 7-8 Right: Bitstring Histogram 4x2 */}
         <Tile
           variant="default"
           colSpan={4}
@@ -794,7 +790,7 @@ export const ClusterLabPage: React.FC = () => {
           subtitle="Top candidates by shot frequency"
           padding="dense"
         >
-          <div className="w-full h-36">
+          <div className="w-full h-28 pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={histogramData}>
                 <XAxis dataKey="bitstring" stroke="#86988D" fontSize={9} fontStyle="DM Mono" />
@@ -821,7 +817,7 @@ export const ClusterLabPage: React.FC = () => {
           </div>
         </Tile>
 
-        {/* Row 4 Left: Course Changes Diff Table 6x2 */}
+        {/* Row 9-10 Left: Course Changes Diff Table 6x2 */}
         <Tile
           variant="default"
           colSpan={6}
@@ -831,42 +827,42 @@ export const ClusterLabPage: React.FC = () => {
           padding="dense"
         >
           {currentDecision && currentDecision.changes.length > 0 ? (
-            <div className="border border-line/60 rounded-inner overflow-hidden text-xs font-mono">
-              <table className="w-full text-left">
-                <thead className="bg-tileMint/60 text-[10px] text-ink3 border-b border-line/40">
-                  <tr>
-                    <th className="p-2">Course ID</th>
-                    <th className="p-2">From Slot</th>
-                    <th className="p-2">To Slot (Q-Move)</th>
-                    <th className="p-2 text-right">Penalty Impact</th>
+            <div className="overflow-hidden text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-tileMint text-[10px] text-ink font-ui font-semibold uppercase tracking-wider rounded-inner">
+                  <tr className="h-7">
+                    <th className="px-2.5 py-1 rounded-l-inner">Course ID</th>
+                    <th className="px-2.5 py-1">From Slot</th>
+                    <th className="px-2.5 py-1">To Slot (Q-Move)</th>
+                    <th className="px-2.5 py-1 text-right rounded-r-inner">Penalty Impact</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-line/30">
-                  {currentDecision.changes.map((c) => (
-                    <tr key={c[0]} className="hover:bg-tileMint/20">
-                      <td className="p-2 font-bold text-ink">{c[0]}</td>
-                      <td className="p-2 text-ink2">{c[1]}</td>
-                      <td className="p-2 text-green font-semibold">{c[2]}</td>
-                      <td className="p-2 text-right text-green">-32.0 pts</td>
+                <tbody className="text-[11px] divide-y divide-line/30 font-mono">
+                  {currentDecision.changes.map((c, idx) => (
+                    <tr key={c[0]} className={`h-8 ${idx % 2 === 1 ? 'bg-greenSoft/25' : 'bg-transparent'} hover:bg-tileMint/30 transition-colors`}>
+                      <td className="px-2.5 py-1 font-bold text-ink">{c[0]}</td>
+                      <td className="px-2.5 py-1 text-ink2">{c[1]}</td>
+                      <td className="px-2.5 py-1 text-green font-semibold">{c[2]}</td>
+                      <td className="px-2.5 py-1 text-right text-green">-32.0 pts</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-xs font-mono text-ink3 text-center p-4">
+            <div className="h-full flex items-center justify-center text-xs font-ui text-ink2 text-center p-3">
               {currentDecision ? 'Baseline preserved: 0 slot moves accepted.' : 'Run QAOA to compute schedule diff.'}
             </div>
           )}
         </Tile>
 
-        {/* Row 4 Right: Raw QuantumResult CodeTile 6x2 (ink) */}
+        {/* Row 9-10 Right: Raw QuantumResult CodeTile 6x2 (ink) */}
         <CodeTile
           title="Raw Quantum Result Telemetry"
           code={quantumResult || { message: 'Run QAOA pipeline to capture quantum telemetry JSON' }}
           colSpan={6}
           rowSpan={2}
-          maxHeight="160px"
+          maxHeight="120px"
         />
       </BentoGrid>
     </div>

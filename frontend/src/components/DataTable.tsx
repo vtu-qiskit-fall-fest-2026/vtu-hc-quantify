@@ -43,14 +43,12 @@ export function DataTable<TData>({
   });
 
   return (
-    <div
-      className={`border border-line/80 bg-tile rounded-inner overflow-hidden select-text ${className}`}
-    >
+    <div className={`w-full overflow-hidden select-text ${className}`}>
       <div className="overflow-x-auto max-w-full">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-tileMint/80 sticky top-0 z-10 border-b border-line text-[11px] font-semibold text-ink font-ui uppercase tracking-wide select-none">
+          <thead className="bg-tileMint sticky top-0 z-10 text-[11px] font-semibold text-ink font-ui uppercase tracking-wide select-none rounded-inner">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="h-9 min-h-[36px]">
+              <tr key={headerGroup.id} className="h-9 min-h-[36px] rounded-inner">
                 {headerGroup.headers.map((header) => {
                   const canSort = header.column.getCanSort();
                   const isSorted = header.column.getIsSorted();
@@ -58,9 +56,9 @@ export function DataTable<TData>({
                     <th
                       key={header.id}
                       className={`px-3 py-2 border-r border-line/40 last:border-r-0 font-medium ${
-                        canSort ? 'cursor-pointer hover:bg-tileMint transition-colors' : ''
+                        canSort && data.length > 0 ? 'cursor-pointer hover:bg-tileSage/40 transition-colors' : ''
                       }`}
-                      onClick={header.column.getToggleSortingHandler()}
+                      onClick={canSort && data.length > 0 ? header.column.getToggleSortingHandler() : undefined}
                     >
                       <div className="flex items-center gap-1.5 justify-between">
                         <div className="truncate">
@@ -69,7 +67,7 @@ export function DataTable<TData>({
                             header.getContext()
                           )}
                         </div>
-                        {canSort && (
+                        {canSort && data.length > 0 && (
                           <span className="text-ink3 flex-shrink-0">
                             {isSorted === 'asc' ? (
                               <ChevronUp className="w-3.5 h-3.5 text-green" />
@@ -92,7 +90,7 @@ export function DataTable<TData>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="h-16 text-center text-ink3 font-mono text-xs"
+                  className="h-16 text-center text-ink2 font-ui text-[13px]"
                 >
                   {emptyText}
                 </td>

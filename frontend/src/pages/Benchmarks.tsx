@@ -16,7 +16,6 @@ import {
   Printer,
   X,
   CheckCircle2,
-  Activity,
   ShieldCheck,
   ChevronRight,
 } from 'lucide-react';
@@ -93,9 +92,9 @@ export const BenchmarksPage: React.FC = () => {
       header: 'Method',
       cell: (i: any) => {
         const val = i.getValue() as string;
-        const isQ = val.startsWith('qaoa');
+        const isQ = val.startsWith('qaoa') || val.includes('ibm');
         return (
-          <span className={`font-mono font-medium ${isQ ? 'text-quantum font-semibold' : 'text-ink'}`}>
+          <span className={`font-mono text-xs font-semibold ${isQ ? 'text-quantum' : 'text-ink'}`}>
             {val}
           </span>
         );
@@ -103,7 +102,7 @@ export const BenchmarksPage: React.FC = () => {
     },
     {
       accessorKey: 'cluster_size',
-      header: () => <div className="text-right">Qubits (n)</div>,
+      header: () => <div className="text-right">Qubits</div>,
       cell: (i: any) => <div className="text-right font-mono tabular-nums">{i.getValue() as number}</div>,
     },
     {
@@ -186,14 +185,14 @@ export const BenchmarksPage: React.FC = () => {
       return [
         { name: 'Brute Force', ratio: 1.0, isQuantum: false },
         { name: 'CP-SAT', ratio: 1.0, isQuantum: false },
-        { name: 'Simulated Anneal', ratio: 0.96, isQuantum: false },
+        { name: 'Sim. Anneal', ratio: 0.96, isQuantum: false },
         { name: 'QAOA (p=1)', ratio: 0.88, isQuantum: true },
         { name: 'QAOA (p=2)', ratio: 0.94, isQuantum: true },
-        { name: 'IBM Kingston (156Q)', ratio: 1.0, isQuantum: true },
+        { name: 'IBM Kingston', ratio: 1.0, isQuantum: true },
       ];
     }
     return rows.map((r) => ({
-      name: r.method,
+      name: r.method.replace('qaoa_ideal_', 'QAOA ').replace('qaoa_noisy_', 'Noisy ').replace('brute_force', 'Brute Force').replace('cpsat', 'CP-SAT').replace('sim_anneal', 'Sim. Anneal').replace('qaoa_ibm', 'IBM Kingston'),
       ratio: r.approx_ratio || 0,
       isQuantum: r.method.startsWith('qaoa') || r.method.includes('ibm'),
     }));
@@ -232,18 +231,14 @@ export const BenchmarksPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Headline with exactly ONE italic green accent word */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2 pb-1 border-b border-line/40">
+    <div className="space-y-3">
+      {/* Compressed Page Header without overlapping eyebrow chip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-line/30">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-pill bg-tileMint text-ink font-ui text-xs font-medium mb-1.5 border border-line/60">
-            <Activity className="w-3.5 h-3.5 text-green" />
-            <span>Empirical Convergence Metrics</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-ui text-ink">
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold tracking-tight font-ui text-ink">
             Empirical benchmarks, <span className="italic font-medium text-green">measured</span>.
           </h1>
-          <p className="text-xs text-ink3 font-ui mt-1">
+          <p className="text-[13px] text-ink2 font-ui mt-0.5 truncate">
             Empirical comparison across brute force, CP-SAT, simulated annealing, QAOA, and measured IBM physical hardware.
           </p>
         </div>
@@ -268,9 +263,9 @@ export const BenchmarksPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bento Grid layout as mapped in UI_UPDATE_BENTO.md section 6 */}
-      <BentoGrid>
-        {/* Row 1 Left: Method comparison bar chart 7x4 (Hero) */}
+      {/* Bento Grid: 12 Columns, auto-rows 72px */}
+      <BentoGrid className="[grid-auto-rows:72px]">
+        {/* Row 1-4 Left: Method comparison bar chart 7x4 (Hero) */}
         <Tile
           variant="default"
           colSpan={7}
@@ -280,30 +275,28 @@ export const BenchmarksPage: React.FC = () => {
           action={
             <div className="flex items-center gap-3 text-xs font-ui">
               <span className="flex items-center gap-1 text-green font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-green" /> Classical
+                <span className="w-2 h-2 rounded-full bg-green" /> Classical
               </span>
               <span className="flex items-center gap-1 text-quantum font-medium">
-                <span className="w-2.5 h-2.5 rounded-full bg-quantum" /> Quantum (QAOA/QPU)
+                <span className="w-2 h-2 rounded-full bg-quantum" /> Quantum (QAOA/QPU)
               </span>
             </div>
           }
-          className="min-h-[340px]"
           padding="dense"
         >
-          <div className="w-full h-64 pt-2">
+          <div className="w-full h-56 pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barChartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+              <BarChart data={barChartData} margin={{ top: 8, right: 10, left: -20, bottom: 8 }}>
                 <XAxis
                   dataKey="name"
                   stroke="#86988D"
-                  fontSize={11}
-                  fontFamily="var(--font-ui)"
-                  angle={-15}
-                  textAnchor="end"
+                  fontSize={10}
+                  fontFamily="var(--font-mono)"
+                  interval={0}
                 />
                 <YAxis
                   stroke="#86988D"
-                  fontSize={11}
+                  fontSize={10}
                   domain={[0.7, 1.05]}
                   fontFamily="var(--font-mono)"
                 />
@@ -330,85 +323,84 @@ export const BenchmarksPage: React.FC = () => {
           </div>
         </Tile>
 
-        {/* Row 1 Right Column Stack */}
-        <div className="lg:col-span-5 md:col-span-6 flex flex-col gap-3">
-          {/* Mini StatTiles Row: Best ratio + Failed runs */}
-          <div className="grid grid-cols-2 gap-3">
-            <StatTile
-              variant="sage"
-              colSpan={1}
-              rowSpan={1}
-              label="Best Approx Ratio"
-              value="1.000"
-              subtext="Ground energy parity"
-              icon={<ShieldCheck className="w-4 h-4" />}
-            />
-            <StatTile
-              variant="default"
-              colSpan={1}
-              rowSpan={1}
-              label="Failed Runs"
-              value="0"
-              subtext="Zero solver crashes"
-              icon={<CheckCircle2 className="w-4 h-4 text-green" />}
-            />
-          </div>
+        {/* Row 1-2 Right: 2 Mini StatTiles (rowSpan 2) */}
+        <StatTile
+          variant="sage"
+          colSpan={2}
+          rowSpan={2}
+          label="Best Approx Ratio"
+          value="1.000"
+          subtext="Ground energy parity"
+          icon={<ShieldCheck className="w-4 h-4" />}
+        />
+        <StatTile
+          variant="default"
+          colSpan={3}
+          rowSpan={2}
+          label="Failed Runs"
+          value="0"
+          subtext="Zero solver crashes"
+          icon={<CheckCircle2 className="w-4 h-4 text-green" />}
+        />
 
-          {/* Physical IBM Run Tile 5x3 (Teal accent, QPU chip) */}
-          <Tile
-            variant="mint"
-            colSpan={12}
-            rowSpan={3}
-            title={
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-ink">Measured IBM Hardware Execution</span>
-                <span className="px-2 py-0.5 rounded-full bg-quantum text-white text-[10px] font-mono font-bold tracking-wider uppercase">
-                  QPU
-                </span>
-              </div>
-            }
-            subtitle="Transpiled and sampled on physical superconducting qubit array"
-            action={
-              <button
-                onClick={() => setJsonDrawerOpen(true)}
-                className="text-xs font-mono text-quantum hover:underline flex items-center gap-1 font-semibold"
-              >
-                <span>Telemetry JSON</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            }
-            padding="normal"
-          >
-            <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-tile/80 p-3 rounded-inner border border-line/60">
-              <div>
-                <span className="text-ink3 text-[10px] block">BACKEND</span>
-                <span className="font-bold text-ink">{HARDWARE_RUN.backend_name}</span>
-              </div>
-              <div>
-                <span className="text-ink3 text-[10px] block">QUBITS</span>
-                <span className="font-bold text-ink">{HARDWARE_RUN.num_qubits} Q</span>
-              </div>
-              <div>
-                <span className="text-ink3 text-[10px] block">CIRCUIT DEPTH</span>
-                <span className="font-semibold text-ink">{HARDWARE_RUN.depth}</span>
-              </div>
-              <div>
-                <span className="text-ink3 text-[10px] block">2Q GATES (CX/ECR)</span>
-                <span className="font-semibold text-ink">{HARDWARE_RUN.two_qubit_gates}</span>
-              </div>
-              <div>
-                <span className="text-ink3 text-[10px] block">QUEUE TIME</span>
-                <span className="font-semibold text-ink">{HARDWARE_RUN.queue_seconds} s</span>
-              </div>
-              <div>
-                <span className="text-ink3 text-[10px] block">JOB ID</span>
-                <span className="font-bold text-quantum truncate block">{HARDWARE_RUN.job_id}</span>
-              </div>
+        {/* Row 3-4 Right: Physical IBM Run Tile 5x2 (Teal accent, QPU chip) */}
+        <Tile
+          variant="mint"
+          colSpan={5}
+          rowSpan={2}
+          title={
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-xs sm:text-sm text-ink font-ui">Measured IBM Hardware Execution</span>
+              <span className="px-2 py-0.5 rounded-full bg-quantum text-white text-[10px] font-mono font-bold tracking-wider uppercase">
+                QPU
+              </span>
             </div>
-          </Tile>
-        </div>
+          }
+          subtitle="Transpiled and sampled on physical superconducting qubit array"
+          action={
+            <button
+              onClick={() => setJsonDrawerOpen(true)}
+              className="text-xs font-mono text-quantum hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>Telemetry JSON</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          }
+          padding="dense"
+          className="flex flex-col justify-between"
+        >
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-tile/80 p-2.5 rounded-inner border border-line/40">
+            <div>
+              <span className="text-ink3 text-[9px] block">BACKEND</span>
+              <span className="font-bold text-ink">{HARDWARE_RUN.backend_name}</span>
+            </div>
+            <div>
+              <span className="text-ink3 text-[9px] block">QUBITS</span>
+              <span className="font-bold text-ink">{HARDWARE_RUN.num_qubits} Q</span>
+            </div>
+            <div>
+              <span className="text-ink3 text-[9px] block">CIRCUIT DEPTH</span>
+              <span className="font-semibold text-ink">{HARDWARE_RUN.depth}</span>
+            </div>
+            <div>
+              <span className="text-ink3 text-[9px] block">2Q GATES (CX/ECR)</span>
+              <span className="font-semibold text-ink">{HARDWARE_RUN.two_qubit_gates}</span>
+            </div>
+            <div>
+              <span className="text-ink3 text-[9px] block">QUEUE TIME</span>
+              <span className="font-semibold text-ink">{HARDWARE_RUN.queue_seconds} s</span>
+            </div>
+            <div>
+              <span className="text-ink3 text-[9px] block">JOB ID</span>
+              <span className="font-bold text-quantum truncate block">{HARDWARE_RUN.job_id}</span>
+            </div>
+          </div>
+          <p className="text-[11px] text-ink2 font-ui leading-tight pt-1">
+            Physical execution on 156-qubit Heron processor with certified 0 hard violations.
+          </p>
+        </Tile>
 
-        {/* Row 2 Left: Results Table 7x3 */}
+        {/* Row 5-7 Left: Results Table 7x3 */}
         <Tile
           variant="default"
           colSpan={7}
@@ -428,7 +420,7 @@ export const BenchmarksPage: React.FC = () => {
           />
         </Tile>
 
-        {/* Row 2 Right: Depth and 2Q gates vs p 5x3 */}
+        {/* Row 5-7 Right: Depth and 2Q gates vs p 5x3 */}
         <Tile
           variant="default"
           colSpan={5}
@@ -437,11 +429,11 @@ export const BenchmarksPage: React.FC = () => {
           subtitle="Transpiled hardware complexity scaling"
           padding="dense"
         >
-          <div className="w-full h-48 pt-2">
+          <div className="w-full h-44 pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={depthVsPData}>
-                <XAxis dataKey="p" stroke="#86988D" fontSize={11} fontStyle="DM Mono" label={{ value: 'Depth (p)', position: 'insideBottom', offset: -5, fontSize: 10 }} />
-                <YAxis stroke="#86988D" fontSize={11} fontStyle="DM Mono" />
+                <XAxis dataKey="p" stroke="#86988D" fontSize={10} fontStyle="DM Mono" label={{ value: 'Depth (p)', position: 'insideBottom', offset: -4, fontSize: 10 }} />
+                <YAxis stroke="#86988D" fontSize={10} fontStyle="DM Mono" />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#FFFFFF',
@@ -458,7 +450,7 @@ export const BenchmarksPage: React.FC = () => {
           </div>
         </Tile>
 
-        {/* Row 3 Left: Noise Sweep 6x2 */}
+        {/* Row 8-9 Left: Noise Sweep 6x2 */}
         <Tile
           variant="default"
           colSpan={6}
@@ -467,7 +459,7 @@ export const BenchmarksPage: React.FC = () => {
           subtitle="Aer noise model with thermal relaxation & depolarizing errors"
           padding="dense"
         >
-          <div className="w-full h-36 pt-1">
+          <div className="w-full h-28 pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={noiseSweepData}>
                 <XAxis dataKey="noise" stroke="#86988D" fontSize={10} fontStyle="DM Mono" />
@@ -487,7 +479,7 @@ export const BenchmarksPage: React.FC = () => {
           </div>
         </Tile>
 
-        {/* Row 3 Right: Honest Summary Sentence Tile 6x2 (mint) */}
+        {/* Row 8-9 Right: Honest Summary Sentence Tile 6x2 (mint) */}
         <Tile
           variant="mint"
           colSpan={6}
@@ -495,14 +487,14 @@ export const BenchmarksPage: React.FC = () => {
           title="Honest Architectural Assessment"
           subtitle="Empirical comparison between classical CP-SAT and NISQ QAOA"
           className="justify-between"
-          padding="normal"
+          padding="dense"
         >
-          <div className="p-3 bg-tile/70 rounded-inner border border-line/50">
+          <div className="p-2.5 bg-tile/70 rounded-inner border border-line/40">
             <p className="font-ui text-xs text-ink leading-relaxed font-medium">
               "{honestSummary}"
             </p>
           </div>
-          <div className="flex items-center justify-between text-[11px] font-mono text-ink3 pt-1">
+          <div className="flex items-center justify-between text-[11px] font-mono text-ink2 pt-1">
             <span>Verified 10 seeds • Zero fabricated metrics</span>
             <span className="text-green font-semibold">Certified reproducible</span>
           </div>
@@ -515,12 +507,12 @@ export const BenchmarksPage: React.FC = () => {
           <div className="bg-tile border border-line rounded-tile p-6 max-w-2xl w-full shadow-hover relative">
             <button
               onClick={() => setJsonDrawerOpen(false)}
-              className="absolute top-4 right-4 text-ink3 hover:text-ink"
+              className="absolute top-4 right-4 text-ink3 hover:text-ink transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
             <h3 className="font-semibold text-base mb-1 font-ui">IBM Kingston Execution Telemetry</h3>
-            <p className="text-xs text-ink3 mb-4">Job ID: {HARDWARE_RUN.job_id} (156 Qubits)</p>
+            <p className="text-xs text-ink2 mb-4 font-mono">Job ID: {HARDWARE_RUN.job_id} (156 Qubits)</p>
             <CodeTile
               code={HARDWARE_RUN}
               colSpan={12}

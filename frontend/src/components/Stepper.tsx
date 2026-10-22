@@ -29,6 +29,8 @@ export const Stepper: React.FC<StepperProps> = ({
       className={`select-none ${
         orientation === 'vertical'
           ? 'flex flex-col gap-2.5 w-full'
+          : orientation === 'horizontal'
+          ? 'grid grid-cols-7 gap-1.5 w-full items-center'
           : 'flex flex-wrap items-center gap-2 w-full'
       } ${className}`}
     >
@@ -41,7 +43,9 @@ export const Stepper: React.FC<StepperProps> = ({
             key={step.id}
             type="button"
             onClick={() => onStepClick && onStepClick(step.id)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-pill font-ui text-xs transition-all duration-150 text-left ${
+            className={`flex items-center justify-center gap-1.5 ${
+              orientation === 'horizontal' ? 'px-1.5 py-0.5 text-[11px]' : 'px-3 py-1.5 text-xs'
+            } rounded-pill font-ui transition-all duration-150 text-left ${
               isCurrent
                 ? 'bg-green text-white shadow-hairline font-semibold ring-2 ring-green/30 ring-offset-1'
                 : isDone
@@ -49,9 +53,11 @@ export const Stepper: React.FC<StepperProps> = ({
                 : 'bg-tile text-ink2 border border-line hover:bg-tileMint/40 font-normal'
             } ${onStepClick ? 'cursor-pointer' : 'cursor-default'}`}
           >
-            {/* Numbered 24px Circle */}
+            {/* Numbered Circle */}
             <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] flex-shrink-0 transition-transform ${
+              className={`${
+                orientation === 'horizontal' ? 'w-4 h-4 text-[9px]' : 'w-6 h-6 text-[11px]'
+              } rounded-full flex items-center justify-center flex-shrink-0 transition-transform ${
                 isCurrent
                   ? 'bg-white text-green font-bold shadow-sm'
                   : isDone

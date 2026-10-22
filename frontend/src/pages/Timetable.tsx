@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
-  Calendar,
   X,
-  BookOpen,
+  CalendarCheck2,
 } from 'lucide-react';
 import { BentoGrid } from '../components/BentoGrid';
 import { Tile } from '../components/Tile';
@@ -205,18 +204,14 @@ export const TimetablePage: React.FC = () => {
   }, [selectedCourseId, timetable, courseCatalog]);
 
   return (
-    <div className="space-y-6">
-      {/* Page Headline with exactly ONE italic green accent word */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2 pb-1 border-b border-line/40">
+    <div className="space-y-3">
+      {/* Compressed Page Header without overlapping eyebrow chip */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1 border-b border-line/30">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-pill bg-tileMint text-ink font-ui text-xs font-medium mb-1.5 border border-line/60">
-            <Calendar className="w-3.5 h-3.5 text-green" />
-            <span>Campus Schedule Matrix</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight font-ui text-ink">
+          <h1 className="text-2xl sm:text-[28px] leading-tight font-semibold tracking-tight font-ui text-ink">
             Campus timetable, <span className="italic font-medium text-green">optimized</span>.
           </h1>
-          <p className="text-xs text-ink3 font-ui mt-1">
+          <p className="text-[13px] text-ink2 font-ui mt-0.5 truncate">
             Global room allocation matrix with slot groupings, department tints, and coupled conflict inspect.
           </p>
         </div>
@@ -229,9 +224,9 @@ export const TimetablePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bento Grid: 12 Columns as specified in UI_UPDATE_BENTO.md section 6 */}
-      <BentoGrid>
-        {/* Left Hero: Timetable Grid 9x7 */}
+      {/* Bento Grid: 12 Columns, 7 Rows of 72px */}
+      <BentoGrid className="[grid-auto-rows:72px]">
+        {/* Left Hero: Timetable Grid 9x7 (white) */}
         <Tile
           variant="default"
           colSpan={9}
@@ -239,42 +234,42 @@ export const TimetablePage: React.FC = () => {
           title="Master Examination Grid"
           subtitle="Grouped by day and time slot columns; rooms as rows"
           action={
-            <div className="flex items-center gap-3 text-xs font-mono text-ink3">
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-green" /> Q-Optimized
+            <div className="flex items-center gap-3 text-xs font-mono text-ink2">
+              <span className="flex items-center gap-1 text-green font-semibold">
+                <span className="w-2 h-2 rounded-full bg-green" /> Q-Optimized
               </span>
-              <span className="hidden sm:inline">Use ↑↓←→ to navigate exams</span>
+              <span className="hidden sm:inline text-ink3 font-ui text-[11px]">Use ↑↓←→ to navigate</span>
             </div>
           }
-          className="overflow-x-auto min-h-[580px]"
+          className="overflow-x-auto"
           padding="dense"
         >
           {loading ? (
-            <div className="p-8 text-center text-xs font-mono text-ink3 animate-pulse">
+            <div className="p-8 text-center text-xs font-ui text-ink2 animate-pulse">
               Loading timetable schedule matrix...
             </div>
           ) : (
-            <div className="min-w-[720px] overflow-x-auto">
+            <div className="min-w-[700px] h-full flex flex-col justify-between overflow-x-auto py-1">
               {/* Day Header Row */}
-              <div className="grid grid-cols-9 gap-1.5 mb-1.5 text-center text-xs font-semibold font-ui">
+              <div className="grid grid-cols-9 gap-1.5 mb-1 text-center text-xs font-semibold font-ui">
                 <div className="p-1 text-left font-mono text-ink3 text-[11px] uppercase">
                   Room
                 </div>
-                <div className="col-span-4 bg-tileMint/60 rounded-inner py-1.5 text-ink border border-line/40">
+                <div className="col-span-4 bg-tileMint rounded-inner py-1 text-ink border border-line/40">
                   Day 1 (4 Slots)
                 </div>
-                <div className="col-span-4 bg-tileMint/60 rounded-inner py-1.5 text-ink border border-line/40">
+                <div className="col-span-4 bg-tileMint rounded-inner py-1 text-ink border border-line/40">
                   Day 2 (4 Slots)
                 </div>
               </div>
 
               {/* Slot Header Sub-row */}
-              <div className="grid grid-cols-9 gap-1.5 mb-2 text-center text-[10px] font-mono text-ink3">
-                <div className="p-1" />
+              <div className="grid grid-cols-9 gap-1.5 mb-1.5 text-center text-[10px] font-mono text-ink2">
+                <div className="p-0.5" />
                 {slots.map((s) => (
                   <div
                     key={s.slot_id}
-                    className="p-1 rounded bg-line/20 truncate font-semibold"
+                    className="p-1 rounded-inner bg-line/25 truncate font-semibold"
                     title={s.label}
                   >
                     <div>{s.slot_id}</div>
@@ -284,11 +279,11 @@ export const TimetablePage: React.FC = () => {
               </div>
 
               {/* Room Grid Rows */}
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 flex-1 flex flex-col justify-between">
                 {rooms.map((room) => (
-                  <div key={room} className="grid grid-cols-9 gap-1.5 items-stretch min-h-[54px]">
+                  <div key={room} className="grid grid-cols-9 gap-1.5 items-stretch flex-1 min-h-[48px]">
                     {/* Room Label */}
-                    <div className="p-2 rounded-inner bg-tileMint/30 border border-line/40 flex flex-col justify-center">
+                    <div className="p-1.5 rounded-inner bg-tileMint/40 border border-line/40 flex flex-col justify-center">
                       <span className="font-mono text-xs font-bold text-ink">{room}</span>
                       <span className="text-[10px] text-ink3 font-mono">cap: 60-100</span>
                     </div>
@@ -328,8 +323,8 @@ export const TimetablePage: React.FC = () => {
                                 className={`w-full text-left p-1.5 rounded-[10px] transition-all cursor-pointer relative ${
                                   isSelected
                                     ? 'ring-2 ring-green shadow-sm'
-                                    : 'hover:shadow-hairline'
-                                } ${isResolved ? 'border-l-4 border-l-green' : 'border border-line/40'}`}
+                                    : 'hover:-translate-y-0.5 hover:shadow-hairline'
+                                } ${isResolved ? 'border-l-[3px] border-l-green' : 'border border-line/40'}`}
                               >
                                 <div className="flex items-center justify-between">
                                   <span className="font-mono text-[11px] font-bold text-ink">
@@ -339,7 +334,7 @@ export const TimetablePage: React.FC = () => {
                                     {meta.dept}
                                   </span>
                                 </div>
-                                <div className="text-[10px] text-ink3 font-mono mt-0.5 flex justify-between">
+                                <div className="text-[10px] text-ink2 font-mono mt-0.5 flex justify-between">
                                   <span>55 stu</span>
                                   {isResolved && (
                                     <span className="text-green font-bold text-[9px]">Q-OPT</span>
@@ -358,140 +353,143 @@ export const TimetablePage: React.FC = () => {
           )}
         </Tile>
 
-        {/* Right Column Stack */}
-        <div className="lg:col-span-3 md:col-span-6 flex flex-col gap-3">
-          {/* Day Strip: back-to-back testing fatigue 3x2 */}
-          <Tile
-            variant="mint"
-            colSpan={12}
-            rowSpan={2}
-            title="Student Clashes By Day"
-            subtitle="Back-to-back testing load across daily schedules"
-            padding="normal"
-          >
-            <div className="space-y-3 mt-1">
-              {btbByDay.map((d) => (
-                <div key={d.day}>
-                  <div className="flex justify-between text-xs font-mono mb-1">
-                    <span className="font-semibold text-ink">{d.day}</span>
-                    <span className="text-ink2">{d.count} back-to-back ({d.pct})</span>
-                  </div>
-                  <div className="h-2 w-full bg-tile/80 rounded-full overflow-hidden border border-line/40">
-                    <div
-                      className="h-full bg-green rounded-full"
-                      style={{ width: d.pct }}
-                    />
-                  </div>
+        {/* Right Top: Day Strip Tile 3x2 (mint) */}
+        <Tile
+          variant="mint"
+          colSpan={3}
+          rowSpan={2}
+          title="Student Clashes By Day"
+          subtitle="Back-to-back testing load across daily schedules"
+          padding="dense"
+          className="flex flex-col justify-between"
+        >
+          <div className="space-y-2 mt-0.5">
+            {btbByDay.map((d) => (
+              <div key={d.day}>
+                <div className="flex justify-between text-xs font-mono mb-0.5">
+                  <span className="font-semibold text-ink">{d.day}</span>
+                  <span className="text-ink2">{d.count} back-to-back ({d.pct})</span>
                 </div>
-              ))}
-            </div>
-            <p className="text-[11px] text-ink3 mt-3 font-ui">
-              Cluster Lab targets dense back-to-back testing pairs on Day 1 without modifying Day 2.
-            </p>
-          </Tile>
+                <div className="h-1.5 w-full bg-tile/80 rounded-full overflow-hidden border border-line/40">
+                  <div
+                    className="h-full bg-green rounded-full transition-all duration-300"
+                    style={{ width: d.pct }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[12px] text-ink2 font-ui leading-tight">
+            Cluster Lab targets dense back-to-back testing pairs on Day 1 without modifying Day 2.
+          </p>
+        </Tile>
 
-          {/* Department Filter Chips 3x1 */}
-          <Tile
-            variant="default"
-            colSpan={12}
-            rowSpan={1}
-            title="Filter Department"
-            padding="dense"
-          >
-            <div className="flex flex-wrap gap-1 mt-1">
-              {departments.map((dept) => {
-                const isActive = selectedDept === dept;
-                return (
-                  <button
-                    key={dept}
-                    onClick={() => setSelectedDept(dept)}
-                    className={`px-2.5 py-1 rounded-pill text-[11px] font-ui font-medium transition-colors ${
-                      isActive
-                        ? 'bg-green text-white shadow-hairline'
-                        : 'bg-tileMint/60 text-ink2 hover:text-ink hover:bg-tileMint'
-                    }`}
-                  >
-                    {dept}
-                  </button>
-                );
-              })}
-            </div>
-          </Tile>
-
-          {/* Selected Exam Detail 3x4 */}
-          <Tile
-            variant="default"
-            colSpan={12}
-            rowSpan={4}
-            title={selectedCourseDetails ? 'Exam Coupling Detail' : 'Select Exam Block'}
-            subtitle={selectedCourseDetails ? selectedCourseDetails.meta.name : 'Click any exam on the grid'}
-            action={
-              selectedCourseDetails && (
+        {/* Right Middle: Department Filter Chips Tile 3x1 (default) */}
+        <Tile
+          variant="default"
+          colSpan={3}
+          rowSpan={1}
+          title="Filter Department"
+          padding="dense"
+          className="flex flex-col justify-center"
+        >
+          <div className="flex flex-wrap gap-1 items-center">
+            {departments.map((dept) => {
+              const isActive = selectedDept === dept;
+              return (
                 <button
-                  onClick={() => setSelectedCourseId(null)}
-                  className="text-ink3 hover:text-ink"
+                  key={dept}
+                  onClick={() => setSelectedDept(dept)}
+                  className={`px-2.5 py-0.5 rounded-pill text-[11px] font-ui font-medium transition-colors ${
+                    isActive
+                      ? 'bg-green text-white shadow-hairline'
+                      : 'bg-tileMint/60 text-ink2 hover:text-ink hover:bg-tileMint'
+                  }`}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  {dept}
                 </button>
-              )
-            }
-            padding="normal"
-          >
-            {selectedCourseDetails ? (
-              <div className="space-y-3 text-xs">
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-inner bg-tileMint/30 border border-line/50 font-mono text-[11px]">
-                  <div>
-                    <span className="text-ink3 text-[10px] block">COURSE ID</span>
-                    <span className="text-ink font-bold">{selectedCourseDetails.meta.course_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink3 text-[10px] block">DEPARTMENT</span>
-                    <span className="text-ink font-semibold">{selectedCourseDetails.meta.dept}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink3 text-[10px] block">SLOT</span>
-                    <span className="text-ink font-semibold">{selectedCourseDetails.asgn?.slot_id}</span>
-                  </div>
-                  <div>
-                    <span className="text-ink3 text-[10px] block">HEADCOUNT</span>
-                    <span className="text-ink font-semibold">55 students</span>
-                  </div>
-                </div>
+              );
+            })}
+          </div>
+        </Tile>
 
+        {/* Right Bottom: Selected Exam Detail 3x4 (default) */}
+        <Tile
+          variant="default"
+          colSpan={3}
+          rowSpan={4}
+          title={selectedCourseDetails ? 'Exam Coupling Detail' : 'Select Exam Block'}
+          subtitle={selectedCourseDetails ? selectedCourseDetails.meta.name : 'Click any exam on the schedule'}
+          action={
+            selectedCourseDetails && (
+              <button
+                onClick={() => setSelectedCourseId(null)}
+                className="text-ink3 hover:text-ink transition-colors"
+                title="Deselect (Esc)"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )
+          }
+          padding="dense"
+          className="flex flex-col justify-between"
+        >
+          {selectedCourseDetails ? (
+            <div className="space-y-2.5 text-xs h-full flex flex-col justify-between">
+              <div className="grid grid-cols-2 gap-2 p-2 rounded-inner bg-tileMint/40 border border-line/40 font-mono text-[11px]">
                 <div>
-                  <span className="text-[11px] font-semibold text-ink uppercase tracking-wide block mb-1.5 font-ui">
-                    Coupled Conflict Courses
-                  </span>
-                  <div className="border border-line/60 rounded-inner overflow-hidden text-xs font-mono">
-                    <table className="w-full text-left">
-                      <thead className="bg-tileMint/60 text-[10px] text-ink3 border-b border-line/40">
-                        <tr>
-                          <th className="p-1.5">Course</th>
-                          <th className="p-1.5 text-right">Shared</th>
-                          <th className="p-1.5">Penalty</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-line/30 text-[11px]">
-                        {selectedCourseDetails.conflicts.map((c) => (
-                          <tr key={c.course_id} className="hover:bg-tileMint/20">
-                            <td className="p-1.5 font-semibold text-ink">{c.course_id}</td>
-                            <td className="p-1.5 text-right text-ink2">{c.shared_students}</td>
-                            <td className="p-1.5 text-ink3 text-[10px]">{c.penalty_type}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <span className="text-ink3 text-[9px] block">COURSE ID</span>
+                  <span className="text-ink font-bold">{selectedCourseDetails.meta.course_id}</span>
+                </div>
+                <div>
+                  <span className="text-ink3 text-[9px] block">DEPARTMENT</span>
+                  <span className="text-ink font-semibold">{selectedCourseDetails.meta.dept}</span>
+                </div>
+                <div>
+                  <span className="text-ink3 text-[9px] block">SLOT</span>
+                  <span className="text-ink font-semibold">{selectedCourseDetails.asgn?.slot_id}</span>
+                </div>
+                <div>
+                  <span className="text-ink3 text-[9px] block">HEADCOUNT</span>
+                  <span className="text-ink font-semibold">55 students</span>
                 </div>
               </div>
-            ) : (
-              <div className="h-full min-h-[140px] flex flex-col items-center justify-center text-center p-4 text-ink3">
-                <BookOpen className="w-8 h-8 stroke-1 text-green/60 mb-2" />
-                <p className="text-xs">Select any course on the schedule grid to inspect student clashes and conflict coupling.</p>
+
+              <div className="flex-1 flex flex-col">
+                <span className="text-[11px] font-semibold text-ink uppercase tracking-wide block mb-1 font-ui">
+                  Coupled Conflict Courses
+                </span>
+                <div className="overflow-hidden text-xs">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-tileMint text-[10px] text-ink font-ui font-semibold uppercase tracking-wider rounded-inner">
+                      <tr className="h-7">
+                        <th className="px-2 py-1 rounded-l-inner">Course</th>
+                        <th className="px-2 py-1 text-right">Shared</th>
+                        <th className="px-2 py-1 rounded-r-inner">Penalty</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-[11px] divide-y divide-line/30 font-mono">
+                      {selectedCourseDetails.conflicts.map((c, idx) => (
+                        <tr key={c.course_id} className={`h-8 ${idx % 2 === 1 ? 'bg-greenSoft/25' : 'bg-transparent'} hover:bg-tileMint/30 transition-colors`}>
+                          <td className="px-2 py-1 font-bold text-ink">{c.course_id}</td>
+                          <td className="px-2 py-1 text-right text-ink2">{c.shared_students}</td>
+                          <td className="px-2 py-1 text-ink2 font-ui text-[11px]">{c.penalty_type}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            )}
-          </Tile>
-        </div>
+            </div>
+          ) : (
+            <div className="h-full min-h-[160px] flex flex-col items-center justify-center text-center p-3 text-ink2">
+              <CalendarCheck2 className="w-8 h-8 stroke-1 text-green mb-2 opacity-80" />
+              <p className="font-ui text-[13px] text-ink2 leading-relaxed">
+                Select any exam on the schedule grid to inspect student clashes and coupled conflict constraints.
+              </p>
+            </div>
+          )}
+        </Tile>
       </BentoGrid>
     </div>
   );
