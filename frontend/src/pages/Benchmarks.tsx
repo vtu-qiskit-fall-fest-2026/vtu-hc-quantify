@@ -22,27 +22,48 @@ import { Badge } from '../components/Badge';
 import { EmptyState } from '../components/EmptyState';
 import { CodeBlock } from '../components/CodeBlock';
 
-// Real hardware record from runs/hardware
-const HARDWARE_RUN = {
-  backend_name: 'ibm_kingston',
-  num_qubits: 156,
-  job_id: 'dbcfb3vi0auc73durnc0',
-  queue_seconds: 9.47,
-  run_seconds: 27.18,
-  depth: 65,
-  two_qubit_gates: 20,
-  approx_ratio: 1.0,
-  ground_energy: 131.0,
-  best_sampled_energy: 131.0,
-  timestamp: '2026-10-21T17:25:44Z',
-  shots: 4096,
-};
+// Real hardware records from runs/hardware
+const HARDWARE_RUNS = [
+  {
+    backend_name: 'ibm_kingston',
+    num_qubits: 156,
+    job_id: 'dbcfb3vi0auc73durnc0',
+    file: '20261021_172544.json',
+    queue_seconds: 9.47,
+    run_seconds: 27.18,
+    depth: 65,
+    two_qubit_gates: 20,
+    approx_ratio: 1.0,
+    ground_energy: 131.0,
+    best_sampled_energy: 131.0,
+    timestamp: '2026-10-21T17:25:44Z',
+    shots: 4096,
+  },
+  {
+    backend_name: 'ibm_fez',
+    num_qubits: 156,
+    job_id: 'dbce3avi0auc73dupdpg',
+    file: '20261021_160123.json',
+    queue_seconds: 39.60,
+    run_seconds: 55.90,
+    depth: 110,
+    two_qubit_gates: 50,
+    approx_ratio: 1.0,
+    ground_energy: 110.0,
+    best_sampled_energy: 110.0,
+    timestamp: '2026-10-21T16:01:23Z',
+    shots: 4096,
+  },
+];
 
 export const BenchmarksPage: React.FC = () => {
   const { runId, addToast } = useAppStore();
   const [rows, setRows] = useState<BenchmarkRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedHwIndex, setSelectedHwIndex] = useState(0);
   const [jsonDrawerOpen, setJsonDrawerOpen] = useState(false);
+
+  const activeHardwareRun = HARDWARE_RUNS[selectedHwIndex];
 
   useEffect(() => {
     const fetchBenchmarks = async () => {
@@ -267,23 +288,41 @@ export const BenchmarksPage: React.FC = () => {
           </div>
         }
         headerRight={
-          <button
-            type="button"
-            onClick={() => setJsonDrawerOpen(true)}
-            className="text-[11px] font-mono text-accent hover:underline cursor-pointer"
-          >
-            View Raw Telemetry JSON
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center border border-line rounded-[2px] overflow-hidden text-[11px] font-mono">
+              {HARDWARE_RUNS.map((run, idx) => (
+                <button
+                  key={run.backend_name}
+                  type="button"
+                  onClick={() => setSelectedHwIndex(idx)}
+                  className={`px-2 py-0.5 transition-colors cursor-pointer ${
+                    selectedHwIndex === idx
+                      ? 'bg-accent/15 text-accent font-semibold'
+                      : 'bg-panel-2 text-text-3 hover:text-text'
+                  }`}
+                >
+                  {run.backend_name}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setJsonDrawerOpen(true)}
+              className="text-[11px] font-mono text-accent hover:underline cursor-pointer"
+            >
+              View Raw JSON
+            </button>
+          </div>
         }
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-          <Stat label="QPU BACKEND" value={HARDWARE_RUN.backend_name} variant="accent" />
-          <Stat label="QUBITS" value={HARDWARE_RUN.num_qubits} unit="q" />
-          <Stat label="JOB ID" value={HARDWARE_RUN.job_id.substring(0, 8)} subtext={HARDWARE_RUN.job_id} />
-          <Stat label="QUEUE TIME" value={HARDWARE_RUN.queue_seconds.toFixed(1)} unit="s" />
-          <Stat label="TRANSPILATION DEPTH" value={HARDWARE_RUN.depth} unit="cycles" />
-          <Stat label="2-QUBIT GATES" value={HARDWARE_RUN.two_qubit_gates} unit="ecr" />
-          <Stat label="APPROX RATIO" value={HARDWARE_RUN.approx_ratio.toFixed(2)} variant="ok" />
+          <Stat label="QPU BACKEND" value={activeHardwareRun.backend_name} variant="accent" />
+          <Stat label="QUBITS" value={activeHardwareRun.num_qubits} unit="q" />
+          <Stat label="JOB ID" value={activeHardwareRun.job_id.substring(0, 8)} subtext={activeHardwareRun.job_id} />
+          <Stat label="QUEUE TIME" value={activeHardwareRun.queue_seconds.toFixed(1)} unit="s" />
+          <Stat label="TRANSPILATION DEPTH" value={activeHardwareRun.depth} unit="cycles" />
+          <Stat label="2-QUBIT GATES" value={activeHardwareRun.two_qubit_gates} unit="ecr" />
+          <Stat label="APPROX RATIO" value={activeHardwareRun.approx_ratio.toFixed(2)} variant="ok" />
         </div>
       </Panel>
 
@@ -427,7 +466,7 @@ export const BenchmarksPage: React.FC = () => {
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-panel border border-line w-full max-w-2xl rounded-[2px] flex flex-col max-h-[80vh] overflow-hidden">
             <div className="h-9 px-3 bg-panel-2 border-b border-line flex items-center justify-between text-xs font-semibold text-text">
-              <span className="font-mono">runs/hardware/20261021_172544.json</span>
+              <span className="font-mono">runs/hardware/{activeHardwareRun.file}</span>
               <button
                 type="button"
                 onClick={() => setJsonDrawerOpen(false)}
@@ -440,7 +479,7 @@ export const BenchmarksPage: React.FC = () => {
               <CodeBlock
                 language="json"
                 maxHeight="480px"
-                code={JSON.stringify(HARDWARE_RUN, null, 2)}
+                code={JSON.stringify(activeHardwareRun, null, 2)}
               />
             </div>
           </div>
