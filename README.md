@@ -41,7 +41,6 @@
 - [Installation & Setup](#-installation--setup)
 - [How to Run](#-how-to-run)
 - [Verification & Tests](#-verification--tests)
-- [Bento Box UI Console](#-bento-box-ui-console)
 - [Empirical Benchmarks & Hardware Telemetry](#-empirical-benchmarks--hardware-telemetry)
 - [Submission Checklist](#-submission-checklist)
 - [Deep Documentation](#-deep-documentation)
@@ -51,11 +50,11 @@
 
 ## 👥 Team Members (GitHub IDs)
 
-| # | Name | GitHub Username |
-| :-- | :--- | :--- |
-| 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) |
-| 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) |
-| 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) |
+| # | Name | GitHub Username | Role |
+| :-- | :--- | :--- | :--- |
+| 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) | Team Lead |
+| 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) | Developer |
+| 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) | Developer |
 
 ---
 
@@ -392,40 +391,6 @@ dist/assets/index-CkAdsTHY.css   42.42 kB │ gzip:   8.21 kB
 dist/assets/index-DwzUFUcW.js   763.19 kB │ gzip: 221.43 kB
 ✓ built in 1m 19s
 ```
-
----
-
-## 🎨 Bento Box UI Console
-
-QUANTA features a specialized **Bento Box engineering console** built with a calm, muted green palette inspired by modern industrial UI design:
-
-1. **Dataset Management (`/`)**:
-   - Fanned 4-document drag-and-drop zone (`courses.csv`, `enrollments.csv`, `rooms.csv`, `slots.csv`).
-   - 4 stacked mint file cards with row counts and schema chips.
-   - Live 6-rule validation checklist verifying zero missing columns, valid IDs, and room capacity constraints.
-   - Sticky full-width "Solve Baseline" action tile with real-time solve timer.
-2. **Master Timetable (`/timetable`)**:
-   - High-density Master Examination Grid displaying room rows vs. time slot columns.
-   - 8 academic department color tints for immediate visual differentiation.
-   - Highlighting for **Q-OPT** quantum-refined exam placements.
-   - Daily back-to-back student load strip and interactive conflict inspection drawer.
-3. **Cluster Lab (`/clusters`) — *Hero Screen***:
-   - Ranked list of extracted conflict bottleneck subproblems.
-   - **Interactive D3 Force Graph** with node sizes reflecting student enrollment and edge thickness representing shared student conflict volume.
-   - **Before / After Pill Toggle** with 150ms animated slot reallocations.
-   - Quantum parameter controls: QAOA layers ($p \in \{1, 2\}$), optimizer selection (COBYLA/SPSA), shot count, and penalty multipliers with Role-Based Access Control (RBAC).
-   - Non-wrapping 7-stage horizontal pipeline stepper (`Extract` $\rightarrow$ `QUBO` $\rightarrow$ `Circuit` $\rightarrow$ `Optimize` $\rightarrow$ `Sample` $\rightarrow$ `Repair` $\rightarrow$ `Decide`).
-   - Live Recharts energy trace vs. brute-force ground truth.
-   - Decision tile with overlapping **CircleSeal** certifying 0 hard violations.
-   - Sampled bitstring histogram, course diff table, and dark JSON telemetry tile.
-4. **Empirical Benchmarks (`/benchmarks`)**:
-   - Recharts comparative bar chart evaluating **OR-Tools vs. Brute-Force vs. Simulated Annealing vs. QAOA (Ideal, Noisy, QPU)**.
-   - Physical **IBM Kingston (156-qubit Heron r2)** execution panel displaying transpiled depth, 2Q gate count, and job metrics.
-   - Circuit depth and two-qubit gate count scaling curves across $n \in \{6, 8, 10, 12\}$.
-   - Aer noise sweep plots modeling thermal relaxation and depolarizing errors.
-   - Transparent, honest scientific assessment tile.
-5. **Design System Showcase (`/design`)**:
-   - Interactive design token palette viewer with light and dark mode toggles.
 
 ---
 
