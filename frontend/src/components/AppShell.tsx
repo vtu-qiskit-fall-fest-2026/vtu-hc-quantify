@@ -242,7 +242,7 @@ export const AppShell: React.FC = () => {
         </div>
 
         {/* Status Line: 3 white pill chips (run id, dataset, 0 hard violations) and ? keys ghost chip */}
-        <div className="flex items-center justify-between text-xs px-2 sm:px-4 py-1 text-ink2">
+        <div className="flex items-center justify-between text-xs px-2 sm:px-4 py-3 text-ink2">
           <div className="flex items-center gap-2 font-mono flex-wrap">
             {/* Run ID Chip */}
             <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-ink2 flex items-center gap-1.5 shadow-hairline">
