@@ -12,7 +12,7 @@ import {
   Bar,
   Cell,
 } from 'recharts';
-import { Play, Send } from 'lucide-react';
+import { Play, Send, ShieldCheck, Key } from 'lucide-react';
 import { useAppStore } from '../store';
 import { api, ApiError } from '../api';
 import {
@@ -54,6 +54,7 @@ const PIPELINE_STEPS: StepItem[] = [
 export const ClusterLabPage: React.FC = () => {
   const {
     role,
+    setRole,
     runId,
     clusters,
     setClusters,
@@ -69,7 +70,8 @@ export const ClusterLabPage: React.FC = () => {
   const [runningJob, setRunningJob] = useState<Job | null>(null);
   const [quantumResult, setQuantumResult] = useState<QuantumResult | null>(null);
   const [currentDecision, setCurrentDecision] = useState<FinalDecision | null>(null);
-  const [viewMode, setViewMode] = useState<'before' | 'after'>('before');
+  const [viewMode, setViewMode] = useState<'before' | 'after'>('after');
+  const [hoveredCourseId, setHoveredCourseId] = useState<string | null>(null);
 
   // Quantum Config State
   const [backendChoice, setBackendChoice] = useState<'ideal' | 'noisy' | 'ibm'>('ideal');
@@ -108,6 +110,28 @@ export const ClusterLabPage: React.FC = () => {
       null
     );
   }, [clusters, activeClusterId]);
+
+  // Pre-load existing cluster result on mount if available
+  useEffect(() => {
+    if (!activeCluster) return;
+    const targetRun = runId || 'run_fixture_mini';
+
+    const existingDec = decisions.find((d) => d.cluster_id === activeCluster.cluster_id);
+    if (existingDec && !currentDecision) {
+      setCurrentDecision(existingDec);
+    }
+
+    if (!quantumResult) {
+      api.getClusterResult(targetRun, activeCluster.cluster_id)
+        .then((resData) => {
+          setQuantumResult(resData.quantum);
+          if (!currentDecision) setCurrentDecision(resData.decision);
+        })
+        .catch(() => {
+          // Normal if not yet solved
+        });
+    }
+  }, [activeCluster, runId, decisions, currentDecision, quantumResult]);
 
   // Handle Run Quantum Pipeline
   const handleRunQuantum = async () => {
@@ -207,7 +231,7 @@ export const ClusterLabPage: React.FC = () => {
       const res = await api.publish(targetRun, [activeCluster.cluster_id]);
       setTimetable(res.timetable);
       addToast(
-        `Timetable updated & published with 0 hard violations! CSV: ${res.export_url}`,
+        `Timetable updated with zero hard violations. Export ready: ${res.export_url}`,
         'ok'
       );
     } catch (err: any) {
@@ -233,12 +257,16 @@ export const ClusterLabPage: React.FC = () => {
       const updatedSlot = changesMap[courseId] || initialSlot;
       const effectiveSlot = viewMode === 'after' ? updatedSlot : initialSlot;
       const enrollment = activeCluster.sizes[courseId] || 15;
+      const altSlot = activeCluster.candidates[courseId]?.[1] || 'D2S1';
 
       return {
         id: courseId,
         slot: effectiveSlot,
+        initialSlot,
+        altSlot,
+        isChanged: updatedSlot !== initialSlot,
         enrollment,
-        radius: Math.max(16, Math.min(28, 12 + enrollment * 0.8)),
+        radius: Math.max(16, Math.min(26, 12 + enrollment * 0.8)),
       };
     });
 
@@ -254,10 +282,10 @@ export const ClusterLabPage: React.FC = () => {
     return { nodes, links };
   }, [activeCluster, currentDecision, viewMode]);
 
-  // D3 force simulation refs
+  // D3 force simulation layout
   const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
-  const width = 460;
-  const height = 340;
+  const width = 480;
+  const height = 330;
 
   useEffect(() => {
     if (graphData.nodes.length === 0) return;
@@ -272,25 +300,29 @@ export const ClusterLabPage: React.FC = () => {
         d3
           .forceLink(simLinks as any)
           .id((d: any) => d.id)
-          .distance(70)
+          .distance(75)
       )
-      .force('charge', d3.forceManyBody().strength(-120))
+      .force('charge', d3.forceManyBody().strength(-140))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius((d: any) => d.radius + 6))
+      .force('collision', d3.forceCollide().radius((d: any) => d.radius + 8))
       .stop();
 
-    // Run ticks synchronously for deterministic stable positioning
-    for (let i = 0; i < 140; ++i) sim.tick();
+    for (let i = 0; i < 150; ++i) sim.tick();
 
     const posMap: Record<string, { x: number; y: number }> = {};
     simNodes.forEach((node: any) => {
       posMap[node.id] = {
-        x: Math.max(30, Math.min(width - 30, node.x)),
-        y: Math.max(30, Math.min(height - 30, node.y)),
+        x: Math.max(35, Math.min(width - 35, node.x)),
+        y: Math.max(35, Math.min(height - 35, node.y)),
       };
     });
     setPositions(posMap);
   }, [graphData.nodes.length, activeClusterId]);
+
+  const activeHoveredNode = useMemo(() => {
+    if (!hoveredCourseId) return null;
+    return graphData.nodes.find((n) => n.id === hoveredCourseId) || null;
+  }, [hoveredCourseId, graphData.nodes]);
 
   return (
     <div className="flex h-full w-full gap-3 overflow-hidden">
@@ -299,7 +331,7 @@ export const ClusterLabPage: React.FC = () => {
         <div className="h-8 px-3 border-b border-line bg-panel-2 flex items-center justify-between text-xs font-semibold text-text uppercase">
           <span>Ranked Clusters</span>
           <span className="font-mono text-[10px] text-text-3">
-            {clusters.length} FOUND
+            {clusters.length} DETECTED
           </span>
         </div>
 
@@ -356,7 +388,7 @@ export const ClusterLabPage: React.FC = () => {
         <Panel
           title={
             <div className="flex items-center gap-2">
-              <span className="font-mono uppercase">
+              <span className="font-mono uppercase font-semibold text-text">
                 {activeCluster ? activeCluster.cluster_id : 'Cluster'}
               </span>
               <span className="text-text-3">— Conflict Subgraph</span>
@@ -364,7 +396,7 @@ export const ClusterLabPage: React.FC = () => {
           }
           headerRight={
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-text-3 font-mono">STATE:</span>
+              <span className="text-[11px] text-text-3 font-mono">SCHEDULE STATE:</span>
               <Segmented<'before' | 'after'>
                 size="sm"
                 options={[
@@ -379,18 +411,12 @@ export const ClusterLabPage: React.FC = () => {
           bodyClassName="p-2 flex flex-col items-center bg-bg/50"
         >
           {/* SVG Canvas */}
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center relative">
             <svg
               width={width}
               height={height}
               className="border border-line/50 rounded-[2px] bg-panel select-none"
             >
-              <defs>
-                <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="0" stdDeviation="1" floodColor="#4589FF" />
-                </filter>
-              </defs>
-
               {/* Conflict Links */}
               {graphData.links.map((link, idx) => {
                 const sPos = positions[link.source as string];
@@ -406,7 +432,7 @@ export const ClusterLabPage: React.FC = () => {
                     y2={tPos.y}
                     stroke="var(--line)"
                     strokeWidth={link.strokeWidth}
-                    strokeOpacity={0.8}
+                    strokeOpacity={0.85}
                   />
                 );
               })}
@@ -416,20 +442,22 @@ export const ClusterLabPage: React.FC = () => {
                 const pos = positions[node.id];
                 if (!pos) return null;
                 const fillColor = SLOT_PALETTE[node.slot] || DEFAULT_SLOT_COLOR;
+                const isHovered = hoveredCourseId === node.id;
 
                 return (
                   <g
                     key={node.id}
                     transform={`translate(${pos.x}, ${pos.y})`}
                     className="cursor-pointer"
+                    onMouseEnter={() => setHoveredCourseId(node.id)}
+                    onMouseLeave={() => setHoveredCourseId(null)}
                   >
-                    {/* Circle with animated fill transition (150ms per DESIGN_SYSTEM.md) */}
                     <circle
-                      r={node.radius}
+                      r={isHovered ? node.radius + 3 : node.radius}
                       fill={fillColor}
-                      stroke="var(--panel-2)"
-                      strokeWidth={1.5}
-                      style={{ transition: 'fill 150ms ease-in-out' }}
+                      stroke={isHovered ? 'var(--text)' : 'var(--panel-2)'}
+                      strokeWidth={isHovered ? 2 : 1.5}
+                      style={{ transition: 'fill 150ms ease-in-out, r 150ms ease' }}
                     />
                     <text
                       textAnchor="middle"
@@ -442,6 +470,19 @@ export const ClusterLabPage: React.FC = () => {
                 );
               })}
             </svg>
+
+            {/* Hover Tooltip Overlay */}
+            {activeHoveredNode && (
+              <div className="absolute top-2 left-2 px-2.5 py-1.5 bg-panel border border-line text-xs font-mono rounded-[2px] shadow-none flex items-center gap-2">
+                <span className="font-bold text-text">{activeHoveredNode.id}</span>
+                <span className="text-text-3">|</span>
+                <span className="text-text-2">n={activeHoveredNode.enrollment}</span>
+                <span className="text-text-3">|</span>
+                <span>Slot: <strong className="text-accent">{activeHoveredNode.slot}</strong></span>
+                <span className="text-text-3">|</span>
+                <span className="text-[11px] text-text-3">Candidates: [{activeHoveredNode.initialSlot} ➔ {activeHoveredNode.altSlot}]</span>
+              </div>
+            )}
           </div>
 
           {/* Legend Strip with slot day/time */}
@@ -526,10 +567,10 @@ export const ClusterLabPage: React.FC = () => {
           </Panel>
         )}
 
-        {/* On Done: Decision Panel & Histogram & Diff Table */}
+        {/* Decision Panel & Histogram & Diff Table */}
         {currentDecision && (
           <div className="space-y-3">
-            {/* (a) Decision Panel with ok/warn left border */}
+            {/* Decision Panel */}
             <Panel
               title="GATE SAFETY EVALUATION & REPAIR DECISION"
               borderLeft={currentDecision.source === 'quantum_repaired' ? 'ok' : 'warn'}
@@ -538,7 +579,7 @@ export const ClusterLabPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handlePublish}
-                    className="px-2.5 py-1 bg-ok text-white font-mono text-[11px] font-bold rounded-[2px] flex items-center gap-1.5 cursor-pointer hover:opacity-90"
+                    className="px-2.5 py-1 bg-ok text-white font-mono text-[11px] font-semibold rounded-[2px] flex items-center gap-1.5 cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     <Send className="w-3 h-3" /> Publish Resolution
                   </button>
@@ -546,9 +587,12 @@ export const ClusterLabPage: React.FC = () => {
               }
             >
               <div className="space-y-3">
-                <p className="text-xs font-mono font-medium text-text bg-panel-2 p-2 rounded-[2px] border border-line">
-                  {currentDecision.reason}
-                </p>
+                <div className="flex items-center gap-2 p-2 bg-panel-2 border border-line rounded-[2px]">
+                  <ShieldCheck className="w-4 h-4 text-ok flex-shrink-0" />
+                  <p className="text-xs font-mono font-medium text-text">
+                    {currentDecision.reason}
+                  </p>
+                </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
                   <Stat
@@ -584,7 +628,7 @@ export const ClusterLabPage: React.FC = () => {
               </div>
             </Panel>
 
-            {/* (b) Top Bitstrings Histogram */}
+            {/* Top Bitstrings Histogram */}
             {quantumResult?.top_bitstrings && (
               <Panel title="TOP MEASURED BITSTRINGS HISTOGRAM">
                 <div className="h-44 w-full">
@@ -642,7 +686,7 @@ export const ClusterLabPage: React.FC = () => {
               </Panel>
             )}
 
-            {/* (c) Diff Table */}
+            {/* Schedule Modification Diff Table */}
             <Panel title="SCHEDULE MODIFICATION DIFF TABLE">
               {currentDecision.changes.length === 0 ? (
                 <div className="text-xs font-mono text-text-3 p-2">
@@ -656,7 +700,7 @@ export const ClusterLabPage: React.FC = () => {
                         <th className="p-2 text-left">Course</th>
                         <th className="p-2 text-left">From Slot</th>
                         <th className="p-2 text-left">To Slot</th>
-                        <th className="p-2 text-right">Action</th>
+                        <th className="p-2 text-right">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-line">
@@ -688,9 +732,22 @@ export const ClusterLabPage: React.FC = () => {
         <div className="flex-1 overflow-auto p-3 space-y-4">
           {/* Backend Selector */}
           <div>
-            <span className="text-[11px] font-mono text-text-3 block mb-1">
-              QUANTUM BACKEND
-            </span>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-mono text-text-3">QUANTUM BACKEND</span>
+              {role !== 'researcher' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRole('researcher');
+                    addToast('Researcher role unlocked: IBM QPU and Noisy simulator enabled', 'info');
+                  }}
+                  className="text-[10px] font-mono text-accent hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Key className="w-2.5 h-2.5" /> Unlock QPU
+                </button>
+              )}
+            </div>
+
             <Segmented<'ideal' | 'noisy' | 'ibm'>
               options={[
                 { value: 'ideal', label: 'Simulator' },
