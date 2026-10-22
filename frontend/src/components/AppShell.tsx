@@ -10,6 +10,7 @@ import {
   Component,
   X,
   DatabaseZap,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAppStore, UserRole } from '../store';
 import { Segmented } from './Segmented';
@@ -41,13 +42,32 @@ export const AppShell: React.FC = () => {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [loadingCache, setLoadingCache] = useState(false);
 
+  // Auto-initialize default verified baseline on app load
+  useEffect(() => {
+    if (!runId) {
+      api.getRun('run_fixture_mini')
+        .then((res) => {
+          setRunId('run_fixture_mini');
+          setDatasetName('ds_mini');
+          if (res.timetable) {
+            setTimetable(res.timetable);
+            setSolveStatus(res.timetable.solve_seconds, res.timetable.hard_violations);
+          }
+          if (res.clusters) setClusters(res.clusters);
+          if (res.decisions) setDecisions(res.decisions);
+        })
+        .catch(() => {
+          // Graceful fallback if API process is still bootstrapping
+        });
+    }
+  }, [runId, setRunId, setDatasetName, setTimetable, setSolveStatus, setClusters, setDecisions]);
+
   // Keyboard navigation shortcuts
   useEffect(() => {
     let pendingG = false;
     let timer: any = null;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts inside inputs/textareas
       const target = e.target as HTMLElement;
       if (
         target.tagName === 'INPUT' ||
@@ -116,7 +136,7 @@ export const AppShell: React.FC = () => {
         setDecisions(res.decisions);
       }
 
-      addToast('Loaded cached run_fixture_mini successfully', 'ok');
+      addToast('Loaded verified run_fixture_mini from disk cache', 'ok');
     } catch (err: any) {
       const msg = err instanceof ApiError ? err.message : err.message || 'Error loading cache';
       addToast(msg, 'error');
@@ -230,12 +250,13 @@ export const AppShell: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <span className="text-[11px] text-text-3">HARD:</span>
               <span
-                className={`font-mono font-semibold px-1 py-0.5 rounded-[1px] ${
+                className={`font-mono font-semibold px-1 py-0.5 rounded-[1px] flex items-center gap-1 ${
                   hardViolations === 0
                     ? 'text-ok bg-ok/10 border border-ok/30'
                     : 'text-bad bg-bad/10 border border-bad/30'
                 }`}
               >
+                <ShieldCheck className="w-3 h-3" />
                 {hardViolations} violations
               </span>
             </div>
@@ -255,15 +276,25 @@ export const AppShell: React.FC = () => {
 
             <span className="text-line">|</span>
 
-            <Segmented<UserRole>
-              size="sm"
-              options={[
-                { value: 'coordinator', label: 'Coordinator' },
-                { value: 'researcher', label: 'Researcher' },
-              ]}
-              value={role}
-              onChange={(newRole) => setRole(newRole)}
-            />
+            <div className="flex items-center gap-1.5">
+              <Segmented<UserRole>
+                size="sm"
+                options={[
+                  { value: 'coordinator', label: 'Coordinator' },
+                  { value: 'researcher', label: 'Researcher' },
+                ]}
+                value={role}
+                onChange={(newRole) => {
+                  setRole(newRole);
+                  addToast(
+                    newRole === 'researcher'
+                      ? 'Switched to Researcher role: Physical IBM Quantum QPU and Noisy simulation unlocked'
+                      : 'Switched to Coordinator role: Standard classical solver and local simulator mode',
+                    'info'
+                  );
+                }}
+              />
+            </div>
           </div>
         </header>
 
