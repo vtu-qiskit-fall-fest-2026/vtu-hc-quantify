@@ -143,3 +143,73 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Phase 1 Plain-CSS Safety Layer */
+.tile {
+  background: var(--tile);
+  border-radius: var(--r-tile, 24px);
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  transition: transform .12s var(--ease);
+}
+.tile:hover {
+  transform: translateY(-2px);
+}
+.tile--mint {
+  background: var(--tile-mint) !important;
+  border-color: transparent !important;
+}
+.tile--sage {
+  background: var(--tile-sage) !important;
+  border-color: transparent !important;
+}
+.tile--deep {
+  background: var(--tile-deep) !important;
+  color: var(--on-deep) !important;
+  border-color: transparent !important;
+}
+.tile--ink {
+  background: var(--tile-ink) !important;
+  color: var(--on-deep) !important;
+  border-color: transparent !important;
+}
+
+.pill-btn {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), transform 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.pill-btn--primary {
+  background: var(--green) !important;
+  color: #fff !important;
+}
+.pill-btn--primary:hover {
+  background: var(--green-hover) !important;
+  transform: translateY(-1px);
+}
+.pill-btn--secondary {
+  background: var(--tile) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.pill-btn--secondary:hover {
+  background: var(--green-soft) !important;
+}
+.pill-btn--mint {
+  background: var(--tile-mint) !important;
+  color: var(--ink) !important;
+}
+.pill-btn--deep {
+  background: var(--tile-deep) !important;
+  color: var(--on-deep) !important;
+}
+

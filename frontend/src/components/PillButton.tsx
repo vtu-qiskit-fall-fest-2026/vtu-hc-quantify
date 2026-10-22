@@ -23,24 +23,24 @@ export const PillButton: React.FC<PillButtonProps> = ({
   ...props
 }) => {
   const variantStyles: Record<PillButtonVariant, string> = {
-    primary: 'bg-green hover:bg-greenHover text-white border border-green shadow-hairline',
-    secondary: 'bg-tile text-ink border border-line hover:bg-greenSoft hover:border-line/80',
-    mint: 'bg-tileMint text-ink border border-line/60 hover:bg-tileSage',
-    deep: 'bg-tileDeep text-onDeep border border-tileDeep hover:bg-greenHover',
+    primary: 'pill-btn--primary bg-green hover:bg-greenHover text-white border border-green shadow-hairline',
+    secondary: 'pill-btn--secondary bg-tile text-ink border border-line hover:bg-greenSoft hover:border-line/80',
+    mint: 'pill-btn--mint bg-tileMint text-ink border border-line/60 hover:bg-tileSage',
+    deep: 'pill-btn--deep bg-tileDeep text-onDeep border border-tileDeep hover:bg-greenHover',
     ghost: 'bg-transparent text-ink hover:bg-greenSoft',
     quantum: 'bg-quantum hover:opacity-95 text-white border border-quantum shadow-hairline',
   };
 
   const sizeStyles: Record<PillButtonSize, string> = {
-    sm: 'h-8 px-3.5 text-xs gap-1.5',
-    md: 'h-10 px-5 text-xs font-medium gap-2',
-    lg: 'h-12 px-7 text-sm font-semibold gap-2.5',
+    sm: '!h-8 !px-3.5 text-xs gap-1.5',
+    md: '!h-11 !px-5 text-xs font-semibold gap-2',
+    lg: '!h-12 !px-7 text-sm font-semibold gap-2.5',
   };
 
   return (
     <button
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center rounded-pill font-ui transition-all duration-150 select-none ${
+      className={`pill-btn rounded-pill font-ui transition-all duration-150 select-none ${
         variantStyles[variant]
       } ${sizeStyles[size]} ${
         disabled || loading ? 'opacity-50 cursor-not-allowed' : 'active:scale-[0.98]'

@@ -37,13 +37,13 @@ export const Tile: React.FC<TileProps> = ({
   onClick,
   id,
 }) => {
-  const variantStyles: Record<TileVariant, string> = {
-    default: 'bg-tile text-ink border border-line',
-    mint: 'bg-tileMint text-ink border border-line/60',
-    sage: 'bg-tileSage text-ink border border-line/60',
-    deep: 'bg-tileDeep text-onDeep border border-tileDeep',
-    ink: 'bg-tileInk text-onDeep border border-line/20',
-    outlined: 'bg-tile text-ink border-2 border-line',
+  const tileVariantClasses: Record<TileVariant, string> = {
+    default: 'tile bg-tile text-ink',
+    mint: 'tile tile--mint bg-tileMint text-ink',
+    sage: 'tile tile--sage bg-tileSage text-ink',
+    deep: 'tile tile--deep bg-tileDeep text-onDeep',
+    ink: 'tile tile--ink bg-tileInk text-onDeep',
+    outlined: 'tile bg-tile text-ink border-2 border-line',
   };
 
   const getColClass = (span?: number | string) => {
@@ -83,21 +83,18 @@ export const Tile: React.FC<TileProps> = ({
     }
   };
 
-  const paddingClasses = {
-    normal: 'p-5',
-    dense: 'p-4',
-    none: 'p-0',
-  };
-
   const isDarkVariant = variant === 'deep' || variant === 'ink';
+  const paddingClass = padding === 'none' ? '!p-0' : padding === 'dense' ? '!p-4' : '';
 
   return (
     <div
       id={id}
       onClick={onClick}
-      className={`bento-tile-mount relative rounded-tile overflow-hidden transition-transform duration-150 flex flex-col ${
+      className={`bento-tile-mount relative overflow-hidden flex flex-col ${
+        tileVariantClasses[variant]
+      } ${paddingClass} ${
         interactive ? 'hover:-translate-y-0.5 hover:shadow-hover cursor-pointer' : ''
-      } ${variantStyles[variant]} ${getColClass(colSpan)} ${getRowClass(rowSpan)} ${className}`}
+      } ${getColClass(colSpan)} ${getRowClass(rowSpan)} ${className}`}
     >
       {(title || action || badge) && (
         <div
@@ -126,7 +123,7 @@ export const Tile: React.FC<TileProps> = ({
         </div>
       )}
 
-      <div className={`flex-1 min-w-0 flex flex-col ${paddingClasses[padding]} ${title || action || badge ? 'pt-0' : ''} ${bodyClassName}`}>
+      <div className={`flex-1 min-w-0 flex flex-col ${bodyClassName}`}>
         {children}
       </div>
     </div>

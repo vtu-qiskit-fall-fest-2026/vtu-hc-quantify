@@ -39,7 +39,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set, get) => ({
   role: 'coordinator',
-  theme: 'dark',
+  theme: 'light',
   datasetName: 'ds_mini',
   runId: null,
   timetable: null,
