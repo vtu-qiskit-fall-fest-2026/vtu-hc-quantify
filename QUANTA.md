@@ -1,4 +1,4 @@
--=0ppppp'[;# QUANTA: Quantum-Classical Hybrid University Exam Timetabling System
+# QUANTA: Quantum-Classical Hybrid University Exam Timetabling System
 **VTU Hackathon 2026 — Comprehensive Architectural & Engineering Report**
 
 ---
