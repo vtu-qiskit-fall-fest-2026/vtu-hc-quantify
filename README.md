@@ -51,11 +51,11 @@
 
 ## 👥 Team Members (GitHub IDs)
 
-| # | Name | GitHub Username | Role & Focus Area |
-| :-- | :--- | :--- | :--- |
-| 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) | Team Lead · Classical Engine, CP-SAT & REST API (Member A) |
-| 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) | Developer · Variational Quantum Algorithms, QPU & Benchmarks (Member B) |
-| 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) | Developer · Bento UI Web Console & Data Visualizations (Member C) |
+| # | Name | GitHub Username |
+| :-- | :--- | :--- |
+| 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) |
+| 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) |
+| 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) |
 
 ---
 
@@ -465,7 +465,7 @@ Empirical results across 10 random seeds on extracted university conflict bottle
 - [x] Repository created and **public**
 - [x] All team members added as **collaborators** and invitations accepted
 - [x] `README.md` updated with comprehensive project details, architecture, and reproduction steps
-- [x] Team members listed with GitHub usernames and defined roles
+- [x] Team members listed with GitHub usernames
 - [x] `requirements.txt` committed and tested from a clean virtual environment
 - [x] Code pushed to `main` with 100% clean test suite (`61/61` passed)
 - [x] Frontend builds cleanly (`tsc && vite build`) with zero lint or runtime errors
