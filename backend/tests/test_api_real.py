@@ -154,3 +154,29 @@ def test_real_benchmarks_and_publish(real_client: TestClient):
         assert exp_resp.status_code == 200
         assert "text/csv" in exp_resp.headers["content-type"]
         assert "course_id,slot_id,room_ids" in exp_resp.text
+
+
+def test_real_cache_load_and_audit(real_client: TestClient):
+    """Verify /runs/{id}/cache-load restores pre-computed run with zero hard violations."""
+    resp = real_client.post("/api/runs/test_cached_run/cache-load")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["run"]["cached"] is True
+    assert data["timetable"]["hard_violations"] == 0
+    assert len(data["clusters"]) >= 1
+    assert len(data["decisions"]) >= 1
+    assert data["decisions"][0]["hard_violations"] == 0
+
+    # Also verify get_run_details on this cached run audits and returns successfully
+    get_resp = real_client.get("/api/runs/test_cached_run")
+    assert get_resp.status_code == 200
+    get_data = get_resp.json()
+    assert get_data["timetable"]["hard_violations"] == 0
+
+
+def test_real_timing_middleware(real_client: TestClient):
+    """Verify X-Process-Time header is injected on all requests."""
+    resp = real_client.get("/api/health")
+    assert resp.status_code == 200
+    assert "X-Process-Time" in resp.headers
+    assert resp.headers["X-Process-Time"].endswith("s")
