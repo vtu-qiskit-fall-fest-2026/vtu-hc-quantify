@@ -27,6 +27,7 @@ export const AppShell: React.FC = () => {
     runId,
     setRunId,
     hardViolations,
+    lastSolveSeconds,
     setTimetable,
     setClusters,
     setDecisions,
@@ -255,6 +256,14 @@ export const AppShell: React.FC = () => {
               <span className="text-ink3 font-sans">dataset:</span>
               <span className="text-ink font-semibold">{datasetName}</span>
             </div>
+
+            {/* Solve Time Chip */}
+            {lastSolveSeconds !== null && (
+              <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-ink2 flex items-center gap-1.5 shadow-hairline">
+                <span className="text-ink3 font-sans">solved:</span>
+                <span className="text-ink font-semibold">{lastSolveSeconds.toFixed(1)}s</span>
+              </div>
+            )}
 
             {/* 0 Hard Violations Badge */}
             <div className="px-3 py-0.5 rounded-pill bg-tile border border-line text-[11px] font-mono text-green font-semibold flex items-center gap-1.5 shadow-hairline">
