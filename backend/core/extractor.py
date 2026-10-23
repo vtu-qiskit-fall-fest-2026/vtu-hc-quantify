@@ -154,6 +154,13 @@ def extract_clusters(
             edge_penalties[(c2, c1)] = pen_weight
 
     if not edge_penalties:
+        # Fall back to shared student graph weights if baseline has zero soft penalties
+        for (c1, c2), count in shared_counts.items():
+            if count > 0:
+                edge_penalties[(c1, c2)] = float(count)
+                edge_penalties[(c2, c1)] = float(count)
+
+    if not edge_penalties:
         return []
 
     # 3. Find dense clusters: iteratively seed from highest-penalty edge, grow greedily
@@ -194,8 +201,17 @@ def extract_clusters(
                             neighbor_scores[nbr] += pw
 
             if not neighbor_scores:
-                # No more connected neighbors with baseline penalty
-                break
+                # If still under minimum cluster size (4), expand via shared students from conflict graph G
+                if len(cluster) < 4:
+                    for curr_node in cluster:
+                        for nbr in G.neighbors(curr_node):
+                            if nbr not in cluster_set:
+                                sc = shared_counts.get((min(nbr, curr_node), max(nbr, curr_node)), 0)
+                                if sc > 0:
+                                    neighbor_scores[nbr] += float(sc)
+                if not neighbor_scores:
+                    # No more connected neighbors
+                    break
 
             # Pick neighbor with highest total penalized weight
             best_nbr = max(

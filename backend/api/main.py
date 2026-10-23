@@ -346,6 +346,15 @@ def _execute_baseline_solver(run_id: str, job_id: str, time_limit_s: int, seed: 
         with open(run_dir / "baseline.json", "w", encoding="utf-8") as f:
             f.write(tt.model_dump_json(indent=2))
 
+        # Auto-extract clusters immediately so they are available for Cluster Lab and quantum stage
+        try:
+            clusters = extract_clusters(ds, tt, max_size=12, top_k=5)
+            with open(run_dir / "clusters.json", "w", encoding="utf-8") as f:
+                f.write(json.dumps([c.model_dump() for c in clusters], indent=2))
+            logger.info("[Job %s] Auto-extracted %d clusters for run %s", job_id, len(clusters), run_id)
+        except Exception as ce:  # noqa: BLE001
+            logger.warning("[Job %s] Auto-extract clusters warning: %s", job_id, ce)
+
         complete_job(job_id, result_ref=f"/api/runs/{run_id}")
         logger.info("[Job %s] Baseline job completed in %.2fs total", job_id, time.time() - t_start)
     except Exception as e:  # noqa: BLE001
@@ -427,10 +436,25 @@ def get_run_details(run_id: str):
             )
 
     clusters = []
-    if (run_dir / "clusters.json").exists():
-        with open(run_dir / "clusters.json", "r", encoding="utf-8") as f:
-            clusters_raw = json.load(f)
-            clusters = [SubProblem.model_validate(c) for c in clusters_raw]
+    clusters_file = run_dir / "clusters.json"
+    if clusters_file.exists():
+        try:
+            with open(clusters_file, "r", encoding="utf-8") as f:
+                clusters_raw = json.load(f)
+                clusters = [SubProblem.model_validate(c) for c in clusters_raw]
+        except Exception:
+            clusters = []
+
+    # If baseline exists and clusters is empty, attempt auto-extraction
+    if tt and not clusters and (run_dir / "dataset.json").exists():
+        try:
+            with open(run_dir / "dataset.json", "r", encoding="utf-8") as f:
+                ds = Dataset.model_validate_json(f.read())
+            clusters = extract_clusters(ds, tt, max_size=12, top_k=5)
+            with open(clusters_file, "w", encoding="utf-8") as f:
+                f.write(json.dumps([c.model_dump() for c in clusters], indent=2))
+        except Exception as ce:  # noqa: BLE001
+            logger.warning("Auto-extract on run fetch warning: %s", ce)
 
     decisions = []
     for dec_file in run_dir.glob("cluster_*_decision.json"):
@@ -553,12 +577,24 @@ def _execute_quantum_pipeline(run_id: str, cid: str, job_id: str, cfg: QuantumCo
             ds = Dataset.model_validate_json(f.read())
         with open(run_dir / "baseline.json", "r", encoding="utf-8") as f:
             tt = Timetable.model_validate_json(f.read())
-        with open(run_dir / "clusters.json", "r", encoding="utf-8") as f:
-            clusters = [SubProblem.model_validate(c) for c in json.load(f)]
+        clusters_file = run_dir / "clusters.json"
+        clusters: list[SubProblem] = []
+        if clusters_file.exists():
+            try:
+                with open(clusters_file, "r", encoding="utf-8") as f:
+                    clusters = [SubProblem.model_validate(c) for c in json.load(f)]
+            except Exception:
+                clusters = []
+
+        if not clusters:
+            # Auto-extract on demand if missing or empty
+            clusters = extract_clusters(ds, tt, max_size=12, top_k=5)
+            with open(clusters_file, "w", encoding="utf-8") as f:
+                f.write(json.dumps([c.model_dump() for c in clusters], indent=2))
 
         sp = next((c for c in clusters if c.cluster_id == cid), None)
         if not sp:
-            fail_job(job_id, f"Cluster {cid} not found in clusters.json")
+            fail_job(job_id, f"Cluster {cid} not found (available: {[c.cluster_id for c in clusters]})")
             return
 
         def progress_callback(stage: str, progress: float, energy: float | None = None):
