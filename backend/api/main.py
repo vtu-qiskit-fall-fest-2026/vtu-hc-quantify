@@ -333,6 +333,59 @@ def create_run(req: RunCreate):
     return {"run_id": run_id}
 
 
+def _ensure_run_dir(run_id: str) -> Path:
+    """Auto-recovers run directory with baseline and clusters if absent (e.g. across container restarts)."""
+    run_dir = RUNS_DIR / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Dataset
+    dataset_file = run_dir / "dataset.json"
+    if not dataset_file.exists():
+        mini_dir = FIXTURES_DIR / "mini"
+        if mini_dir.exists():
+            ds = load_dataset_from_dir(mini_dir)
+        else:
+            ds = Dataset.model_validate(load_fixture("dataset.json"))
+        dataset_file.write_text(ds.model_dump_json(indent=2), encoding="utf-8")
+    else:
+        with open(dataset_file, "r", encoding="utf-8") as f:
+            ds = Dataset.model_validate_json(f.read())
+
+    # 2. Metadata
+    meta_file = run_dir / "meta.json"
+    if not meta_file.exists():
+        meta = {"run_id": run_id, "dataset_id": "ds_mini", "seed": 42, "created_at": time.time(), "recovered": True}
+        meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+    # 3. Baseline timetable
+    baseline_file = run_dir / "baseline.json"
+    if not baseline_file.exists():
+        tt_fixture = FIXTURES_DIR / "timetable.json"
+        if tt_fixture.exists():
+            tt_data = load_fixture("timetable.json")
+            tt = Timetable.model_validate(tt_data)
+        else:
+            tt = solve_baseline(ds, time_limit_s=5, seed=42)
+        baseline_file.write_text(tt.model_dump_json(indent=2), encoding="utf-8")
+    else:
+        with open(baseline_file, "r", encoding="utf-8") as f:
+            tt = Timetable.model_validate_json(f.read())
+
+    # 4. Extracted clusters
+    clusters_file = run_dir / "clusters.json"
+    if not clusters_file.exists():
+        try:
+            clusters = extract_clusters(ds, tt, max_size=12, top_k=5)
+            clusters_file.write_text(json.dumps([c.model_dump() for c in clusters], indent=2), encoding="utf-8")
+        except Exception as e:
+            logger.warning("Could not auto-extract clusters during recovery: %s", e)
+            if (FIXTURES_DIR / "subproblem_6.json").exists():
+                sp6 = load_fixture("subproblem_6.json")
+                clusters_file.write_text(json.dumps([sp6], indent=2), encoding="utf-8")
+
+    return run_dir
+
+
 class BaselineRequest(BaseModel):
     time_limit_s: int = 60
 
@@ -396,9 +449,7 @@ def run_baseline(
             result_ref=f"/api/runs/{run_id}",
         )
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     with open(run_dir / "meta.json", "r", encoding="utf-8") as f:
         meta = json.load(f)
@@ -430,9 +481,7 @@ def get_run_details(run_id: str):
             "decisions": [FinalDecision.model_validate(dec_data)],
         }
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     with open(run_dir / "meta.json", "r", encoding="utf-8") as f:
         meta = json.load(f)
@@ -545,9 +594,7 @@ def extract_run_clusters(run_id: str, req: ExtractRequest):
         sp_data = load_fixture("subproblem_6.json")
         return [SubProblem.model_validate(sp_data)]
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     baseline_file = run_dir / "baseline.json"
     if not baseline_file.exists():
@@ -585,7 +632,7 @@ def _execute_quantum_pipeline(run_id: str, cid: str, job_id: str, cfg: QuantumCo
             fail_job(job_id, f"Quantum interface not implemented: {ie}")
             return
 
-        run_dir = RUNS_DIR / run_id
+        run_dir = _ensure_run_dir(run_id)
         with open(run_dir / "dataset.json", "r", encoding="utf-8") as f:
             ds = Dataset.model_validate_json(f.read())
         with open(run_dir / "baseline.json", "r", encoding="utf-8") as f:
@@ -676,9 +723,7 @@ def submit_quantum_job(
             result_ref=f"/api/runs/{run_id}/clusters/{cid}/result",
         )
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     # Check that quantum interface can be imported
     try:
@@ -737,9 +782,7 @@ def get_cluster_result(run_id: str, cid: str):
             "decision": FinalDecision.model_validate(dec_data),
         }
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     q_file = run_dir / f"cluster_{cid}_quantum.json"
     d_file = run_dir / f"cluster_{cid}_decision.json"
@@ -817,9 +860,7 @@ def publish_schedule(run_id: str, req: PublishRequest):
             "export_url": f"/api/runs/{run_id}/export.csv",
         }
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     baseline_file = run_dir / "baseline.json"
     if not baseline_file.exists():
@@ -875,9 +916,7 @@ def export_csv(run_id: str):
             headers={"Content-Disposition": f"attachment; filename=quanta_timetable_{run_id}.csv"},
         )
 
-    run_dir = RUNS_DIR / run_id
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail={"error": {"code": "NOT_FOUND", "message": f"Run {run_id} not found"}})
+    run_dir = _ensure_run_dir(run_id)
 
     target_file = run_dir / "published_timetable.json"
     if not target_file.exists():

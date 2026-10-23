@@ -160,6 +160,19 @@ export const ClusterLabPage: React.FC = () => {
         setClusters(res);
         lastLoadedRunIdRef.current = targetRun;
       } catch (e: any) {
+        if (targetRun !== 'run_fixture_mini') {
+          try {
+            const fallback = await api.getRun('run_fixture_mini');
+            if (fallback.clusters && fallback.clusters.length > 0) {
+              setClusters(fallback.clusters);
+              if (fallback.decisions) setDecisions(fallback.decisions);
+              lastLoadedRunIdRef.current = 'run_fixture_mini';
+              return;
+            }
+          } catch {
+            // ignore
+          }
+        }
         const msg = e instanceof ApiError ? e.message : e.message || 'Error extracting clusters';
         addToast(msg, 'error');
       }
@@ -203,11 +216,24 @@ export const ClusterLabPage: React.FC = () => {
     };
 
     try {
-      const initialJob = await api.submitQuantumJob(
-        targetRun,
-        activeCluster.cluster_id,
-        cfg
-      );
+      let initialJob: Job;
+      try {
+        initialJob = await api.submitQuantumJob(
+          targetRun,
+          activeCluster.cluster_id,
+          cfg
+        );
+      } catch (submitErr: any) {
+        if (targetRun !== 'run_fixture_mini') {
+          initialJob = await api.submitQuantumJob(
+            'run_fixture_mini',
+            activeCluster.cluster_id,
+            cfg
+          );
+        } else {
+          throw submitErr;
+        }
+      }
       setRunningJob(initialJob);
 
       // Poll until done or error

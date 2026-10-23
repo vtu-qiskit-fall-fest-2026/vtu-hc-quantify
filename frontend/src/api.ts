@@ -52,10 +52,16 @@ async function request<T>(
   try {
     res = await fetch(url, { ...options, headers });
   } catch (err: any) {
-    throw new ApiError(
-      `Network error connecting to API (${url}): ${err?.message || 'Server unreachable'}`,
-      0
-    );
+    // Retry once after 1.2s in case Render free tier instance is spinning up or waking from sleep
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      res = await fetch(url, { ...options, headers });
+    } catch (retryErr: any) {
+      throw new ApiError(
+        `Network error connecting to API (${url}): ${retryErr?.message || err?.message || 'Server unreachable'}. If the server is spinning up, please retry in a few seconds.`,
+        0
+      );
+    }
   }
 
   if (!res.ok) {
