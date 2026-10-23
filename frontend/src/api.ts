@@ -9,8 +9,16 @@ import {
 } from './types';
 import { useAppStore } from './store';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+function resolveApiBaseUrl(): string {
+  let raw = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+  raw = raw.trim().replace(/\/+$/, '');
+  if (!raw.endsWith('/api')) {
+    raw = `${raw}/api`;
+  }
+  return raw;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   code?: string;

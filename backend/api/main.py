@@ -104,6 +104,19 @@ if not logger.handlers:
 
 
 @app.middleware("http")
+async def rewrite_api_prefix(request: Request, call_next):
+    """Gracefully handles API requests sent without the /api prefix."""
+    path = request.url.path
+    if not path.startswith("/api"):
+        api_roots = ("/health", "/datasets", "/runs", "/benchmarks", "/clusters")
+        if any(path == r or path.startswith(r + "/") for r in api_roots):
+            is_spa_page = request.method == "GET" and path in ("/datasets", "/clusters", "/benchmarks") and "text/html" in request.headers.get("accept", "")
+            if not is_spa_page:
+                request.scope["path"] = f"/api{path}"
+    return await call_next(request)
+
+
+@app.middleware("http")
 async def add_process_time_and_log(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
