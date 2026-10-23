@@ -2,7 +2,7 @@
 
 > **Project**: QUANTA (VTU Qiskit Fall Fest Hackathon 2026 — Team Quantify)  
 > **Target Duration**: 2 minutes 30 seconds (Max 3:00)  
-> **Live URL**: `http://localhost:5173` | **API**: `http://localhost:8000`  
+> **Live Console**: [https://quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)  
 > **Physical IBM Quantum Hardware**: `ibm_marrakesh` / `ibm_kingston` (156-qubit Heron architecture via IBM Cloud Qiskit Runtime)  
 > **Verified Job IDs**: `dbdgvgvi0auc73cr3pfg` & `dbcfb3vi0auc73durnc0`
 

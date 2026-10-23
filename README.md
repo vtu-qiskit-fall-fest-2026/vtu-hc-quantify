@@ -4,8 +4,9 @@
 
 **VTU-QFF-HC-0076** &nbsp;|&nbsp; Tier: **Both**
 
-[![Tests](https://img.shields.io/badge/pytest-61%20passed-brightgreen.svg)](file:///e:/QUANTA/vtu-hc-quantify/backend/tests)
-[![TypeScript](https://img.shields.io/badge/frontend-tsc%20clean-blue.svg)](file:///e:/QUANTA/vtu-hc-quantify/frontend)
+[![Live Demo](https://img.shields.io/badge/Render-Live%20Console-238636?style=flat&logo=render&logoColor=white)](https://quanta-web-o99w.onrender.com)
+[![Tests](https://img.shields.io/badge/pytest-62%20passed-brightgreen.svg)](backend/tests)
+[![TypeScript](https://img.shields.io/badge/frontend-tsc%20clean-blue.svg)](frontend)
 [![Qiskit](https://img.shields.io/badge/Qiskit-2.x%20%7C%20Runtime%20v2-purple.svg)](https://docs.quantum.ibm.com/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -22,6 +23,7 @@
 | **Team** | Quantify |
 | **Team ID** | VTU-QFF-HC-0076 |
 | **Tier** | Both (Online / Offline) |
+| **Live App** | **[quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)** |
 | **Repository** | [vtu-hc-quantify](https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-quantify.git) |
 | **Organisation** | [vtu-qiskit-fall-fest-2026](https://github.com/vtu-qiskit-fall-fest-2026) |
 | **Event** | VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026 |
@@ -274,7 +276,14 @@ CORS_ORIGINS=http://localhost:5173
 
 ## 🚀 How to Run
 
-### Option A: Launch Full Stack (Recommended)
+### 🌐 Live Cloud Deployment (Render)
+
+Access the live, production-grade cloud deployment directly in your browser:
+* **Live Interactive Console**: **[https://quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)**
+
+---
+
+### Option A: Launch Full Stack Locally (Recommended)
 
 Run the backend API and frontend Bento UI concurrently in separate terminals:
 
