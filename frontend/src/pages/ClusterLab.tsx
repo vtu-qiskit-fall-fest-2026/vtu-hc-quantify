@@ -47,6 +47,47 @@ const SLOT_PALETTE: Record<string, string> = {
 
 const DEFAULT_SLOT_COLOR = '#86988D';
 
+const SLOT_COLORS: string[] = [
+  '#2D7F9D',
+  '#E3A21A',
+  '#34A85F',
+  '#8FA8E8',
+  '#D98BB0',
+  '#7FC8B4',
+  '#B7A06A',
+  '#9A8FD1',
+  '#5B8FF9',
+  '#5AD8A6',
+  '#F6BD16',
+  '#E8684A',
+  '#6DC8EC',
+  '#9270CA',
+  '#FF9D4D',
+  '#269A99',
+];
+
+function getSlotColor(slotId: string | undefined): string {
+  if (!slotId) return DEFAULT_SLOT_COLOR;
+  if (SLOT_PALETTE[slotId]) return SLOT_PALETTE[slotId];
+  const match = slotId.match(/D(\d+)S(\d+)/i);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const order = parseInt(match[2], 10);
+    const idx = Math.abs((day - 1) * 4 + (order - 1)) % SLOT_COLORS.length;
+    return SLOT_COLORS[idx];
+  }
+  let hash = 0;
+  for (let i = 0; i < slotId.length; i++) {
+    hash = (hash << 5) - hash + slotId.charCodeAt(i);
+    hash |= 0;
+  }
+  return SLOT_COLORS[Math.abs(hash) % SLOT_COLORS.length];
+}
+
+function formatCourseLabel(courseId: string): string {
+  return courseId.replace(/^CRS0*/i, 'C');
+}
+
 const PIPELINE_STEPS: StepItem[] = [
   { id: 'extract', label: 'Extract' },
   { id: 'qubo', label: 'QUBO' },
@@ -76,6 +117,7 @@ export const ClusterLabPage: React.FC = () => {
   const [quantumResult, setQuantumResult] = useState<QuantumResult | null>(null);
   const [currentDecision, setCurrentDecision] = useState<FinalDecision | null>(null);
   const [viewMode, setViewMode] = useState<'before' | 'after'>('before');
+  const [hoveredCourseId, setHoveredCourseId] = useState<string | null>(null);
 
   // Quantum Config State
   const [backendChoice, setBackendChoice] = useState<'ideal' | 'noisy' | 'ibm'>('ideal');
@@ -270,13 +312,22 @@ export const ClusterLabPage: React.FC = () => {
     return { nodes, links };
   }, [activeCluster, viewMode, currentDecision]);
 
-  // Run 2D layout simulation
+  // Run 2D layout simulation with auto-fitting bounding box to prevent clipping
   const [layoutNodes, setLayoutNodes] = useState<any[]>([]);
   useEffect(() => {
     if (!graphData.nodes.length) return;
 
     const simNodes = graphData.nodes.map((d) => ({ ...d }));
     const simLinks = graphData.links.map((d) => ({ ...d }));
+
+    // Break 1D collinearity by distributing nodes evenly in a ring
+    const n = simNodes.length;
+    const initialRadius = Math.min(130, Math.max(65, n * 16));
+    simNodes.forEach((node: any, i: number) => {
+      const angle = (2 * Math.PI * i) / n;
+      node.x = 260 + initialRadius * Math.cos(angle);
+      node.y = 150 + initialRadius * Math.sin(angle);
+    });
 
     const simulation = d3
       .forceSimulation(simNodes)
@@ -285,14 +336,45 @@ export const ClusterLabPage: React.FC = () => {
         d3
           .forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance(70)
+          .distance(75)
+          .strength(0.7)
       )
-      .force('charge', d3.forceManyBody().strength(-180))
-      .force('center', d3.forceCenter(240, 160))
-      .force('collision', d3.forceCollide().radius(32))
+      .force('charge', d3.forceManyBody().strength(-240))
+      .force('center', d3.forceCenter(260, 150))
+      .force('collision', d3.forceCollide().radius(36))
       .stop();
 
-    for (let i = 0; i < 150; ++i) simulation.tick();
+    for (let i = 0; i < 200; ++i) simulation.tick();
+
+    // Auto-fit bounding box normalization to guarantee zero clipping
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    simNodes.forEach((node: any) => {
+      if (node.x < minX) minX = node.x;
+      if (node.x > maxX) maxX = node.x;
+      if (node.y < minY) minY = node.y;
+      if (node.y > maxY) maxY = node.y;
+    });
+
+    const targetW = 520;
+    const targetH = 300;
+    const padX = 58;
+    const padY = 52;
+
+    const spanX = Math.max(maxX - minX, 10);
+    const spanY = Math.max(maxY - minY, 10);
+
+    const scale = Math.min((targetW - padX * 2) / spanX, (targetH - padY * 2) / spanY, 1.25);
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+
+    simNodes.forEach((node: any) => {
+      node.x = Math.round(targetW / 2 + (node.x - midX) * scale);
+      node.y = Math.round(targetH / 2 + (node.y - midY) * scale);
+    });
+
     setLayoutNodes(simNodes);
   }, [graphData.nodes.length, activeCluster?.cluster_id]);
 
@@ -451,90 +533,140 @@ export const ClusterLabPage: React.FC = () => {
           className="relative"
           padding="dense"
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">
             {layoutNodes.length > 0 ? (
-              <svg viewBox="0 0 480 300" className="w-full h-full max-h-[300px]">
-                {/* Edges */}
-                {graphData.links.map((link: any, idx) => {
-                  const sourceNode = layoutNodes.find((n) => n.id === link.source) || layoutNodes[0];
-                  const targetNode = layoutNodes.find((n) => n.id === link.target) || layoutNodes[1];
-                  return (
-                    <line
-                      key={idx}
-                      x1={sourceNode?.x || 0}
-                      y1={sourceNode?.y || 0}
-                      x2={targetNode?.x || 0}
-                      y2={targetNode?.y || 0}
-                      stroke="var(--ink-3)"
-                      strokeWidth={Math.max(1.5, link.weight / 6)}
-                      strokeOpacity="0.4"
-                    />
-                  );
-                })}
+              <>
+                <svg viewBox="0 0 520 300" className="w-full h-full max-h-[320px] select-none">
+                  {/* Drop shadow filter for crisp circular nodes */}
+                  <defs>
+                    <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.12" />
+                    </filter>
+                  </defs>
 
-                {/* Nodes with smooth 150ms fill transition */}
-                {layoutNodes.map((node: any) => {
-                  const currentSlot =
-                    viewMode === 'after' && currentDecision
-                      ? currentDecision.changes.find((c) => c[0] === node.id)?.[2] ||
-                        activeCluster?.candidates[node.id]?.[0]
-                      : activeCluster?.candidates[node.id]?.[0];
+                  {/* Conflict Edges */}
+                  {graphData.links.map((link: any, idx: number) => {
+                    const sourceNode = layoutNodes.find((n) => n.id === link.source) || layoutNodes[0];
+                    const targetNode = layoutNodes.find((n) => n.id === link.target) || layoutNodes[1];
+                    const isConnected =
+                      hoveredCourseId !== null &&
+                      (link.source === hoveredCourseId || link.target === hoveredCourseId);
 
-                  const fillColor = SLOT_PALETTE[currentSlot || 'D1S1'] || DEFAULT_SLOT_COLOR;
-
-                  return (
-                    <g
-                      key={node.id}
-                      className="cursor-pointer transition-transform duration-150 hover:scale-105"
-                    >
-                      {/* Soft outer ring in slot color at 25% */}
-                      <circle
-                        cx={node.x}
-                        cy={node.y}
-                        r={24}
-                        fill="none"
-                        stroke={fillColor}
-                        strokeWidth="3"
-                        strokeOpacity="0.25"
+                    return (
+                      <line
+                        key={idx}
+                        x1={sourceNode?.x || 0}
+                        y1={sourceNode?.y || 0}
+                        x2={targetNode?.x || 0}
+                        y2={targetNode?.y || 0}
+                        stroke={isConnected ? '#1F5B3C' : 'var(--ink-3)'}
+                        strokeWidth={isConnected ? Math.max(2.5, link.weight / 4) : Math.max(1.5, link.weight / 6)}
+                        strokeOpacity={isConnected ? 0.9 : 0.4}
+                        className="transition-all duration-150"
                       />
-                      {/* Node circle: 40px with 3px white ring */}
-                      <circle
-                        cx={node.x}
-                        cy={node.y}
-                        r={20}
-                        fill={fillColor}
-                        stroke="#FFFFFF"
-                        strokeWidth="2.5"
-                        className="transition-colors duration-150 shadow-hairline"
-                      />
-                      <text
-                        x={node.x}
-                        y={node.y + 4}
-                        fill="#FFFFFF"
-                        fontSize="10"
-                        fontWeight="700"
-                        fontFamily="var(--font-mono)"
-                        textAnchor="middle"
-                        className="select-none pointer-events-none"
+                    );
+                  })}
+
+                  {/* Nodes */}
+                  {layoutNodes.map((node: any) => {
+                    const currentSlot =
+                      viewMode === 'after' && currentDecision
+                        ? currentDecision.changes.find((c) => c[0] === node.id)?.[2] ||
+                          activeCluster?.candidates[node.id]?.[0]
+                        : activeCluster?.candidates[node.id]?.[0];
+
+                    const fillColor = getSlotColor(currentSlot);
+                    const isHovered = hoveredCourseId === node.id;
+                    const isMoved =
+                      viewMode === 'after' &&
+                      currentDecision?.changes.some((c) => c[0] === node.id);
+
+                    return (
+                      <g
+                        key={node.id}
+                        className="cursor-pointer transition-all duration-150"
+                        onMouseEnter={() => setHoveredCourseId(node.id)}
+                        onMouseLeave={() => setHoveredCourseId(null)}
                       >
-                        {node.id.replace('CRS00', 'C')}
-                      </text>
-                      <text
-                        x={node.x}
-                        y={node.y + 32}
-                        fill="var(--ink-2)"
-                        fontSize="10"
-                        fontWeight="600"
-                        fontFamily="var(--font-mono)"
-                        textAnchor="middle"
-                        className="select-none"
-                      >
-                        {currentSlot}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
+                        {/* Soft outer ring in slot color */}
+                        <circle
+                          cx={node.x}
+                          cy={node.y}
+                          r={isHovered ? 26 : 23}
+                          fill="none"
+                          stroke={isMoved ? '#1F5B3C' : fillColor}
+                          strokeWidth={isMoved ? 3.5 : 2.5}
+                          strokeOpacity={isHovered ? 0.5 : 0.28}
+                          strokeDasharray={isMoved ? '4 2' : undefined}
+                          className="transition-all duration-150"
+                        />
+                        {/* Node circle */}
+                        <circle
+                          cx={node.x}
+                          cy={node.y}
+                          r={19}
+                          fill={fillColor}
+                          stroke="#FFFFFF"
+                          strokeWidth="2.5"
+                          filter="url(#nodeGlow)"
+                          className="transition-all duration-150 shadow-hairline"
+                        />
+                        {/* Course ID Short Text (e.g. C17, C12, C7) */}
+                        <text
+                          x={node.x}
+                          y={node.y + 4}
+                          fill="#FFFFFF"
+                          fontSize="10"
+                          fontWeight="700"
+                          fontFamily="var(--font-mono)"
+                          textAnchor="middle"
+                          className="select-none pointer-events-none"
+                        >
+                          {formatCourseLabel(node.id)}
+                        </text>
+                        {/* Slot label below node */}
+                        <text
+                          x={node.x}
+                          y={node.y + 28}
+                          fill="var(--ink-2)"
+                          fontSize="10"
+                          fontWeight="600"
+                          fontFamily="var(--font-mono)"
+                          textAnchor="middle"
+                          className="select-none pointer-events-none"
+                        >
+                          {currentSlot}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Subtle Interactive Inspection Banner */}
+                {hoveredCourseId && (
+                  <div className="absolute bottom-2 left-3 right-3 bg-tile/95 backdrop-blur-sm border border-line rounded-pill px-3 py-1 flex items-center justify-between text-[11px] font-mono shadow-hairline pointer-events-none">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-ink">{hoveredCourseId}</span>
+                      <span className="text-ink3 font-sans">•</span>
+                      <span className="text-ink2">{activeCluster?.sizes[hoveredCourseId] || 40} students</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink3">Assigned:</span>
+                      <span className="font-bold text-ink">
+                        {viewMode === 'after' && currentDecision
+                          ? currentDecision.changes.find((c) => c[0] === hoveredCourseId)?.[2] ||
+                            activeCluster?.candidates[hoveredCourseId]?.[0]
+                          : activeCluster?.candidates[hoveredCourseId]?.[0]}
+                      </span>
+                      {activeCluster?.candidates[hoveredCourseId]?.[1] && (
+                        <span className="text-ink3">
+                          (Alt: {activeCluster.candidates[hoveredCourseId][1]})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-xs font-ui text-ink2">Loading cluster topology...</div>
             )}
