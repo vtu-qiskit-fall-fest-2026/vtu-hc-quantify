@@ -3,6 +3,8 @@
 > **Project**: QUANTA (VTU Qiskit Fall Fest Hackathon 2026 — Team Quantify)  
 > **Target Duration**: 2 minutes 30 seconds (Max 3:00)  
 > **Live Console**: [https://quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)  
+> **Demo Video**: [https://youtu.be/QCn1llbXmmE](https://youtu.be/QCn1llbXmmE)  
+> **Official Slide Deck**: [VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)  
 > **Physical IBM Quantum Hardware**: `ibm_marrakesh` / `ibm_kingston` (156-qubit Heron architecture via IBM Cloud Qiskit Runtime)  
 > **Verified Job IDs**: `dbdgvgvi0auc73cr3pfg` & `dbcfb3vi0auc73durnc0`
 

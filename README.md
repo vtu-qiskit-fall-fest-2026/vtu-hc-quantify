@@ -5,6 +5,8 @@
 **VTU-QFF-HC-0076** &nbsp;|&nbsp; Tier: **Both**
 
 [![Live Demo](https://img.shields.io/badge/Render-Live%20Console-238636?style=flat&logo=render&logoColor=white)](https://quanta-web-o99w.onrender.com)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/QCn1llbXmmE)
+[![Presentation Deck](https://img.shields.io/badge/Deck-VTU--QFF--HC--Quantify.pdf-E02424?style=flat&logo=adobeacrobatreader&logoColor=white)](VTU-QFF-HC-Quantify.pdf)
 [![Tests](https://img.shields.io/badge/pytest-62%20passed-brightgreen.svg)](backend/tests)
 [![TypeScript](https://img.shields.io/badge/frontend-tsc%20clean-blue.svg)](frontend)
 [![Qiskit](https://img.shields.io/badge/Qiskit-2.x%20%7C%20Runtime%20v2-purple.svg)](https://docs.quantum.ibm.com/)
@@ -24,6 +26,8 @@
 | **Team ID** | VTU-QFF-HC-0076 |
 | **Tier** | Both (Online / Offline) |
 | **Live App** | **[quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)** |
+| **Demo Video** | 🎬 **[Watch on YouTube](https://youtu.be/QCn1llbXmmE)** |
+| **Official Pitch Deck** | 📽️ **[VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)** *(10-Slide Competition PPT)* |
 | **Repository** | [vtu-hc-quantify](https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-quantify.git) |
 | **Organisation** | [vtu-qiskit-fall-fest-2026](https://github.com/vtu-qiskit-fall-fest-2026) |
 | **Event** | VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026 |
@@ -35,6 +39,7 @@
 ## 📌 Table of Contents
 
 - [Team Members](#-team-members-github-ids)
+- [Official Presentation Deck & Video Demo](#-official-presentation-deck--video-demo)
 - [Problem Statement](#-problem-statement)
 - [Proposed Solution](#-proposed-solution)
 - [Pipeline Architecture](#-pipeline-architecture)
@@ -57,6 +62,30 @@
 | 1 | Yash B Koparde | [@yashkoparde](https://github.com/yashkoparde) | Team Lead |
 | 2 | Aditya Patange | [@AdityaPatangez](https://github.com/AdityaPatangez) | Developer |
 | 3 | Melwin Fernandes | [@Melwin-2007](https://github.com/Melwin-2007) | Developer |
+
+---
+
+## 📽️ Official Presentation Deck & Video Demo
+
+| Resource | Link | Description |
+|:---|:---|:---|
+| 🎬 **Live Demo Video** | **[Watch on YouTube (youtu.be/QCn1llbXmmE)](https://youtu.be/QCn1llbXmmE)** | Complete video walkthrough of the QUANTA platform in action |
+| 📄 **Official Presentation Deck** | **[VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)** | Official 10-slide competition deck submitted for VTU-Qiskit Fall Fest 2026 |
+
+### Slide Deck Structure (10 Slides)
+
+| Slide # | Slide Title | Core Technical / Strategic Focus |
+|:---|:---|:---|
+| **Slide 1** | **Participant Details** | Project Title (`QUANTA`), Track: Both (Classical + Quantum), Team ID: `VTU-QFF-HC-0076`, VTU Belagavi |
+| **Slide 2** | **Problem Statement** | University exam scale: 4,200 students, 180 courses, 22 halls, 15 slots; zero-tolerance hard clashes vs. student testing fatigue |
+| **Slide 3** | **Objectives & Novelty** | Certified zero violations, 1-qubit-per-course perturbation encoding, independent pure-Python auditor, multi-backend pipeline |
+| **Slide 4** | **Solution & Quantum Advantage** | Qubit compression ($5,000+ \to 12$ binary variables), untangling dense soft conflicts, 100% error-proof classical safety gate |
+| **Slide 5** | **Algorithm & Circuit Design** | QAOA ansatz ($p \in \{1, 2\}$), $R_{ZZ}(\gamma)$ cost unitaries, $R_X(2\beta)$ mixer unitaries, Hopcroft-Karp room repair |
+| **Slide 6** | **Implementation & Tech Stack** | 4-layer architecture: Qiskit 2.x, OR-Tools CP-SAT, NetworkX, FastAPI, React 18 Bento Grid console |
+| **Slide 7** | **Results & Analysis** | $0$ hard violations invariant, $< 40\text{ms}$ classical exact solve, real IBM Kingston hardware depth & 2Q gate scaling |
+| **Slide 8** | **Impact & Real-World Applications** | Direct campus impact, NISQ-to-production blueprint; cross-industry expansion to Healthcare, Aviation, Cloud Data Centers, Supply Chain |
+| **Slide 9** | **Challenges & Future Scope** | Qubit capacity bottleneck, decoherence/noise mitigation, scaling cluster sizes to $50\text{--}100+$ qubits, multi-slot qudit encodings |
+| **Slide 10** | **Closing / Q&A** | Summary, demo video links, and project contact details |
 
 ---
 
@@ -589,8 +618,11 @@ Certified_Hard_Violations: 0
 - [x] `README.md` updated with comprehensive project details, architecture, and reproduction steps
 - [x] Team members listed with GitHub usernames
 - [x] `requirements.txt` committed and tested from a clean virtual environment
-- [x] Code pushed to `main` with 100% clean test suite (`61/61` passed)
+- [x] Code pushed to `main` with 100% clean test suite (`62/62` passed)
 - [x] Frontend builds cleanly (`tsc && vite build`) with zero lint or runtime errors
+- [x] Live cloud application deployed on Render: [quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)
+- [x] Official 10-slide presentation deck added: [VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)
+- [x] Demo video recorded and linked: [https://youtu.be/QCn1llbXmmE](https://youtu.be/QCn1llbXmmE)
 - [x] Physical IBM Quantum hardware execution traces logged in `runs/hardware/`
 - [x] Detailed architectural and mathematical manual written in [QUANTA.md](file:///e:/QUANTA/vtu-hc-quantify/QUANTA.md)
 - [x] Live demonstration script and slide deck outline in [docs/DEMO.md](file:///e:/QUANTA/vtu-hc-quantify/docs/DEMO.md)
