@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   X,
   CalendarCheck2,
@@ -62,12 +62,18 @@ export const TimetablePage: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<number | 'ALL'>(1);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-  // Load timetable if runId exists or fallback to fixture run
+  const lastLoadedRunIdRef = useRef<string | null>(null);
+
+  // Load timetable whenever runId changes or initial load
   useEffect(() => {
+    const targetRunId = runId || 'run_fixture_mini';
+    if (lastLoadedRunIdRef.current === targetRunId && timetable) {
+      return;
+    }
+
     const fetchTimetable = async () => {
       setLoading(true);
       try {
-        const targetRunId = runId || 'run_fixture_mini';
         const res = await api.getRun(targetRunId);
         if (res.run?.run_id && !runId) {
           setRunId(res.run.run_id);
@@ -78,6 +84,7 @@ export const TimetablePage: React.FC = () => {
         if (res.clusters) {
           setClusters(res.clusters);
         }
+        lastLoadedRunIdRef.current = targetRunId;
       } catch (err: any) {
         const msg = err instanceof ApiError ? err.message : err.message || 'Error fetching timetable';
         addToast(msg, 'error');
@@ -86,10 +93,8 @@ export const TimetablePage: React.FC = () => {
       }
     };
 
-    if (!timetable) {
-      fetchTimetable();
-    }
-  }, [runId, timetable, setRunId, setTimetable, setClusters, addToast]);
+    fetchTimetable();
+  }, [runId, setRunId, setTimetable, setClusters, addToast]);
 
   // Known catalog for mini fixture
   const staticCatalog: Record<string, Omit<CourseMeta, 'headcount'>> = useMemo(

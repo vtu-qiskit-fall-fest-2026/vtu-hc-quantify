@@ -61,7 +61,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ theme: nextTheme });
   },
   setDatasetName: (datasetName) => set({ datasetName }),
-  setRunId: (runId) => set({ runId }),
+  setRunId: (runId) => {
+    if (runId !== get().runId) {
+      set({
+        runId,
+        clusters: [],
+        decisions: [],
+        activeClusterId: null,
+        timetable: null,
+        hardViolations: 0,
+        lastSolveSeconds: null,
+      });
+    } else {
+      set({ runId });
+    }
+  },
   setTimetable: (timetable) =>
     set({
       timetable,

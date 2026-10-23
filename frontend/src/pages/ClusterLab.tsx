@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import * as d3 from 'd3-force';
 import {
   ResponsiveContainer,
@@ -15,6 +15,7 @@ import {
 import {
   Send,
   Zap,
+  RefreshCw,
 } from 'lucide-react';
 import { BentoGrid } from '../components/BentoGrid';
 import { Tile } from '../components/Tile';
@@ -128,27 +129,48 @@ export const ClusterLabPage: React.FC = () => {
   const [adjacentSameDayPenalty] = useState<number>(10);
   const [sameDayPenalty] = useState<number>(1);
   const [publishing, setPublishing] = useState(false);
+  const lastLoadedRunIdRef = useRef<string | null>(null);
 
-  // Load Clusters if empty
-  useEffect(() => {
-    const fetchClusters = async () => {
-      setLoadingClusters(true);
-      try {
-        const targetRun = runId || 'run_fixture_mini';
+  // Load Clusters whenever runId changes or on explicit refresh
+  const fetchClusters = useCallback(async (force = false) => {
+    const targetRun = runId || 'run_fixture_mini';
+    if (!force && lastLoadedRunIdRef.current === targetRun && clusters.length > 0) {
+      return;
+    }
+
+    setLoadingClusters(true);
+    try {
+      // 1. First attempt to load existing clusters and decisions from run endpoint
+      const runData = await api.getRun(targetRun);
+      if (runData.clusters && runData.clusters.length > 0) {
+        setClusters(runData.clusters);
+        if (runData.decisions) {
+          setDecisions(runData.decisions);
+        }
+      } else {
+        // 2. Fall back to on-demand extraction
         const res = await api.extractClusters(targetRun, 12, 5);
         setClusters(res);
-      } catch (err: any) {
-        const msg = err instanceof ApiError ? err.message : err.message || 'Error extracting clusters';
-        addToast(msg, 'error');
-      } finally {
-        setLoadingClusters(false);
       }
-    };
-
-    if (clusters.length === 0) {
-      fetchClusters();
+      lastLoadedRunIdRef.current = targetRun;
+    } catch (err: any) {
+      // 3. Fallback extraction attempt
+      try {
+        const res = await api.extractClusters(targetRun, 12, 5);
+        setClusters(res);
+        lastLoadedRunIdRef.current = targetRun;
+      } catch (e: any) {
+        const msg = e instanceof ApiError ? e.message : e.message || 'Error extracting clusters';
+        addToast(msg, 'error');
+      }
+    } finally {
+      setLoadingClusters(false);
     }
-  }, [clusters.length, runId, setClusters, addToast]);
+  }, [runId, clusters.length, setClusters, setDecisions, addToast]);
+
+  useEffect(() => {
+    fetchClusters(false);
+  }, [runId, fetchClusters]);
 
   const activeCluster = useMemo(() => {
     return (
@@ -461,9 +483,20 @@ export const ClusterLabPage: React.FC = () => {
           title="Extracted Clusters"
           subtitle="Ranked by shared testing fatigue"
           action={
-            <span className="font-mono text-[11px] text-ink2">
-              {clusters.length} clusters
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-[11px] text-ink2">
+                {clusters.length} clusters
+              </span>
+              <button
+                type="button"
+                onClick={() => fetchClusters(true)}
+                disabled={loadingClusters}
+                title="Refresh and re-extract clusters for current run"
+                className="p-1 rounded-pill hover:bg-tileMint text-ink2 hover:text-ink transition-colors cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingClusters ? 'animate-spin text-green' : ''}`} />
+              </button>
+            </div>
           }
           padding="dense"
         >

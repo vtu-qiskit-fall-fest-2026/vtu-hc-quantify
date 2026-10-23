@@ -66,7 +66,15 @@ export const DatasetPage: React.FC = () => {
   const singleFileInputRef = useRef<HTMLInputElement>(null);
   const targetSingleFileRef = useRef<string | null>(null);
 
-  const { setRunId, setDatasetName, setTimetable, setSolveStatus, addToast } = useAppStore();
+  const {
+    setRunId,
+    setDatasetName,
+    setTimetable,
+    setClusters,
+    setDecisions,
+    setSolveStatus,
+    addToast,
+  } = useAppStore();
 
   const [files, setFiles] = useState<Record<string, ParsedFileInfo>>({});
   const [isDragOver, setIsDragOver] = useState(false);
@@ -520,6 +528,12 @@ export const DatasetPage: React.FC = () => {
             setTimetable(runData.timetable);
             setSolveStatus(runData.timetable.solve_seconds, runData.timetable.hard_violations);
             addToast(`Solved in ${runData.timetable.solve_seconds.toFixed(2)}s, 0 hard violations`, 'ok');
+          }
+          if (runData.clusters && runData.clusters.length > 0) {
+            setClusters(runData.clusters);
+          }
+          if (runData.decisions) {
+            setDecisions(runData.decisions);
           }
           clearInterval(timerInterval);
           setTimeout(() => {
