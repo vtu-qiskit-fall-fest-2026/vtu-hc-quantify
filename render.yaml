@@ -1,0 +1,53 @@
+# Render Blueprint Specification for QUANTA
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  # -------------------------------------------------------------------------
+  # 1. Backend Web Service (FastAPI + Qiskit + OR-Tools)
+  # -------------------------------------------------------------------------
+  - type: web
+    name: quanta-api
+    runtime: python
+    region: oregon # or frankfurt / singapore
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
+    startCommand: "uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: QUANTA_MOCK
+        value: "0" # Set to "1" for instant fixture mode, "0" for real CP-SAT & Qiskit QAOA
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: IBM_QUANTUM_TOKEN
+        sync: false # Set securely in Render dashboard for real IBM Cloud hardware execution
+      - key: IBM_QUANTUM_INSTANCE
+        sync: false
+
+  # -------------------------------------------------------------------------
+  # 2. Frontend Static Site (React 18 + Vite + Tailwind CSS)
+  # -------------------------------------------------------------------------
+  - type: web
+    name: quanta-web
+    runtime: static
+    region: oregon
+    plan: free
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    autoDeploy: true
+    routes:
+      # Single Page Application (SPA) client-side routing fallback
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: quanta-api
+          property: host
+        # Note: In Vite, VITE_API_URL is baked at build time. 
+        # Set VITE_API_URL to: https://quanta-api.onrender.com/api
