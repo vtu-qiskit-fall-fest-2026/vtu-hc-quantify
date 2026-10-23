@@ -5,8 +5,8 @@
 **VTU-QFF-HC-0076** &nbsp;|&nbsp; Tier: **Both**
 
 [![Live Demo](https://img.shields.io/badge/Render-Live%20Console-238636?style=flat&logo=render&logoColor=white)](https://quanta-web-o99w.onrender.com)
-[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/QCn1llbXmmE)
-[![Presentation Deck](https://img.shields.io/badge/Deck-VTU--QFF--HC--Quantify.pdf-E02424?style=flat&logo=adobeacrobatreader&logoColor=white)](VTU-QFF-HC-Quantify.pdf)
+[![Demo Video](https://img.shields.io/badge/YouTube-Demo%20Video-FF0000?style=flat&logo=youtube&logoColor=white)](https://youtu.be/iZAfUc3S_go)
+[![Presentation Deck](https://img.shields.io/badge/Deck-VTU--QFF--HC--0076.pdf-E02424?style=flat&logo=adobeacrobatreader&logoColor=white)](VTU-QFF-HC-0076.pdf)
 [![Tests](https://img.shields.io/badge/pytest-62%20passed-brightgreen.svg)](backend/tests)
 [![TypeScript](https://img.shields.io/badge/frontend-tsc%20clean-blue.svg)](frontend)
 [![Qiskit](https://img.shields.io/badge/Qiskit-2.x%20%7C%20Runtime%20v2-purple.svg)](https://docs.quantum.ibm.com/)
@@ -26,8 +26,8 @@
 | **Team ID** | VTU-QFF-HC-0076 |
 | **Tier** | Both (Online / Offline) |
 | **Live App** | **[quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)** |
-| **Demo Video** | 🎬 **[Watch on YouTube](https://youtu.be/QCn1llbXmmE)** |
-| **Official Pitch Deck** | 📽️ **[VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)** *(10-Slide Competition PPT)* |
+| **Demo Video** | 🎬 **[Watch on YouTube](https://youtu.be/iZAfUc3S_go)** |
+| **Official Pitch Deck** | 📽️ **[VTU-QFF-HC-0076.pdf](VTU-QFF-HC-0076.pdf)** *(10-Slide Competition PPT)* |
 | **Repository** | [vtu-hc-quantify](https://github.com/vtu-qiskit-fall-fest-2026/vtu-hc-quantify.git) |
 | **Organisation** | [vtu-qiskit-fall-fest-2026](https://github.com/vtu-qiskit-fall-fest-2026) |
 | **Event** | VTU-QFF Hackathon — VTU-Qiskit Fall Fest 2026 |
@@ -69,8 +69,8 @@
 
 | Resource | Link | Description |
 |:---|:---|:---|
-| 🎬 **Live Demo Video** | **[Watch on YouTube (youtu.be/QCn1llbXmmE)](https://youtu.be/QCn1llbXmmE)** | Complete video walkthrough of the QUANTA platform in action |
-| 📄 **Official Presentation Deck** | **[VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)** | Official 10-slide competition deck submitted for VTU-Qiskit Fall Fest 2026 |
+| 🎬 **Live Demo Video** | **[Watch on YouTube (youtu.be/iZAfUc3S_go)](https://youtu.be/iZAfUc3S_go)** | Complete video walkthrough of the QUANTA platform in action |
+| 📄 **Official Presentation Deck** | **[VTU-QFF-HC-0076.pdf](VTU-QFF-HC-0076.pdf)** | Official 10-slide competition deck submitted for VTU-Qiskit Fall Fest 2026 |
 
 ### Slide Deck Structure (10 Slides)
 
@@ -621,8 +621,8 @@ Certified_Hard_Violations: 0
 - [x] Code pushed to `main` with 100% clean test suite (`62/62` passed)
 - [x] Frontend builds cleanly (`tsc && vite build`) with zero lint or runtime errors
 - [x] Live cloud application deployed on Render: [quanta-web-o99w.onrender.com](https://quanta-web-o99w.onrender.com)
-- [x] Official 10-slide presentation deck added: [VTU-QFF-HC-Quantify.pdf](VTU-QFF-HC-Quantify.pdf)
-- [x] Demo video recorded and linked: [https://youtu.be/QCn1llbXmmE](https://youtu.be/QCn1llbXmmE)
+- [x] Official 10-slide presentation deck added: [VTU-QFF-HC-0076.pdf](VTU-QFF-HC-0076.pdf)
+- [x] Demo video recorded and linked: [https://youtu.be/iZAfUc3S_go](https://youtu.be/iZAfUc3S_go)
 - [x] Physical IBM Quantum hardware execution traces logged in `runs/hardware/`
 - [x] Detailed architectural and mathematical manual written in [QUANTA.md](file:///e:/QUANTA/vtu-hc-quantify/QUANTA.md)
 - [x] Live demonstration script and slide deck outline in [docs/DEMO.md](file:///e:/QUANTA/vtu-hc-quantify/docs/DEMO.md)
