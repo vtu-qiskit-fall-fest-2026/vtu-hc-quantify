@@ -334,21 +334,24 @@ export const ClusterLabPage: React.FC = () => {
     return { nodes, links };
   }, [activeCluster, viewMode, currentDecision]);
 
-  // Run 2D layout simulation with auto-fitting bounding box to prevent clipping
+  // Run 2D layout simulation with dynamic SVG viewBox to prevent node squashing and overlaps
   const [layoutNodes, setLayoutNodes] = useState<any[]>([]);
+  const [viewBox, setViewBox] = useState<string>('0 0 520 320');
+
   useEffect(() => {
     if (!graphData.nodes.length) return;
 
     const simNodes = graphData.nodes.map((d) => ({ ...d }));
     const simLinks = graphData.links.map((d) => ({ ...d }));
 
-    // Break 1D collinearity by distributing nodes evenly in a ring
+    // Break 1D collinearity by distributing nodes initially in a wide ellipse
     const n = simNodes.length;
-    const initialRadius = Math.min(130, Math.max(65, n * 16));
+    const rx = Math.min(180, Math.max(100, n * 14));
+    const ry = Math.min(115, Math.max(70, n * 9));
     simNodes.forEach((node: any, i: number) => {
       const angle = (2 * Math.PI * i) / n;
-      node.x = 260 + initialRadius * Math.cos(angle);
-      node.y = 150 + initialRadius * Math.sin(angle);
+      node.x = 260 + rx * Math.cos(angle);
+      node.y = 160 + ry * Math.sin(angle);
     });
 
     const simulation = d3
@@ -358,17 +361,18 @@ export const ClusterLabPage: React.FC = () => {
         d3
           .forceLink(simLinks)
           .id((d: any) => d.id)
-          .distance(75)
-          .strength(0.7)
+          .distance(90)
+          .strength(0.5)
       )
-      .force('charge', d3.forceManyBody().strength(-240))
-      .force('center', d3.forceCenter(260, 150))
-      .force('collision', d3.forceCollide().radius(36))
+      .force('charge', d3.forceManyBody().strength(-360))
+      .force('center', d3.forceCenter(260, 160))
+      .force('radial', d3.forceRadial(120, 260, 160).strength(0.2))
+      .force('collision', d3.forceCollide().radius(44).strength(1.0))
       .stop();
 
-    for (let i = 0; i < 200; ++i) simulation.tick();
+    for (let i = 0; i < 300; ++i) simulation.tick();
 
-    // Auto-fit bounding box normalization to guarantee zero clipping
+    // Natural bounding box for dynamic SVG viewBox (zero coordinate squashing)
     let minX = Infinity;
     let maxX = -Infinity;
     let minY = Infinity;
@@ -380,24 +384,16 @@ export const ClusterLabPage: React.FC = () => {
       if (node.y > maxY) maxY = node.y;
     });
 
-    const targetW = 520;
-    const targetH = 300;
-    const padX = 58;
-    const padY = 52;
-
-    const spanX = Math.max(maxX - minX, 10);
-    const spanY = Math.max(maxY - minY, 10);
-
-    const scale = Math.min((targetW - padX * 2) / spanX, (targetH - padY * 2) / spanY, 1.25);
-    const midX = (minX + maxX) / 2;
-    const midY = (minY + maxY) / 2;
-
-    simNodes.forEach((node: any) => {
-      node.x = Math.round(targetW / 2 + (node.x - midX) * scale);
-      node.y = Math.round(targetH / 2 + (node.y - midY) * scale);
-    });
+    // Padding ensures nodes and bottom slot pill badges never clip
+    const padX = 55;
+    const padY = 48;
+    const vbX = Math.round(minX - padX);
+    const vbY = Math.round(minY - padY);
+    const vbW = Math.round(Math.max(maxX - minX + padX * 2, 440));
+    const vbH = Math.round(Math.max(maxY - minY + padY * 2, 280));
 
     setLayoutNodes(simNodes);
+    setViewBox(`${vbX} ${vbY} ${vbW} ${vbH}`);
   }, [graphData.nodes.length, activeCluster?.cluster_id]);
 
   // Energy history for Recharts
@@ -569,7 +565,7 @@ export const ClusterLabPage: React.FC = () => {
           <div className="relative w-full h-full flex flex-col items-center justify-center min-h-[300px]">
             {layoutNodes.length > 0 ? (
               <>
-                <svg viewBox="0 0 520 300" className="w-full h-full max-h-[320px] select-none">
+                <svg viewBox={viewBox} preserveAspectRatio="xMidYMid meet" className="w-full h-full min-h-[290px] max-h-[340px] select-none">
                   {/* Drop shadow filter for crisp circular nodes */}
                   <defs>
                     <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -579,24 +575,55 @@ export const ClusterLabPage: React.FC = () => {
 
                   {/* Conflict Edges */}
                   {graphData.links.map((link: any, idx: number) => {
-                    const sourceNode = layoutNodes.find((n) => n.id === link.source) || layoutNodes[0];
-                    const targetNode = layoutNodes.find((n) => n.id === link.target) || layoutNodes[1];
+                    const sourceNode = layoutNodes.find((n) => n.id === link.source);
+                    const targetNode = layoutNodes.find((n) => n.id === link.target);
+                    if (!sourceNode || !targetNode) return null;
+
                     const isConnected =
                       hoveredCourseId !== null &&
                       (link.source === hoveredCourseId || link.target === hoveredCourseId);
 
+                    const midX = (sourceNode.x + targetNode.x) / 2;
+                    const midY = (sourceNode.y + targetNode.y) / 2;
+
                     return (
-                      <line
-                        key={idx}
-                        x1={sourceNode?.x || 0}
-                        y1={sourceNode?.y || 0}
-                        x2={targetNode?.x || 0}
-                        y2={targetNode?.y || 0}
-                        stroke={isConnected ? '#1F5B3C' : 'var(--ink-3)'}
-                        strokeWidth={isConnected ? Math.max(2.5, link.weight / 4) : Math.max(1.5, link.weight / 6)}
-                        strokeOpacity={isConnected ? 0.9 : 0.4}
-                        className="transition-all duration-150"
-                      />
+                      <g key={idx}>
+                        <line
+                          x1={sourceNode.x}
+                          y1={sourceNode.y}
+                          x2={targetNode.x}
+                          y2={targetNode.y}
+                          stroke={isConnected ? '#0F3D24' : '#2D5A43'}
+                          strokeWidth={isConnected ? Math.min(6, Math.max(3, link.weight / 3)) : Math.min(4, Math.max(2, link.weight / 5))}
+                          strokeOpacity={isConnected ? 1.0 : 0.75}
+                          className="transition-all duration-150"
+                        />
+                        {/* Shared student weight badge on edge */}
+                        <g transform={`translate(${midX}, ${midY})`} className="pointer-events-none select-none">
+                          <rect
+                            x={-11}
+                            y={-7}
+                            width={22}
+                            height={14}
+                            rx={4}
+                            fill="#FFFFFF"
+                            stroke={isConnected ? '#0F3D24' : '#86988D'}
+                            strokeWidth={isConnected ? 1.5 : 1}
+                            className="shadow-hairline"
+                          />
+                          <text
+                            x={0}
+                            y={3.5}
+                            textAnchor="middle"
+                            fontSize="9"
+                            fontWeight="700"
+                            fontFamily="var(--font-mono)"
+                            fill={isConnected ? '#0F3D24' : '#1F5B3C'}
+                          >
+                            {link.weight}
+                          </text>
+                        </g>
+                      </g>
                     );
                   })}
 
@@ -621,35 +648,35 @@ export const ClusterLabPage: React.FC = () => {
                         onMouseEnter={() => setHoveredCourseId(node.id)}
                         onMouseLeave={() => setHoveredCourseId(null)}
                       >
-                        {/* Soft outer ring in slot color */}
+                        {/* Soft outer ring in slot color or moved indicator */}
                         <circle
                           cx={node.x}
                           cy={node.y}
                           r={isHovered ? 26 : 23}
                           fill="none"
                           stroke={isMoved ? '#1F5B3C' : fillColor}
-                          strokeWidth={isMoved ? 3.5 : 2.5}
-                          strokeOpacity={isHovered ? 0.5 : 0.28}
+                          strokeWidth={isMoved ? 3 : 2}
+                          strokeOpacity={isHovered ? 0.6 : 0.3}
                           strokeDasharray={isMoved ? '4 2' : undefined}
                           className="transition-all duration-150"
                         />
-                        {/* Node circle */}
+                        {/* Main circular node */}
                         <circle
                           cx={node.x}
                           cy={node.y}
-                          r={19}
+                          r={20}
                           fill={fillColor}
                           stroke="#FFFFFF"
                           strokeWidth="2.5"
                           filter="url(#nodeGlow)"
                           className="transition-all duration-150 shadow-hairline"
                         />
-                        {/* Course ID Short Text (e.g. C17, C12, C7) */}
+                        {/* Course ID Short Text (e.g. C1, C26, C176) */}
                         <text
                           x={node.x}
                           y={node.y + 4}
                           fill="#FFFFFF"
-                          fontSize="10"
+                          fontSize="11"
                           fontWeight="700"
                           fontFamily="var(--font-mono)"
                           textAnchor="middle"
@@ -657,19 +684,31 @@ export const ClusterLabPage: React.FC = () => {
                         >
                           {formatCourseLabel(node.id)}
                         </text>
-                        {/* Slot label below node */}
-                        <text
-                          x={node.x}
-                          y={node.y + 28}
-                          fill="var(--ink-2)"
-                          fontSize="10"
-                          fontWeight="600"
-                          fontFamily="var(--font-mono)"
-                          textAnchor="middle"
-                          className="select-none pointer-events-none"
-                        >
-                          {currentSlot}
-                        </text>
+                        {/* Attached Slot Pill Badge directly below node */}
+                        <g transform={`translate(${node.x}, ${node.y + 26})`} className="pointer-events-none select-none">
+                          <rect
+                            x={-20}
+                            y={-8}
+                            width={40}
+                            height={16}
+                            rx={4}
+                            fill="#FFFFFF"
+                            stroke={isHovered ? 'var(--ink)' : 'var(--line)'}
+                            strokeWidth={isHovered ? 1.5 : 1}
+                            className="shadow-hairline"
+                          />
+                          <text
+                            x={0}
+                            y={3.5}
+                            textAnchor="middle"
+                            fontSize="9.5"
+                            fontWeight="700"
+                            fontFamily="var(--font-mono)"
+                            fill="var(--ink)"
+                          >
+                            {currentSlot}
+                          </text>
+                        </g>
                       </g>
                     );
                   })}
